@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Mongol Poker Demo</title>
+<style>
+:root{--bg:#111315;--panel:#1b1f22;--panel2:#252a2e;--green:#075b37;--green2:#0a7a4a;--text:#f4f4f4;--muted:#aeb6bb;--line:#343b40;--gold:#ffd35a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:linear-gradient(#0b5e3a 0 58px,#171a1d 58px)}
+.top{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:linear-gradient(#09623c,#064d30);font-weight:700;position:sticky;top:0;z-index:5}
+.top .title{font-size:18px}.icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#1b1f22;border:1px solid #445057;color:#fff}.nav{display:flex;background:#1a1e21;border-bottom:1px solid #333;overflow:auto}.nav button{flex:1;min-width:84px;padding:12px 8px;border:0;background:transparent;color:#9ba5aa;font-weight:700}.nav button.active{color:#2fe38c;border-bottom:3px solid #2fe38c}
+.page{display:none;padding-bottom:86px}.page.active{display:block}.toolbar{display:flex;justify-content:space-between;padding:11px 14px;color:#cfd6d9;font-size:13px;background:#171a1d;border-bottom:1px solid var(--line)}
+.card{margin:10px 10px 0;background:linear-gradient(180deg,#2a2f33,#202428);border:1px solid #394148;border-radius:9px;overflow:hidden}.cardhead{display:flex;justify-content:space-between;gap:8px;padding:10px 11px;border-bottom:1px solid #3b4247}.name{font-weight:800;color:#ffe36e}.badge{background:#0a7a4a;padding:7px 9px;border-radius:6px;font-size:12px}.meta{display:flex;gap:14px;flex-wrap:wrap;padding:9px 11px;color:#c3cbcf;font-size:12px}.join{margin:0 11px 11px;width:calc(100% - 22px);padding:11px;border:0;border-radius:7px;background:#12a85f;color:white;font-weight:800}
+.hero{margin:12px 10px;padding:18px;border-radius:10px;background:radial-gradient(circle at top,#1b8f5c,#123b2a 60%,#202529);text-align:center}.hero h2{margin:0 0 8px}.hero p{color:#d5dfda;margin:0 0 14px}.primary{padding:12px 18px;border:0;border-radius:8px;background:#13aa61;color:#fff;font-weight:800}.secondary{padding:12px 18px;border:1px solid #475159;border-radius:8px;background:#252a2e;color:#fff;font-weight:700}
+.cashbox{margin:12px 10px;padding:16px;background:#22272b;border-radius:10px;border:1px solid #3b4348}.cashbox h3{margin:0 0 10px}.balance{font-size:30px;font-weight:900;color:#68f1a7;margin:8px 0}.notice{font-size:12px;color:#aab4b9;line-height:1.5;background:#171a1d;padding:10px;border-radius:8px}.disabled{opacity:.45;pointer-events:none}
+.table-wrap{padding:12px}.table-area{height:430px;border-radius:48%/34%;background:radial-gradient(ellipse at center,#238656 0,#0b6a42 58%,#29423a 59%,#111 66%);position:relative;border:7px solid #34383b;box-shadow:0 10px 30px #000 inset}.seat{position:absolute;width:84px;text-align:center;font-size:11px}.avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 4px;background:#ddd;color:#222;display:grid;place-items:center;font-size:22px;border:2px solid white}.chips{display:inline-block;padding:3px 6px;border-radius:5px;background:#4d244f;color:#fff;font-weight:700}.s1{top:10px;left:50%;transform:translateX(-50%)}.s2{top:90px;right:-6px}.s3{bottom:84px;right:2px}.s4{bottom:4px;left:50%;transform:translateX(-50%)}.s5{bottom:84px;left:2px}.s6{top:90px;left:-6px}.pot{position:absolute;top:47%;left:50%;transform:translate(-50%,-50%);font-weight:900;text-align:center}.cards{font-size:30px;letter-spacing:3px}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.actions button{padding:13px 6px;border:0;border-radius:8px;font-weight:800;color:white}.fold{background:#7c2f32}.check{background:#34648a}.raise{background:#0f9a58}.slider{margin-top:10px;width:100%}
+.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(480px,100%);height:70px;background:#171a1d;border-top:1px solid #333;display:grid;grid-template-columns:repeat(4,1fr);z-index:6}.bottom button{border:0;background:none;color:#aab2b7;font-size:12px}.bottom button.active{color:#35e08c;font-weight:800}.bottom b{display:block;font-size:21px;margin-bottom:4px}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:20}.modal.show{display:flex}.modalbox{width:min(420px,92%);background:#22272b;padding:18px;border-radius:12px;border:1px solid #454d52}.modalbox h3{margin-top:0}.field{margin:10px 0}.field label{display:block;font-size:12px;color:#aeb7bc;margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border-radius:7px;border:1px solid #424a50;background:#171a1d;color:white}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div class="icon">☰</div><div class="title" id="topTitle">Ширээнүүд</div><div class="icon">⌕</div></div>
+  <div class="nav" id="lobbyNav"><button class="active">♠ Cash</button><button>♣ Hold'em</button><button>♦ Omaha</button><button>♥ Tournament</button></div>
+
+  <section class="page active" id="lobby">
+    <div class="toolbar"><span>↕</span><span>8 ШИРЭЭ</span><span>⚙</span></div>
+    <div class="hero"><h2>Mongol Poker</h2><p>Монгол хэлтэй покерын демо интерфэйс</p><button class="primary" onclick="openCreate()">+ Ширээ үүсгэх</button></div>
+    <div id="tableList"></div>
+  </section>
+
+  <section class="page" id="game">
+    <div class="table-wrap">
+      <div class="table-area">
+        <div class="seat s1"><div class="avatar">🧑</div><b>Sosuke</b><br><span class="chips">173,221</span></div>
+        <div class="seat s2"><div class="avatar">🧔</div><b>Zorig</b><br><span class="chips">47,930</span></div>
+        <div class="seat s3"><div class="avatar">👩</div><b>Azura</b><br><span class="chips">74,128</span></div>
+        <div class="seat s4"><div class="avatar">😎</div><b>ТА</b><br><span class="chips">25,000</span></div>
+        <div class="seat s5"><div class="avatar">👨</div><b>Eekee</b><br><span class="chips">7,500</span></div>
+        <div class="seat s6"><div class="avatar">🤖</div><b>BOT</b><br><span class="chips">20,000</span></div>
+        <div class="pot"><div>Pot: 3,500</div><div class="cards">A♠ 10♦ 7♣</div></div>
+      </div>
+      <input class="slider" type="range" min="500" max="10000" value="3500" id="raiseRange" oninput="document.getElementById('raiseBtn').textContent='Raise '+Number(this.value).toLocaleString()">
+      <div class="actions"><button class="fold">Fold</button><button class="check">Check / Call</button><button class="raise" id="raiseBtn">Raise 3,500</button></div>
+    </div>
+  </section>
+
+  <section class="page" id="cash">
+    <div class="cashbox"><h3>Касс</h3><div class="balance">0 ₮</div><div class="notice">Энэ файл нь зөвхөн UI/демо. Жинхэнэ мөнгөний депозит, таталт, бооцооны төлбөр ажиллахгүй.</div><div style="display:grid;gap:10px;margin-top:14px"><button class="primary disabled">Мөнгө нэмэх</button><button class="secondary disabled">Таталт хийх</button></div></div>
+  </section>
+
+  <section class="page" id="profile"><div class="cashbox"><h3>Профайл</h3><p>Нэр: Тоглогч</p><p>Түвшин: Demo</p><p>Хэл: Монгол</p></div></section>
+
+  <div class="bottom">
+    <button class="active" onclick="showPage('lobby',this,'Ширээнүүд')"><b>♠</b>Ширээ</button>
+    <button onclick="showPage('game',this,'Тоглолт')"><b>🎴</b>Тоглох</button>
+    <button onclick="showPage('cash',this,'Касс')"><b>₮</b>Касс</button>
+    <button onclick="showPage('profile',this,'Профайл')"><b>👤</b>Профайл</button>
+  </div>
+</div>
+
+<div class="modal" id="createModal"><div class="modalbox">
+  <h3>Ширээ үүсгэх</h3>
+  <div class="field"><label>Ширээний нэр</label><input id="tname" value="ШАР ШИРЭЭ"></div>
+  <div class="row"><div class="field"><label>Small blind</label><input id="sb" type="number" value="500"></div><div class="field"><label>Big blind</label><input id="bb" type="number" value="1000"></div></div>
+  <div class="row"><div class="field"><label>Суудал</label><select id="seats"><option>6</option><option selected>9</option><option>10</option></select></div><div class="field"><label>Bot</label><select id="bots"><option>0</option><option selected>1</option><option>2</option><option>3</option></select></div></div>
+  <div style="display:flex;gap:10px;margin-top:14px"><button class="secondary" style="flex:1" onclick="closeCreate()">Болих</button><button class="primary" style="flex:1" onclick="createTable()">Үүсгэх</button></div>
+</div></div>
+<script>
+let tables=[
+{name:'ШАР ШИРЭЭ-1 🔥 RAKE 1%',players:'9/10',blinds:'500 / 1,000',buy:'15,000 / 50,000'},
+{name:'ЦЭНХЭР ОМАХА 6 МОД 💧 RAKE 1%',players:'6/6',blinds:'100 / 200',buy:'3,000 / 10,000'},
+{name:'ШӨНИЙН ХОЛДЕМ',players:'5/9',blinds:'250 / 500',buy:'7,500 / 25,000'},
+{name:'MONGOL VIP',players:'4/6',blinds:'1,000 / 2,000',buy:'30,000 / 100,000'}
+];
+function render(){const el=document.getElementById('tableList');el.innerHTML='';tables.forEach((t,i)=>{el.innerHTML+=`<div class="card"><div class="cardhead"><div class="name">${t.name}</div><div class="badge">Орох дүн:<br>${t.buy}</div></div><div class="meta"><span>👥 ${t.players}</span><span>🪙 ${t.blinds}</span><span>Дундаж бооцоо: ${(12000+i*3677).toLocaleString()}</span></div><button class="join" onclick="enterTable()">Ширээнд орох</button></div>`})}
+function showPage(id,btn,title){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('topTitle').textContent=title;document.getElementById('lobbyNav').style.display=id==='lobby'?'flex':'none'}
+function enterTable(){showPage('game',document.querySelectorAll('.bottom button')[1],'Тоглолт')}
+function openCreate(){document.getElementById('createModal').classList.add('show')}
+function closeCreate(){document.getElementById('createModal').classList.remove('show')}
+function createTable(){const name=document.getElementById('tname').value||'ШИНЭ ШИРЭЭ';const sb=document.getElementById('sb').value;const bb=document.getElementById('bb').value;const seats=document.getElementById('seats').value;tables.unshift({name,players:`1/${seats}`,blinds:`${Number(sb).toLocaleString()} / ${Number(bb).toLocaleString()}`,buy:'Demo'});render();closeCreate()}
+render();
+</script>
+</body>
+</html>
