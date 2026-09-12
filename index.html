@@ -1,85 +1,35 @@
 <!doctype html>
 <html lang="mn">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Mongol Poker Demo</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Mongol Poker</title>
 <style>
-:root{--bg:#111315;--panel:#1b1f22;--panel2:#252a2e;--green:#075b37;--green2:#0a7a4a;--text:#f4f4f4;--muted:#aeb6bb;--line:#343b40;--gold:#ffd35a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
-.app{max-width:480px;margin:0 auto;min-height:100vh;background:linear-gradient(#0b5e3a 0 58px,#171a1d 58px)}
-.top{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;background:linear-gradient(#09623c,#064d30);font-weight:700;position:sticky;top:0;z-index:5}
-.top .title{font-size:18px}.icon{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#1b1f22;border:1px solid #445057;color:#fff}.nav{display:flex;background:#1a1e21;border-bottom:1px solid #333;overflow:auto}.nav button{flex:1;min-width:84px;padding:12px 8px;border:0;background:transparent;color:#9ba5aa;font-weight:700}.nav button.active{color:#2fe38c;border-bottom:3px solid #2fe38c}
-.page{display:none;padding-bottom:86px}.page.active{display:block}.toolbar{display:flex;justify-content:space-between;padding:11px 14px;color:#cfd6d9;font-size:13px;background:#171a1d;border-bottom:1px solid var(--line)}
-.card{margin:10px 10px 0;background:linear-gradient(180deg,#2a2f33,#202428);border:1px solid #394148;border-radius:9px;overflow:hidden}.cardhead{display:flex;justify-content:space-between;gap:8px;padding:10px 11px;border-bottom:1px solid #3b4247}.name{font-weight:800;color:#ffe36e}.badge{background:#0a7a4a;padding:7px 9px;border-radius:6px;font-size:12px}.meta{display:flex;gap:14px;flex-wrap:wrap;padding:9px 11px;color:#c3cbcf;font-size:12px}.join{margin:0 11px 11px;width:calc(100% - 22px);padding:11px;border:0;border-radius:7px;background:#12a85f;color:white;font-weight:800}
-.hero{margin:12px 10px;padding:18px;border-radius:10px;background:radial-gradient(circle at top,#1b8f5c,#123b2a 60%,#202529);text-align:center}.hero h2{margin:0 0 8px}.hero p{color:#d5dfda;margin:0 0 14px}.primary{padding:12px 18px;border:0;border-radius:8px;background:#13aa61;color:#fff;font-weight:800}.secondary{padding:12px 18px;border:1px solid #475159;border-radius:8px;background:#252a2e;color:#fff;font-weight:700}
-.cashbox{margin:12px 10px;padding:16px;background:#22272b;border-radius:10px;border:1px solid #3b4348}.cashbox h3{margin:0 0 10px}.balance{font-size:30px;font-weight:900;color:#68f1a7;margin:8px 0}.notice{font-size:12px;color:#aab4b9;line-height:1.5;background:#171a1d;padding:10px;border-radius:8px}.disabled{opacity:.45;pointer-events:none}
-.table-wrap{padding:12px}.table-area{height:430px;border-radius:48%/34%;background:radial-gradient(ellipse at center,#238656 0,#0b6a42 58%,#29423a 59%,#111 66%);position:relative;border:7px solid #34383b;box-shadow:0 10px 30px #000 inset}.seat{position:absolute;width:84px;text-align:center;font-size:11px}.avatar{width:46px;height:46px;border-radius:50%;margin:0 auto 4px;background:#ddd;color:#222;display:grid;place-items:center;font-size:22px;border:2px solid white}.chips{display:inline-block;padding:3px 6px;border-radius:5px;background:#4d244f;color:#fff;font-weight:700}.s1{top:10px;left:50%;transform:translateX(-50%)}.s2{top:90px;right:-6px}.s3{bottom:84px;right:2px}.s4{bottom:4px;left:50%;transform:translateX(-50%)}.s5{bottom:84px;left:2px}.s6{top:90px;left:-6px}.pot{position:absolute;top:47%;left:50%;transform:translate(-50%,-50%);font-weight:900;text-align:center}.cards{font-size:30px;letter-spacing:3px}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.actions button{padding:13px 6px;border:0;border-radius:8px;font-weight:800;color:white}.fold{background:#7c2f32}.check{background:#34648a}.raise{background:#0f9a58}.slider{margin-top:10px;width:100%}
-.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(480px,100%);height:70px;background:#171a1d;border-top:1px solid #333;display:grid;grid-template-columns:repeat(4,1fr);z-index:6}.bottom button{border:0;background:none;color:#aab2b7;font-size:12px}.bottom button.active{color:#35e08c;font-weight:800}.bottom b{display:block;font-size:21px;margin-bottom:4px}.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:20}.modal.show{display:flex}.modalbox{width:min(420px,92%);background:#22272b;padding:18px;border-radius:12px;border:1px solid #454d52}.modalbox h3{margin-top:0}.field{margin:10px 0}.field label{display:block;font-size:12px;color:#aeb7bc;margin-bottom:5px}.field input,.field select{width:100%;padding:11px;border-radius:7px;border:1px solid #424a50;background:#171a1d;color:white}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+:root{--bg:#181b1d;--panel:#222629;--line:#363b3e;--green:#0b6a3f;--green2:#119459;--muted:#9ca2a5;--text:#eceeef;--gold:#e0b84f;--blue:#5c76bb;--red:#a94444}
+*{box-sizing:border-box}html,body{margin:0;background:#0e1011;color:var(--text);font-family:Arial,Helvetica,sans-serif}body{display:flex;justify-content:center}.app{width:100%;max-width:430px;min-height:100vh;background:var(--bg);position:relative;padding-bottom:54px}.top{height:42px;background:linear-gradient(#0b613a,#084a30);display:grid;grid-template-columns:42px 1fr 42px;align-items:center;border-bottom:1px solid #184a37;position:sticky;top:0;z-index:20}.top button{border:0;background:transparent;color:#e6e9e8;font-size:19px}.title{text-align:center;font-size:14px;font-weight:700}.tabs{height:37px;background:#26292c;border-bottom:1px solid #34383a;display:grid;grid-template-columns:repeat(5,1fr);position:sticky;top:42px;z-index:19}.tab{display:flex;align-items:center;justify-content:center;font-size:11px;color:#999fa2;position:relative}.tab.active{color:#17c774}.tab.active:after{content:"";position:absolute;bottom:0;left:26%;right:26%;height:2px;background:#17c774}.screen{display:none}.screen.active{display:block}.sortbar{height:31px;padding:0 9px;display:flex;align-items:center;justify-content:space-between;background:#1c1f21;border-bottom:1px solid #2f3335;color:#b3b8ba;font-size:10px}.sortbar b{font-size:11px;color:#d8dcdd}.row{display:grid;grid-template-columns:5px 1fr 78px;min-height:56px;border-bottom:1px solid #34383b;background:#222629}.stripe{background:#d0a029}.stripe.blue{background:#5871b4}.stripe.green{background:#218f55}.main{padding:6px 7px 5px}.name{font-size:10px;line-height:1.22;font-weight:800;color:#e3bb4f}.name.blue{color:#9cb2f1}.name.green{color:#6fd399}.mini{font-size:8px;color:#aeb3b6;margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}.join{padding:6px 5px}.join button{width:100%;border:0;border-radius:3px;background:#0d9151;color:#fff;padding:6px 3px;font-size:9px;line-height:1.2;font-weight:700}.home{min-height:calc(100vh - 42px);background:linear-gradient(180deg,#06251b 0,#111415 38%);padding:8px 10px 70px}.userline{height:34px;display:flex;align-items:center;gap:7px;font-size:10px}.avatar{width:27px;height:27px;border:1px solid #45524b;border-radius:3px;background:#17241d;display:flex;align-items:center;justify-content:center}.bal{margin-left:auto;color:#e0bd67;font-size:11px}.banner{height:92px;margin:7px 0 18px;border:1px solid #2f4f41;background:linear-gradient(135deg,#0a4832,#4bb7a1 58%,#d5eee8);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;text-shadow:0 1px 4px #000}.tiles{display:grid;grid-template-columns:1fr 1fr;gap:18px 10px}.tile{min-height:82px;text-align:center;font-size:10px;color:#ddd}.tile .ico{font-size:40px;display:block;margin-bottom:5px}.tile.wide{grid-column:1/3}.cashTabs{height:38px;background:#26292c;border-bottom:1px solid #34383a;display:grid;grid-template-columns:repeat(5,1fr)}.cashTabs div{display:flex;align-items:center;justify-content:center;color:#9ba1a3;font-size:10px}.cashTabs .active{color:#18c574;border-bottom:2px solid #18c574}.cashbody{min-height:430px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8c9295;font-size:10px;gap:10px}.cashIcon{font-size:34px}.manual{margin:0 12px 14px;border:1px solid #3d4245;border-radius:4px;background:#202426;padding:12px;display:flex;align-items:center;gap:10px}.manual .bank{width:34px;height:34px;border-radius:3px;background:#0b7444;display:flex;align-items:center;justify-content:center}.manual b{font-size:11px}.manual small{display:block;color:#92989a;margin-top:3px}.tour{display:grid;grid-template-columns:48px 1fr 75px;min-height:70px;border-bottom:1px solid #34383a;background:#222629}.clock{width:33px;height:33px;border-radius:50%;border:2px solid #1ac777;margin:10px 7px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#1ac777}.tourmain{padding:7px 3px}.tourtitle{font-size:9px;color:#e7c354;font-weight:800}.tourmeta{font-size:8px;color:#aeb3b5;margin-top:4px}.touract{padding:12px 5px}.touract button{width:100%;border:0;border-radius:3px;padding:7px 2px;font-size:9px;background:#9a7724;color:#fff}.touract .green{background:#0d9151}.touract .blue{background:#2c78aa}.empty{height:430px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#8d9396;font-size:10px}.empty .cup{font-size:38px}.menu{padding:8px 12px}.menuitem{padding:12px 5px;border-bottom:1px solid #34383a;font-size:11px;color:#d1d4d5}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:54px;background:#101213;border-top:1px solid #292d2f;display:grid;grid-template-columns:repeat(5,1fr);z-index:30}.bottom button{border:0;background:transparent;color:#7f8588;font-size:8px;padding:4px 0}.bottom .ni{display:block;font-size:17px;margin-bottom:2px}.bottom button.active{color:#15c56f}.form{padding:12px}.field{margin-bottom:8px}.field label{display:block;font-size:9px;color:#969c9f;margin-bottom:4px}.field input,.field select{width:100%;height:36px;background:#171a1c;border:1px solid #3d4245;color:#fff;padding:0 8px}.submit{width:100%;height:38px;border:0;background:#0d9151;color:#fff;font-weight:700}.hidden{display:none!important}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="top"><div class="icon">☰</div><div class="title" id="topTitle">Ширээнүүд</div><div class="icon">⌕</div></div>
-  <div class="nav" id="lobbyNav"><button class="active">♠ Cash</button><button>♣ Hold'em</button><button>♦ Omaha</button><button>♥ Tournament</button></div>
-
-  <section class="page active" id="lobby">
-    <div class="toolbar"><span>↕</span><span>8 ШИРЭЭ</span><span>⚙</span></div>
-    <div class="hero"><h2>Mongol Poker</h2><p>Монгол хэлтэй покерын демо интерфэйс</p><button class="primary" onclick="openCreate()">+ Ширээ үүсгэх</button></div>
-    <div id="tableList"></div>
-  </section>
-
-  <section class="page" id="game">
-    <div class="table-wrap">
-      <div class="table-area">
-        <div class="seat s1"><div class="avatar">🧑</div><b>Sosuke</b><br><span class="chips">173,221</span></div>
-        <div class="seat s2"><div class="avatar">🧔</div><b>Zorig</b><br><span class="chips">47,930</span></div>
-        <div class="seat s3"><div class="avatar">👩</div><b>Azura</b><br><span class="chips">74,128</span></div>
-        <div class="seat s4"><div class="avatar">😎</div><b>ТА</b><br><span class="chips">25,000</span></div>
-        <div class="seat s5"><div class="avatar">👨</div><b>Eekee</b><br><span class="chips">7,500</span></div>
-        <div class="seat s6"><div class="avatar">🤖</div><b>BOT</b><br><span class="chips">20,000</span></div>
-        <div class="pot"><div>Pot: 3,500</div><div class="cards">A♠ 10♦ 7♣</div></div>
-      </div>
-      <input class="slider" type="range" min="500" max="10000" value="3500" id="raiseRange" oninput="document.getElementById('raiseBtn').textContent='Raise '+Number(this.value).toLocaleString()">
-      <div class="actions"><button class="fold">Fold</button><button class="check">Check / Call</button><button class="raise" id="raiseBtn">Raise 3,500</button></div>
-    </div>
-  </section>
-
-  <section class="page" id="cash">
-    <div class="cashbox"><h3>Касс</h3><div class="balance">0 ₮</div><div class="notice">Энэ файл нь зөвхөн UI/демо. Жинхэнэ мөнгөний депозит, таталт, бооцооны төлбөр ажиллахгүй.</div><div style="display:grid;gap:10px;margin-top:14px"><button class="primary disabled">Мөнгө нэмэх</button><button class="secondary disabled">Таталт хийх</button></div></div>
-  </section>
-
-  <section class="page" id="profile"><div class="cashbox"><h3>Профайл</h3><p>Нэр: Тоглогч</p><p>Түвшин: Demo</p><p>Хэл: Монгол</p></div></section>
-
-  <div class="bottom">
-    <button class="active" onclick="showPage('lobby',this,'Ширээнүүд')"><b>♠</b>Ширээ</button>
-    <button onclick="showPage('game',this,'Тоглолт')"><b>🎴</b>Тоглох</button>
-    <button onclick="showPage('cash',this,'Касс')"><b>₮</b>Касс</button>
-    <button onclick="showPage('profile',this,'Профайл')"><b>👤</b>Профайл</button>
-  </div>
+  <header class="top"><button id="back">‹</button><div class="title" id="title">Ширээнүүд</div><button>⌕</button></header>
+  <div class="tabs" id="lobbyTabs"><div>◉</div><div>♨</div><div>♙</div><div class="active">💵 Тоглолт</div><div>◴</div></div>
+  <section id="tables" class="screen active"><div class="sortbar"><span>↕</span><b>8 ШИРЭЭ</b><span>⚙</span></div><div id="tableList"></div></section>
+  <section id="home" class="screen"><div class="home"><div class="userline"><div class="avatar">🃏</div><span>mijee0912</span><span class="bal">219,527.76</span></div><div class="banner">АДМИНТАЙ ХОЛБОГДОХ</div><div class="tiles"><div class="tile" onclick="show('tables')"><span class="ico">🃏</span>Ширээнүүд</div><div class="tile" onclick="show('tour')"><span class="ico">🏆</span>Тэмцээнүүд</div><div class="tile wide" onclick="show('sitgo')"><span class="ico">🏆</span>Sit & Go</div></div></div></section>
+  <section id="cash" class="screen"><div class="cashTabs"><div>◉</div><div>♨</div><div>♙</div><div class="active">💵 Таталт</div><div>◴</div></div><div id="cashMain"><div class="manual" onclick="manual()"><div class="bank">🏦</div><div><b>Гараар мөнгө татах</b><small>Банкны дансаар татах хүсэлт</small></div></div><div class="cashbody"><div class="cashIcon">♛</div><div>Татан авах хүсэлт байхгүй</div></div></div><div id="cashForm" class="form hidden"><div class="field"><label>Банк</label><select><option>Хаан банк</option><option>Голомт банк</option><option>Хас банк</option></select></div><div class="field"><label>Дансны дугаар</label><input placeholder="Дансны дугаар"></div><div class="field"><label>Данс эзэмшигч</label><input placeholder="Нэр"></div><div class="field"><label>Дүн</label><input type="number" placeholder="0"></div><button class="submit">Хүсэлт илгээх</button></div></section>
+  <section id="tour" class="screen"><div class="sortbar"><span>↕</span><b>6 ТЭМЦЭЭНҮҮД</b><span>⚙</span></div><div id="tourList"></div></section>
+  <section id="sitgo" class="screen"><div class="sortbar"><span>↕</span><b>0 ТЭМЦЭЭНҮҮД</b><span>⚙</span></div><div class="empty"><div class="cup">🏆</div><div>Тэмцээн байхгүй</div></div></section>
+  <section id="messages" class="screen"><div class="empty"><div class="cup">✉</div><div>Мессеж байхгүй</div></div></section>
+  <section id="stats" class="screen"><div class="empty"><div class="cup">▥</div><div>Статистик</div></div></section>
+  <section id="menu" class="screen"><div class="menu"><div class="menuitem">👤 Профайл</div><div class="menuitem">⚙ Тохиргоо</div><div class="menuitem">❔ Тусламж</div><div class="menuitem">↪ Гарах</div></div></section>
+  <nav class="bottom"><button data-s="home"><span class="ni">⌂</span>Нүүр хуудас</button><button data-s="cash"><span class="ni">▣</span>Касс</button><button data-s="messages"><span class="ni">◎</span>Мессеж</button><button data-s="stats"><span class="ni">▥</span>Статистик</button><button data-s="menu"><span class="ni">☰</span>Цэс</button></nav>
 </div>
-
-<div class="modal" id="createModal"><div class="modalbox">
-  <h3>Ширээ үүсгэх</h3>
-  <div class="field"><label>Ширээний нэр</label><input id="tname" value="ШАР ШИРЭЭ"></div>
-  <div class="row"><div class="field"><label>Small blind</label><input id="sb" type="number" value="500"></div><div class="field"><label>Big blind</label><input id="bb" type="number" value="1000"></div></div>
-  <div class="row"><div class="field"><label>Суудал</label><select id="seats"><option>6</option><option selected>9</option><option>10</option></select></div><div class="field"><label>Bot</label><select id="bots"><option>0</option><option selected>1</option><option>2</option><option>3</option></select></div></div>
-  <div style="display:flex;gap:10px;margin-top:14px"><button class="secondary" style="flex:1" onclick="closeCreate()">Болих</button><button class="primary" style="flex:1" onclick="createTable()">Үүсгэх</button></div>
-</div></div>
 <script>
-let tables=[
-{name:'ШАР ШИРЭЭ-1 🔥 RAKE 1%',players:'9/10',blinds:'500 / 1,000',buy:'15,000 / 50,000'},
-{name:'ЦЭНХЭР ОМАХА 6 МОД 💧 RAKE 1%',players:'6/6',blinds:'100 / 200',buy:'3,000 / 10,000'},
-{name:'ШӨНИЙН ХОЛДЕМ',players:'5/9',blinds:'250 / 500',buy:'7,500 / 25,000'},
-{name:'MONGOL VIP',players:'4/6',blinds:'1,000 / 2,000',buy:'30,000 / 100,000'}
-];
-function render(){const el=document.getElementById('tableList');el.innerHTML='';tables.forEach((t,i)=>{el.innerHTML+=`<div class="card"><div class="cardhead"><div class="name">${t.name}</div><div class="badge">Орох дүн:<br>${t.buy}</div></div><div class="meta"><span>👥 ${t.players}</span><span>🪙 ${t.blinds}</span><span>Дундаж бооцоо: ${(12000+i*3677).toLocaleString()}</span></div><button class="join" onclick="enterTable()">Ширээнд орох</button></div>`})}
-function showPage(id,btn,title){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('topTitle').textContent=title;document.getElementById('lobbyNav').style.display=id==='lobby'?'flex':'none'}
-function enterTable(){showPage('game',document.querySelectorAll('.bottom button')[1],'Тоглолт')}
-function openCreate(){document.getElementById('createModal').classList.add('show')}
-function closeCreate(){document.getElementById('createModal').classList.remove('show')}
-function createTable(){const name=document.getElementById('tname').value||'ШИНЭ ШИРЭЭ';const sb=document.getElementById('sb').value;const bb=document.getElementById('bb').value;const seats=document.getElementById('seats').value;tables.unshift({name,players:`1/${seats}`,blinds:`${Number(sb).toLocaleString()} / ${Number(bb).toLocaleString()}`,buy:'Demo'});render();closeCreate()}
-render();
+const tables=[
+['YAP OMAXA VIP-1','RAKE 1%','150,000 / 500,000','2/10','5,000/10,000','gold'],['ЦЭНХЭР ШИРЭЭ-2','RAKE 1%','7,500 / 25,000','2/10','500/1,000','blue'],['УЛААН ШИРЭЭ-3','RAKE 1%','5,000 / 15,000','3/10','500/1,000','gold'],['ORANGE ШИРЭЭ-4','RAKE 1%','5,000 / 10,000','5/10','1,000/2,000','blue'],['ШАР ШИРЭЭ-1','RAKE 1%','15,000 / 50,000','9/10','500/1,000','gold'],['ЦЭНХЭР ОМАХА 6 МОД','RAKE 1%','3,000 / 10,000','6/6','100/200','blue'],['НОГООН ШИРЭЭ-4','RAKE 1%','75,000 / 250,000','2/10','25,000/50,000','green'],['ТОМ БОНУСТАЙ VIP-2','RAKE 1%','60,000 / 200,000','8/10','20,000/40,000','green']];
+const tours=[['SUPERFREEROLL-100K','FREEROLL - 100K','Үнэгүй','green'],['УЛААН 500,000₮ BUY IN','100,000₮','1,000₮','green'],['FREEROLL - 100K','100,000₮','Тоглолт эхэлсэн','blue'],['ШАР 1,500,000₮ BUY IN','50,000₮','✓',''],['FREEROLL - 100K','100,000₮','✓',''],['УЛААН 500,000₮ BUY IN','50,000₮','✓','']];
+function render(){tableList.innerHTML=tables.map((t,i)=>`<div class="row"><div class="stripe ${t[5]==='blue'?'blue':t[5]==='green'?'green':''}"></div><div class="main"><div class="name ${t[5]==='blue'?'blue':t[5]==='green'?'green':''}">${t[0]} 🔥 ${t[1]} ▣♧▧</div><div class="mini"><span>Дундаж бооцоо: ${(11758+i*8312).toLocaleString()}</span><span>👥 ${t[3]}</span><span>🪙 ${t[4]}</span></div></div><div class="join"><button>Орох дүн:<br>${t[2]}</button></div></div>`).join('');tourList.innerHTML=tours.map((t,i)=>`<div class="tour"><div class="clock">${i<3?'11:37':'✓'}</div><div class="tourmain"><div class="tourtitle">🏆 ${t[0]}</div><div class="tourmeta">💰 ${t[1]}<br>👥 ${i+12}</div></div><div class="touract"><button class="${t[3]}">${t[2]}</button></div></div>`).join('')}
+const titles={home:'Нүүр',tables:'Ширээнүүд',cash:'Касс',tour:'Тэмцээнүүд',sitgo:'Sit & Go',messages:'Мессеж',stats:'Статистик',menu:'Цэс'};
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');title.textContent=titles[id]||'';lobbyTabs.style.display=id==='tables'?'grid':'none';document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.s===id));scrollTo(0,0)}
+document.querySelectorAll('.bottom button').forEach(b=>b.onclick=()=>show(b.dataset.s));back.onclick=()=>show('home');function manual(){cashMain.classList.add('hidden');cashForm.classList.remove('hidden')}render();show('home');
 </script>
-</body>
-</html>
+</body></html>
