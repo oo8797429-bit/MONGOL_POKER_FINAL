@@ -506,7 +506,20 @@ load();renderTours();show('auth');
       let blind=renderBlindTag(i),bet=liveSeatBets[i]||0,active=i===liveTurn&&!finished;
       return `<div class="seat s${i}${active?' active':''}${i===liveWinner?' winner':''}${folded[i]?' folded':''}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}<div class="nm">🇲🇳 ${p.name}</div><div class="stack">${fmt(p.chips)}</div>${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
     }).join('');
-    $('mycards').innerHTML=spectator?'':(holes[0]||[]).map(card).join('');
+    /* Keep the player's hole cards mounted for the whole hand.
+       Replacing innerHTML on every CALL/CHECK/FOLD restarted the deal animation
+       and made the cards briefly disappear. Only redraw on a new hand or spectate. */
+    const myCardsEl=$('mycards');
+    if(spectator){
+      if(myCardsEl.innerHTML) myCardsEl.innerHTML='';
+      myCardsEl.dataset.hand='spectator';
+    }else{
+      const handKey=String(handNo);
+      if(myCardsEl.dataset.hand!==handKey){
+        myCardsEl.innerHTML=(holes[0]||[]).map(card).join('');
+        myCardsEl.dataset.hand=handKey;
+      }
+    }
     const userCanAct=!finished&&!spectator&&!liveRoundBusy&&liveTurn===0&&!folded[0];
     document.querySelectorAll('#baseActions button').forEach(b=>b.disabled=!userCanAct);
     $('checkBtn').disabled=!userCanAct||toCall>0;
