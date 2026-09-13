@@ -230,7 +230,7 @@ function renderGame(){$('pot').textContent='Pot: '+fmt(potAmt);$('board').innerH
 function bots(amount=0){for(let i=1;i<players.length;i++){if(folded[i])continue;if(Math.random()<.12)folded[i]=true;else pay(i,amount)}}
 function fold(){if(!adminAllows('gameplay'))return;if(finished||spectator)return;folded[0]=true;let alive=[1,2,3,4,5].filter(i=>!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;save();setStatus('Та Fold хийлээ • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();setTimeout(newHand,1200)}
 function checkCall(){if(!adminAllows('gameplay'))return;if(finished||spectator)return;pay(0,toCall);bots(street===0?currentTable.bb:0);toCall=0;setTimeout(nextStreet,300)}
-function nextStreet(){if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop — Таны ээлж')}else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn — Таны ээлж')}else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River — Таны ээлж')}else{return showdown()}renderGame()}
+function nextStreet(){if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop')}else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn')}else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River — Таны ээлж')}else{return showdown()}renderGame()}
 function showRaise(){if(!adminAllows('gameplay'))return;if(finished||spectator)return;$('baseActions').classList.add('hidden');$('raisePanel').classList.remove('hidden');let min=Math.max(currentTable.bb*2,toCall+currentTable.bb),max=Math.max(min,players[0].chips);$('raiseSlider').min=min;$('raiseSlider').max=max;$('raiseSlider').step=currentTable.bb;$('raiseSlider').value=Math.min(max,Math.max(min,currentTable.bb*3));updateRaise()}
 function updateRaise(){$('raiseAmount').textContent=fmt(+$('raiseSlider').value)}
 function preset(x){let min=+$('raiseSlider').min,max=+$('raiseSlider').max,base=Math.max(currentTable.bb*2,Math.round((potAmt*x)/currentTable.bb)*currentTable.bb);$('raiseSlider').value=Math.max(min,Math.min(max,base));updateRaise()}
@@ -353,11 +353,86 @@ load();renderTours();show('auth');
   #game .tableFootInfo{bottom:56px}
 }
 @media(max-height:740px) and (max-width:430px){#game .pokerTable{height:48dvh}#game .seat .pic{width:36px;height:36px;font-size:18px}#game .seat{width:64px}.game .seat .nm{font-size:7px}}
+
+/* 20-second turn timer + safer 8-seat spacing */
+#game .turnClock{
+  position:absolute;left:2px;top:-5px;z-index:30;
+  width:24px;height:24px;border-radius:50%;
+  display:grid;place-items:center;
+  background:#111d;color:#ffe36a;border:2px solid #f2c744;
+  font:900 10px Arial;box-shadow:0 0 9px #f4c93f99,0 2px 5px #000a;
+}
+#game .seat.active .turnClock{animation:clockPulse .8s ease-in-out infinite alternate}
+@keyframes clockPulse{to{transform:scale(1.08);box-shadow:0 0 15px #ffe56dcc,0 2px 5px #000a}}
+#game .baseActions button:disabled{filter:grayscale(.35);opacity:.42!important;cursor:not-allowed}
+#game .s2{left:1.5%!important}
+#game .s6{right:1.5%!important}
+@media(max-width:430px){
+  #game .seat{width:64px!important}
+  #game .seat .pic{width:38px!important;height:38px!important;font-size:19px!important}
+  #game .seat .nm{max-width:64px!important;font-size:7px!important;padding:2px 4px!important}
+  #game .seat .stack{font-size:7px!important;padding:2px 5px!important}
+  #game .s0{bottom:5px!important}
+  #game .s1{left:4.5%!important;bottom:66px!important}
+  #game .s2{left:1%!important;top:49%!important}
+  #game .s3{left:6%!important;top:36px!important}
+  #game .s4{top:2px!important}
+  #game .s5{right:6%!important;top:36px!important}
+  #game .s6{right:1%!important;top:49%!important}
+  #game .s7{right:4.5%!important;bottom:66px!important}
+}
+
 </style>
 <script id="livePokerTableLogic">
 (function(){
   let liveDealer=0, liveSB=-1, liveBB=-1, liveTurn=0, liveWinner=-1, liveSeatBets=[], liveRoundBusy=false;
+  const TURN_SECONDS=20;
+  let turnLeft=TURN_SECONDS, userTurnInterval=null, userTurnTimeout=null;
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  function stopUserTurnClock(){
+    if(userTurnInterval){clearInterval(userTurnInterval);userTurnInterval=null}
+    if(userTurnTimeout){clearTimeout(userTurnTimeout);userTurnTimeout=null}
+  }
+  function paintTurnClock(){
+    const el=document.querySelector('#game .seat.active .turnClock');
+    if(el)el.textContent=Math.max(0,turnLeft);
+  }
+  function startUserTurn(){
+    stopUserTurnClock();
+    if(!tableSession||finished||spectator||liveRoundBusy||folded[0])return;
+    liveTurn=0;turnLeft=TURN_SECONDS;
+    setStatus('Таны ээлж • '+TURN_SECONDS+' сек');
+    renderGame();paintTurnClock();
+    userTurnInterval=setInterval(()=>{
+      turnLeft--;paintTurnClock();
+      if(turnLeft<=0){
+        stopUserTurnClock();
+        if(!finished&&!spectator&&!liveRoundBusy&&liveTurn===0){
+          setStatus('20 секунд дууслаа — автоматаар Fold');
+          setTimeout(()=>fold(true),180);
+        }
+      }
+    },1000);
+  }
+  function waitBotTurn(i){
+    liveTurn=i;turnLeft=TURN_SECONDS;
+    setStatus(players[i].name+'-ийн ээлж • '+TURN_SECONDS+' сек');
+    renderGame();paintTurnClock();
+    return new Promise(resolve=>{
+      let done=false,left=TURN_SECONDS;
+      const willTimeout=Math.random()<.04;
+      const actDelay=willTimeout?TURN_SECONDS*1000+200:(2600+Math.floor(Math.random()*4200));
+      let actionTimer;
+      const finish=(timedOut)=>{
+        if(done)return;done=true;clearInterval(iv);clearTimeout(actionTimer);resolve(timedOut);
+      };
+      const iv=setInterval(()=>{
+        left--;turnLeft=left;paintTurnClock();
+        if(left<=0)finish(true);
+      },1000);
+      actionTimer=setTimeout(()=>finish(false),actDelay);
+    });
+  }
   function seatCount(){return Math.max(1,players.length)}
   function ensureChrome(){
     const t=document.querySelector('#game .pokerTable'); if(!t)return;
@@ -391,8 +466,9 @@ load();renderTours();show('auth');
     liveDealer=handNo%seatCount();liveSB=(liveDealer+1)%seatCount();liveBB=(liveDealer+2)%seatCount();liveTurn=0;
     const sbPaid=players[liveSB].chips>0?pay(liveSB,currentTable.sb):0,bbPaid=players[liveBB].chips>0?pay(liveBB,currentTable.bb):0;
     toCall=(liveSB===0?Math.max(0,currentTable.bb-currentTable.sb):liveBB===0?0:currentTable.bb);
-    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus(toCall>0?'Таны ээлж — Call, Raise эсвэл Fold':'Таны ээлж — Check эсвэл Raise');renderGame();
+    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Шинэ гар эхэллээ');renderGame();
     setTimeout(()=>{animateChip(liveSB,sbPaid);animateChip(liveBB,bbPaid)},180);
+    setTimeout(startUserTurn,650);
   };
 
   pay=function(i,n){
@@ -403,39 +479,72 @@ load();renderTours();show('auth');
   renderGame=function(){
     ensureChrome();
     $('pot').textContent='Pot: '+fmt(potAmt);$('board').innerHTML=[0,1,2,3,4].map(i=>card(boardCards[i]||null)).join('');
-    $('seats').innerHTML=players.map((p,i)=>{let blind=renderBlindTag(i),bet=liveSeatBets[i]||0;return `<div class="seat s${i}${i===liveTurn&&!finished?' active':''}${i===liveWinner?' winner':''}${folded[i]?' folded':''}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${cardsBack(i)}<div class="nm">🇲🇳 ${p.name}</div><div class="stack">${fmt(p.chips)}</div>${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`}).join('');
+    $('seats').innerHTML=players.map((p,i)=>{
+      let blind=renderBlindTag(i),bet=liveSeatBets[i]||0,active=i===liveTurn&&!finished;
+      return `<div class="seat s${i}${active?' active':''}${i===liveWinner?' winner':''}${folded[i]?' folded':''}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}<div class="nm">🇲🇳 ${p.name}</div><div class="stack">${fmt(p.chips)}</div>${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
+    }).join('');
     $('mycards').innerHTML=spectator?'':(holes[0]||[]).map(card).join('');
-    $('checkBtn').disabled=toCall>0||liveRoundBusy;$('checkBtn').style.opacity=toCall>0?'.35':'1';$('callBtn').textContent=toCall>0?'CALL '+fmt(Math.min(toCall,players[0]?.chips||0)):'CHECK';$('callBtn').style.opacity=toCall>0?'1':'.5';
+    const userCanAct=!finished&&!spectator&&!liveRoundBusy&&liveTurn===0&&!folded[0];
+    document.querySelectorAll('#baseActions button').forEach(b=>b.disabled=!userCanAct);
+    $('checkBtn').disabled=!userCanAct||toCall>0;
+    $('checkBtn').style.opacity=userCanAct&&toCall===0?'1':'.35';
+    $('callBtn').disabled=!userCanAct;
+    $('callBtn').textContent=toCall>0?'CALL '+fmt(Math.min(toCall,players[0]?.chips||0)):'CHECK';
+    $('callBtn').style.opacity=userCanAct?'1':'.42';
     if($('handCode'))$('handCode').textContent='#MP'+String(100000+handNo).slice(-6);
     if($('tableFootInfo'))$('tableFootInfo').innerHTML=`<b>${currentTable?.name||''}</b> • RAKE 1%<br>${currentTable?.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(currentTable?.sb||0)}/${fmt(currentTable?.bb||0)}`;
   };
 
   async function botRound(amount=0){
-    liveRoundBusy=true;for(let i=1;i<players.length;i++){
-      if(folded[i]||players[i].chips<=0)continue;liveTurn=i;renderGame();await wait(150+Math.floor(Math.random()*110));
-      if(Math.random()<.10){folded[i]=true;setStatus(players[i].name+' Fold')}else{let paid=pay(i,amount);setStatus(players[i].name+(paid?' • '+fmt(paid):' • Check'))}
-      renderGame();await wait(90);
-    }liveTurn=0;liveRoundBusy=false;renderGame();
+    stopUserTurnClock();
+    liveRoundBusy=true;
+    for(let i=1;i<players.length;i++){
+      if(!tableSession||finished)break;
+      if(folded[i]||players[i].chips<=0)continue;
+      const timedOut=await waitBotTurn(i);
+      if(timedOut){
+        folded[i]=true;
+        setStatus(players[i].name+' • 20 сек дууслаа — Fold');
+        renderGame();
+        await wait(500);
+        continue;
+      }
+      if(Math.random()<.10){
+        folded[i]=true;setStatus(players[i].name+' • Fold');
+      }else{
+        let paid=pay(i,amount);setStatus(players[i].name+(paid?' • '+fmt(paid):' • Check'));
+      }
+      renderGame();
+      await wait(650);
+    }
+    liveTurn=0;liveRoundBusy=false;turnLeft=TURN_SECONDS;renderGame();
   }
   bots=function(amount=0){for(let i=1;i<players.length;i++){if(folded[i])continue;if(Math.random()<.10)folded[i]=true;else pay(i,amount)}liveTurn=0;renderGame()};
 
-  checkCall=async function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy)return;let paid=pay(0,toCall);setStatus(paid?'Та '+fmt(paid)+' Call хийлээ':'Та Check хийлээ');renderGame();await botRound(street===0?currentTable.bb:0);toCall=0;setTimeout(nextStreet,120)};
-  confirmRaise=async function(){if(!adminAllows('gameplay'))return;if(liveRoundBusy)return;let a=+$('raiseSlider').value;pay(0,a);$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Та '+fmt(a)+' Raise хийлээ');renderGame();await botRound(Math.max(currentTable.bb,Math.floor(a*.6)));toCall=0;setTimeout(nextStreet,120)};
+  checkCall=async function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();let paid=pay(0,toCall);setStatus(paid?'Та '+fmt(paid)+' Call хийлээ':'Та Check хийлээ');renderGame();await botRound(street===0?currentTable.bb:0);toCall=0;setTimeout(nextStreet,450)};
+  confirmRaise=async function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();let a=+$('raiseSlider').value;pay(0,a);$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Та '+fmt(a)+' Raise хийлээ');renderGame();await botRound(Math.max(currentTable.bb,Math.floor(a*.6)));toCall=0;setTimeout(nextStreet,450)};
 
   nextStreet=function(){
     liveSeatBets=players.map(()=>0);liveTurn=0;
     if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop — Таны ээлж')}
     else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn — Таны ээлж')}
-    else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River — Таны ээлж')}
-    else{return showdown()}renderGame();
+    else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River')}
+    else{return showdown()}
+    renderGame();setTimeout(startUserTurn,500);
   };
 
-  fold=function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy)return;folded[0]=true;let alive=players.map((_,i)=>i).filter(i=>i!==0&&!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;save();setStatus('Та Fold хийлээ • '+players[w].name+' яллаа • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();setTimeout(newHand,1500)};
+  fold=function(auto=false){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();folded[0]=true;let alive=players.map((_,i)=>i).filter(i=>i!==0&&!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;save();setStatus((auto?'20 секунд дууслаа — Auto Fold • ':'Та Fold хийлээ • ')+players[w].name+' яллаа • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();setTimeout(newHand,1500)};
 
   showdown=function(){
+    stopUserTurnClock();
     while(boardCards.length<5)boardCards.push(deck.pop());let alive=players.map((_,i)=>i).filter(i=>!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||0,p=takeRakeFromPot();players[w].chips+=p.net;
     if(w===0&&currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.wins++;}potAmt=0;finished=true;liveWinner=w;setStatus(players[w].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();syncUser();setTimeout(newHand,1800)
   };
+  const _leaveTable20=leaveTable;
+  leaveTable=function(){stopUserTurnClock();return _leaveTable20()};
+  const _spectate20=spectate;
+  spectate=function(){stopUserTurnClock();return _spectate20()};
+
 })();
 </script>
 
