@@ -231,4 +231,17 @@ async function shareApp(){if(!adminAllows('share'))return;closeSide();let data={
 
 load();renderTours();show('auth');
 </script>
+
+<style id="forceMpBannerFix">
+/* Force the center home banner to always show the animated MP logo */
+#homeBanner{font-size:0!important;color:transparent!important;text-shadow:none!important;position:relative!important;overflow:hidden!important}
+#homeBanner>*{display:none!important}
+#homeBanner::before{content:'MP';position:absolute;left:50%;top:50%;width:118px;height:118px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,#fff4b0 0,#f3c349 18%,#b87913 48%,#3a2407 72%);border:4px solid #f0c04a;box-shadow:0 0 0 3px #5a3a0a,0 0 28px #ffd86a99,0 8px 24px #0008;color:#fff!important;font:900 34px Arial,sans-serif!important;letter-spacing:-2px;text-shadow:0 3px 3px #000!important;animation:mpFloat 2.4s ease-in-out infinite,mpGlow 1.5s ease-in-out infinite alternate;z-index:2}
+#homeBanner::after{content:'MONGOL\A POKER';white-space:pre;position:absolute;left:50%;top:calc(50% + 24px);transform:translateX(-50%);font:900 9px/9px Arial,sans-serif!important;letter-spacing:1px;color:#ffe99e!important;text-align:center;text-shadow:none!important;z-index:3;animation:mpFloatText 2.4s ease-in-out infinite}
+@keyframes mpFloatText{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
+</style>
+<script>
+(function(){function forceMp(){var b=document.getElementById('homeBanner');if(!b)return;b.textContent='';b.removeAttribute('data-banner-text');}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',forceMp);else forceMp();setInterval(forceMp,1000);})();
+</script>
+
 </body></html>
