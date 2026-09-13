@@ -382,6 +382,29 @@ load();renderTours();show('auth');
   #game .s7{right:4.5%!important;bottom:66px!important}
 }
 
+
+/* 8-seat anti-overlap spacing: keep side players clearly separated */
+@media(max-width:430px){
+  #game .seat{width:58px!important}
+  #game .seat .pic{width:36px!important;height:36px!important;font-size:18px!important}
+  #game .seat .nm{max-width:58px!important;font-size:6.8px!important;padding:1px 3px!important}
+  #game .seat .stack{font-size:6.8px!important;padding:1px 4px!important}
+
+  #game .s0{left:50%!important;bottom:3px!important;transform:translateX(-50%)!important}
+  #game .s1{left:2%!important;bottom:22px!important;top:auto!important;transform:none!important}
+  #game .s2{left:0!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
+  #game .s3{left:2%!important;top:14px!important;bottom:auto!important;transform:none!important}
+  #game .s4{left:50%!important;top:0!important;bottom:auto!important;transform:translateX(-50%)!important}
+  #game .s5{right:2%!important;top:14px!important;bottom:auto!important;left:auto!important;transform:none!important}
+  #game .s6{right:0!important;top:50%!important;bottom:auto!important;left:auto!important;transform:translateY(-50%)!important}
+  #game .s7{right:2%!important;bottom:22px!important;top:auto!important;left:auto!important;transform:none!important}
+
+  /* Keep each bet/chip label toward the table center so it never sits on the next player. */
+  #game .s1 .betTag,#game .s3 .betTag{left:50px!important;right:auto!important;top:34px!important;transform:none!important}
+  #game .s2 .betTag{left:52px!important;right:auto!important;top:25px!important;transform:none!important}
+  #game .s5 .betTag,#game .s7 .betTag{right:50px!important;left:auto!important;top:34px!important;transform:none!important}
+  #game .s6 .betTag{right:52px!important;left:auto!important;top:25px!important;transform:none!important}
+}
 </style>
 <script id="livePokerTableLogic">
 (function(){
