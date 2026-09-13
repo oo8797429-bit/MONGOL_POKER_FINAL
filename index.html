@@ -122,6 +122,17 @@
 #homeBanner::after{content:none!important}.bottom{background:#090c0d!important;height:54px}.bottom button{font-size:8px!important;color:#747b7d}.bottom .ico{font-size:17px!important}.bottom button:first-child{color:#16c86d!important;border-top:2px solid #16c86d}
 @media(max-width:360px){.refTopMini{grid-template-columns:52px 1fr 132px}.refMiniActions button{padding:5px 8px}.refBanner strong{font-size:21px}.refTiles{padding:0 28px}}
 </style>
+
+<style id="showdownResultStyle">
+#game .showCards{display:flex;gap:2px;justify-content:center;margin-top:2px;min-height:20px}
+#game .showCards .miniCard{width:17px;height:23px;border-radius:3px;background:#fff;color:#161616;border:1px solid #ddd;font-size:8px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px #0008}
+#game .showCards .miniCard.red{color:#d52b38}
+#game .handLabel{margin-top:2px;padding:2px 4px;border-radius:5px;background:#101817d9;border:1px solid #4f6660;color:#e7f0ed;font-size:7px;line-height:1.2;white-space:nowrap;max-width:92px;overflow:hidden;text-overflow:ellipsis;text-align:center}
+#game .seat.winner .handLabel{background:#103923;border-color:#3eea8d;color:#bfffd9;box-shadow:0 0 8px #25e77a99}
+#game .showdownBanner{position:absolute;left:50%;top:67%;transform:translate(-50%,-50%);z-index:28;width:min(88%,320px);padding:7px 10px;border-radius:9px;background:#07120fee;border:1px solid #d6aa45;box-shadow:0 6px 18px #000b,0 0 15px #d6aa4544;text-align:center;font-size:9px;color:#f6f3e8;pointer-events:none}
+#game .showdownBanner b{display:block;color:#ffd86a;font-size:11px;margin-bottom:2px}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -485,6 +496,10 @@ load();renderTours();show('auth');
   }
   function renderBlindTag(i){if(i===liveSB)return 'SB';if(i===liveBB)return 'BB';return ''}
   function cardsBack(i){if(i===0||folded[i]||finished)return '';return '<div class="holeBacks"><i class="holeBack"></i><i class="holeBack"></i></div>'}
+  let showdownInfo=[], showdownWinners=[];
+  function miniCard(c){if(!c)return '';return `<i class="miniCard${red(c.s)?' red':''}">${rank(c.r)}${c.s}</i>`}
+  function showdownSeatCards(i){return finished&&!folded[i]&&holes[i]?`<div class="showCards">${holes[i].map(miniCard).join('')}</div>`:''}
+  function showdownSeatLabel(i){let x=showdownInfo[i];return finished&&x&&!folded[i]?`<div class="handLabel">${x.name}</div>`:''}
 
   join=function(id){
     if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');
@@ -495,7 +510,7 @@ load();renderTours();show('auth');
   };
 
   newHand=function(){
-    if(!currentTable||!tableSession)return;deck=makeDeck();boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;handNo=(Number(handNo)||0)+1;
+    if(!currentTable||!tableSession)return;deck=makeDeck();boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];handNo=(Number(handNo)||0)+1;
     if(currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.hands++;}
     holes=players.map(()=>currentTable.type==='omaha'?[deck.pop(),deck.pop(),deck.pop(),deck.pop()]:[deck.pop(),deck.pop()]);folded=players.map(p=>p.chips<=0);liveSeatBets=players.map(()=>0);
     liveDealer=handNo%seatCount();liveSB=(liveDealer+1)%seatCount();liveBB=(liveDealer+2)%seatCount();liveTurn=0;
@@ -516,8 +531,10 @@ load();renderTours();show('auth');
     $('pot').textContent='Pot: '+fmt(potAmt);$('board').innerHTML=[0,1,2,3,4].map(i=>card(boardCards[i]||null)).join('');
     $('seats').innerHTML=players.map((p,i)=>{
       let blind=renderBlindTag(i),bet=liveSeatBets[i]||0,active=i===liveTurn&&!finished;
-      return `<div class="seat s${i}${active?' active':''}${i===liveWinner?' winner':''}${folded[i]?' folded':''}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}<div class="nm">🇲🇳 ${p.name}</div><div class="stack">${fmt(p.chips)}</div>${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
+      return `<div class="seat s${i}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm">🇲🇳 ${p.name}</div><div class="stack">${fmt(p.chips)}</div>${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
     }).join('');
+    let oldBanner=document.querySelector('#game .showdownBanner');if(oldBanner)oldBanner.remove();
+    if(finished&&showdownWinners.length&&showdownInfo.length){let names=showdownWinners.map(i=>players[i]?.name).join(', '),hi=showdownInfo[showdownWinners[0]];let b=document.createElement('div');b.className='showdownBanner';b.innerHTML=`<b>${names} яллаа — ${hi?.name||''}</b>${hi?.cardsText||''}`;$('pokerTable')?.appendChild(b)}
     /* Keep the player's hole cards mounted for the whole hand.
        Replacing innerHTML on every CALL/CHECK/FOLD restarted the deal animation
        and made the cards briefly disappear. Only redraw on a new hand or spectate. */
@@ -629,10 +646,51 @@ load();renderTours();show('auth');
 
   fold=function(auto=false){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();folded[0]=true;let alive=players.map((_,i)=>i).filter(i=>i!==0&&!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;save();setStatus((auto?'20 секунд дууслаа — Auto Fold • ':'Та Fold хийлээ • ')+players[w].name+' яллаа • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();setTimeout(newHand,1500)};
 
+
+  function cmpScore(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){let d=(a[i]||0)-(b[i]||0);if(d)return d}return 0}
+  function comb(arr,k){let out=[];function go(start,p){if(p.length===k){out.push(p.slice());return}for(let i=start;i<=arr.length-(k-p.length);i++){p.push(arr[i]);go(i+1,p);p.pop()}}go(0,[]);return out}
+  function eval5(cs){
+    let rs=cs.map(c=>c.r).sort((a,b)=>b-a),counts={};rs.forEach(r=>counts[r]=(counts[r]||0)+1);
+    let uniq=[...new Set(rs)],straightHigh=0;if(uniq.includes(14))uniq.push(1);uniq.sort((a,b)=>b-a);
+    for(let i=0;i<=uniq.length-5;i++)if(uniq[i]-uniq[i+4]===4){straightHigh=uniq[i];break}
+    let flush=cs.every(c=>c.s===cs[0].s),groups=Object.entries(counts).map(([r,n])=>({r:+r,n})).sort((a,b)=>b.n-a.n||b.r-a.r);
+    let score,name;
+    if(flush&&straightHigh){score=[8,straightHigh];name=straightHigh===14?'Royal Flush':'Straight Flush'}
+    else if(groups[0].n===4){score=[7,groups[0].r,groups[1].r];name='Four of a Kind'}
+    else if(groups[0].n===3&&groups[1]?.n===2){score=[6,groups[0].r,groups[1].r];name='Full House'}
+    else if(flush){score=[5,...rs];name='Flush'}
+    else if(straightHigh){score=[4,straightHigh];name='Straight'}
+    else if(groups[0].n===3){let ks=groups.filter(g=>g.n===1).map(g=>g.r).sort((a,b)=>b-a);score=[3,groups[0].r,...ks];name='Three of a Kind'}
+    else if(groups[0].n===2&&groups[1]?.n===2){let ps=[groups[0].r,groups[1].r].sort((a,b)=>b-a),k=groups.find(g=>g.n===1)?.r||0;score=[2,...ps,k];name='Two Pair'}
+    else if(groups[0].n===2){let ks=groups.filter(g=>g.n===1).map(g=>g.r).sort((a,b)=>b-a);score=[1,groups[0].r,...ks];name='Pair'}
+    else {score=[0,...rs];name='High Card'}
+    return {score,name,cards:cs};
+  }
+  function bestHandFor(i){
+    let h=holes[i]||[],b=boardCards||[],sets=[];
+    if(currentTable?.type==='omaha'){
+      for(let hh of comb(h,2))for(let bb of comb(b,3))sets.push([...hh,...bb]);
+    }else sets=comb([...h,...b],5);
+    let best=null;for(let cs of sets){let e=eval5(cs);if(!best||cmpScore(e.score,best.score)>0)best=e}
+    if(!best)return {score:[-1],name:'-',cards:[],cardsText:''};
+    let names={'Royal Flush':'Royal Flush','Straight Flush':'Straight Flush','Four of a Kind':'Four of a Kind','Full House':'Full House','Flush':'Flush','Straight':'Straight','Three of a Kind':'Three of a Kind','Two Pair':'Two Pair','Pair':'Pair','High Card':'High Card'};
+    best.name=names[best.name]||best.name;best.cardsText=best.cards.map(c=>rank(c.r)+c.s).join(' ');return best;
+  }
+
   showdown=function(){
     stopUserTurnClock();
-    while(boardCards.length<5)boardCards.push(deck.pop());let alive=players.map((_,i)=>i).filter(i=>!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||0,p=takeRakeFromPot();players[w].chips+=p.net;
-    if(w===0&&currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.wins++;}potAmt=0;finished=true;liveWinner=w;setStatus(players[w].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();syncUser();setTimeout(newHand,1800)
+    while(boardCards.length<5)boardCards.push(deck.pop());
+    let alive=players.map((_,i)=>i).filter(i=>!folded[i]);
+    showdownInfo=players.map((_,i)=>alive.includes(i)?bestHandFor(i):null);
+    let best=null;for(let i of alive){if(!best||cmpScore(showdownInfo[i].score,best.score)>0)best=showdownInfo[i]}
+    showdownWinners=alive.filter(i=>cmpScore(showdownInfo[i].score,best.score)===0);
+    let p=takeRakeFromPot(),share=Math.floor(p.net/showdownWinners.length),rem=p.net-share*showdownWinners.length;
+    showdownWinners.forEach((i,k)=>players[i].chips+=share+(k===0?rem:0));
+    if(showdownWinners.includes(0)&&currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.wins++;}
+    potAmt=0;finished=true;liveWinner=showdownWinners[0]??-1;
+    let winNames=showdownWinners.map(i=>players[i].name).join(', '),handName=best?.name||'';
+    setStatus(winNames+' яллаа — '+handName+' • +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');
+    renderGame();syncUser();setTimeout(newHand,4200)
   };
   const _leaveTable20=leaveTable;
   leaveTable=function(){stopUserTurnClock();return _leaveTable20()};
