@@ -644,7 +644,52 @@ load();renderTours();show('auth');
     $('game')?.classList.add('boardAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('boardAnim'),450);setTimeout(startUserTurn,500);
   };
 
-  fold=function(auto=false){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();folded[0]=true;let alive=players.map((_,i)=>i).filter(i=>i!==0&&!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;save();setStatus((auto?'20 секунд дууслаа — Auto Fold • ':'Та Fold хийлээ • ')+players[w].name+' яллаа • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();setTimeout(newHand,1500)};
+  function aliveSeats(){return players.map((_,i)=>i).filter(i=>!folded[i]&&players[i]?.chips>=0)}
+  function finishSingleWinner(i){
+    stopUserTurnClock();
+    let p=takeRakeFromPot();
+    if(i==null||!players[i])i=aliveSeats()[0]??1;
+    players[i].chips+=p.net;potAmt=0;finished=true;liveRoundBusy=false;liveWinner=i;
+    setStatus(players[i].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');
+    renderGame();syncUser();setTimeout(newHand,4200);
+  }
+  async function continueAfterUserFold(auto=false){
+    stopUserTurnClock();
+    folded[0]=true;spectator=true;liveRoundBusy=true;
+    setStatus(auto?'20 секунд дууслаа — Auto Fold • Бусад тоглогчид үргэлжлүүлж байна':'Та Fold хийлээ • Бусад тоглогчид үргэлжлүүлж байна');
+    renderGame();await wait(500);
+    while(tableSession&&!finished){
+      let alive=aliveSeats();
+      if(alive.length<=1){finishSingleWinner(alive[0]);return}
+      const targetBet=street===0?Math.max(currentTable.bb||0,...liveSeatBets):Math.max(0,...liveSeatBets);
+      for(let i=1;i<players.length;i++){
+        if(!tableSession||finished)return;
+        if(folded[i]||players[i].chips<=0)continue;
+        const timedOut=await waitBotTurn(i);
+        if(timedOut){folded[i]=true;setStatus(players[i].name+' • 20 сек дууслаа — Fold')}
+        else if(Math.random()<.10){folded[i]=true;setStatus(players[i].name+' • Fold')}
+        else{
+          const need=owedToTarget(i,targetBet),paid=pay(i,need);
+          setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
+        }
+        renderGame();await wait(500);
+        alive=aliveSeats();
+        if(alive.length<=1){finishSingleWinner(alive[0]);return}
+      }
+      liveSeatBets=players.map(()=>0);
+      liveTurn=-1;
+      if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop • Бусад тоглогчид үргэлжлүүлж байна')}
+      else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn • Бусад тоглогчид үргэлжлүүлж байна')}
+      else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River • Бусад тоглогчид үргэлжлүүлж байна')}
+      else {liveRoundBusy=false;showdown();return}
+      $('game')?.classList.add('boardAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('boardAnim'),450);await wait(700);
+    }
+  }
+  fold=function(auto=false){
+    if(!adminAllows('gameplay'))return;
+    if(finished||spectator||liveRoundBusy||liveTurn!==0)return;
+    continueAfterUserFold(auto);
+  };
 
 
   function cmpScore(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){let d=(a[i]||0)-(b[i]||0);if(d)return d}return 0}
