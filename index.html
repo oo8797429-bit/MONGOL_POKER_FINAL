@@ -231,9 +231,21 @@ function createBot(){if(currentUser?.role!=='admin')return;let name=$('botName')
 function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();renderAdmin()}
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();renderAdmin()}}
 function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();renderAdmin()}
-function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=[...db.bots].slice(0,5);while(bots5.length<5)bots5.push({id:'tmp'+bots5.length,name:'Bot '+(bots5.length+1),chips:t.buy});players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
+function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=[...db.bots].slice(0,5);while(bots5.length<5)bots5.push({id:'tmp'+bots5.length,name:'Bot '+(bots5.length+1),chips:t.buy});players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
 function leaveTable(){if(players[0])currentUser.chips+=players[0].chips;syncUser();players=[];tableSession=false;save();currentTable=null;closeSide();show('tables')}
-function makeDeck(){let s=['♠','♥','♦','♣'],r=[2,3,4,5,6,7,8,9,10,11,12,13,14],d=[];for(let a of s)for(let b of r)d.push({s:a,r:b});for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}return d}
+function makeDeck(){
+  const s=['♠','♥','♦','♣'],r=[2,3,4,5,6,7,8,9,10,11,12,13,14],d=[];
+  for(const a of s)for(const b of r)d.push({s:a,r:b});
+  const randInt=max=>{
+    if(globalThis.crypto?.getRandomValues){
+      const lim=Math.floor(0x100000000/max)*max,u=new Uint32Array(1);let x;
+      do{crypto.getRandomValues(u);x=u[0]}while(x>=lim);return x%max;
+    }
+    return Math.floor(Math.random()*max);
+  };
+  for(let i=d.length-1;i>0;i--){const j=randInt(i+1);[d[i],d[j]]=[d[j],d[i]]}
+  return d;
+}
 const rank=r=>r===14?'A':r===13?'K':r===12?'Q':r===11?'J':String(r),red=s=>s==='♥'||s==='♦';
 function card(c){if(!c)return '<div class="card blank">•</div>';return `<div class="card${red(c.s)?' red':''}">${rank(c.r)}${c.s}</div>`}
 function newHand(){if(!currentTable||!tableSession)return;deck=makeDeck();boardCards=[];street=0;potAmt=0;finished=false;spectator=false;handNo++;if(currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.hands++;}holes=players.map(()=>currentTable.type==='omaha'?[deck.pop(),deck.pop(),deck.pop(),deck.pop()]:[deck.pop(),deck.pop()]);folded=players.map(p=>p.chips<=0);let sb=1+(handNo-1)%5,bb=1+handNo%5;if(players[sb].chips>0)pay(sb,currentTable.sb);if(players[bb].chips>0)pay(bb,currentTable.bb);toCall=(sb===0?Math.max(0,currentTable.bb-currentTable.sb):bb===0?0:currentTable.bb);$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus(toCall>0?'Таны ээлж — Call, Raise эсвэл Fold':'Таны ээлж — Check эсвэл Raise');renderGame()}
@@ -433,7 +445,7 @@ load();renderTours();show('auth');
 </style>
 <script id="livePokerTableLogic">
 (function(){
-  let liveDealer=0, liveSB=-1, liveBB=-1, liveTurn=0, liveWinner=-1, liveSeatBets=[], liveRoundBusy=false;
+  let liveDealer=-1, liveSB=-1, liveBB=-1, liveTurn=0, liveWinner=-1, liveSeatBets=[], liveRoundBusy=false;
   const TURN_SECONDS=20;
   let turnLeft=TURN_SECONDS, userTurnInterval=null, userTurnTimeout=null;
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -482,6 +494,37 @@ load();renderTours();show('auth');
     });
   }
   function seatCount(){return Math.max(1,players.length)}
+  function activeDealSeats(){
+    return players.map((p,i)=>({p,i})).filter(x=>(Number(x.p?.chips)||0)>0).map(x=>x.i);
+  }
+  function nextActiveSeat(from){
+    const n=seatCount();
+    for(let step=1;step<=n;step++){
+      const i=(from+step+n)%n;
+      if((Number(players[i]?.chips)||0)>0)return i;
+    }
+    return -1;
+  }
+  function setupStandardButtonAndBlinds(){
+    const active=activeDealSeats();
+    if(active.length<2){liveDealer=active[0]??-1;liveSB=-1;liveBB=-1;return false}
+    if(liveDealer<0 || !active.includes(liveDealer)) liveDealer=active[0];
+    else liveDealer=nextActiveSeat(liveDealer);
+    if(active.length===2){
+      // Heads-up: dealer/button posts the small blind; the other player posts the big blind.
+      liveSB=liveDealer;
+      liveBB=nextActiveSeat(liveDealer);
+    }else{
+      liveSB=nextActiveSeat(liveDealer);
+      liveBB=nextActiveSeat(liveSB);
+    }
+    return true;
+  }
+  function firstSeatToReceiveCard(){
+    const active=activeDealSeats();
+    if(active.length===2)return liveDealer; // heads-up: dealer/SB receives first card
+    return liveSB>=0?liveSB:nextActiveSeat(liveDealer);
+  }
   function ensureChrome(){
     const t=document.querySelector('#game .pokerTable'); if(!t)return;
     if(!t.querySelector('.tableHud')) t.insertAdjacentHTML('beforeend',`<div class="tableHud"><div class="hudGroup hudTL"><button class="hudBtn" onclick="openSide()">☰</button><button class="hudBtn" onclick="openAddMoney()">＋</button></div><div class="hudGroup hudTR"><button class="hudBtn" onclick="toast('Ширээний мэдээлэл')">ⓘ</button><button class="hudBtn" onclick="openTableSettings()">⚙</button></div><div class="hudGroup hudBL"><button class="hudBtn" onclick="show('messages')">💬</button></div><div class="hudGroup hudBR"><button class="hudBtn" onclick="toast('Auto action')">✓</button></div><div class="handCode" id="handCode"></div><div class="tableFootInfo" id="tableFootInfo"></div></div>`);
@@ -499,6 +542,29 @@ load();renderTours();show('auth');
   function renderBlindTag(i){if(i===liveSB)return 'SB';if(i===liveBB)return 'BB';return ''}
   function cardsBack(i){if(i===0||folded[i]||finished)return '';return '<div class="holeBacks"><i class="holeBack"></i><i class="holeBack"></i></div>'}
   let showdownInfo=[], showdownWinners=[];
+  let dealSessionToken=0,burnedCards=[];
+  function burnOne(){if(deck.length)burnedCards.push(deck.pop())}
+  function dealRoundRobin(cardCount){
+    holes=players.map(()=>[]);
+    const n=seatCount(),first=firstSeatToReceiveCard();
+    if(first<0)return;
+    for(let round=0;round<cardCount;round++){
+      for(let step=0;step<n;step++){
+        const i=(first+step)%n;
+        if((Number(players[i]?.chips)||0)>0 && deck.length) holes[i].push(deck.pop());
+      }
+    }
+  }
+  function cardKey(c){return c?String(c.r)+c.s:''}
+  function handHasDuplicateCards(){
+    const all=[...(holes||[]).flat(),...(boardCards||[]),...(burnedCards||[])].filter(Boolean).map(cardKey);
+    return new Set(all).size!==all.length;
+  }
+  function completeBoardToRiver(){
+    if(boardCards.length<3){burnOne();while(boardCards.length<3&&deck.length)boardCards.push(deck.pop())}
+    if(boardCards.length<4){burnOne();if(deck.length)boardCards.push(deck.pop())}
+    if(boardCards.length<5){burnOne();if(deck.length)boardCards.push(deck.pop())}
+  }
   function miniCard(c){if(!c)return '';return `<i class="miniCard${red(c.s)?' red':''}">${rank(c.r)}${c.s}</i>`}
   function showdownSeatCards(i){return finished&&!folded[i]&&holes[i]?`<div class="showCards">${holes[i].map(miniCard).join('')}</div>`:''}
   function showdownSeatLabel(i){let x=showdownInfo[i];return finished&&x&&!folded[i]?`<div class="handLabel">${x.name}</div>`:''}
@@ -508,15 +574,24 @@ load();renderTours();show('auth');
     currentTable=t;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;
     let emos=['😎','🧔','👩','🤠','🧑','👨','🧕','👩‍🦰'],bots7=[...db.bots].slice(0,7);while(bots7.length<7)bots7.push({id:'tmp'+bots7.length,name:'Player '+(bots7.length+1),chips:t.buy});
     players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots7.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))];
+    dealSessionToken++;burnedCards=[];if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand=''};
     save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 8 MAX';show('game');newHand();
   };
 
   newHand=function(){
-    if(!currentTable||!tableSession)return;deck=makeDeck();boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];handNo=(Number(handNo)||0)+1;
+    if(!currentTable||!tableSession)return;deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];handNo=(Number(handNo)||0)+1;
     if(currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.hands++;}
-    holes=players.map(()=>currentTable.type==='omaha'?[deck.pop(),deck.pop(),deck.pop(),deck.pop()]:[deck.pop(),deck.pop()]);folded=players.map(p=>p.chips<=0);liveSeatBets=players.map(()=>0);
-    liveDealer=handNo%seatCount();liveSB=(liveDealer+1)%seatCount();liveBB=(liveDealer+2)%seatCount();liveTurn=0;
-    const sbPaid=players[liveSB].chips>0?pay(liveSB,currentTable.sb):0,bbPaid=players[liveBB].chips>0?pay(liveBB,currentTable.bb):0;
+    folded=players.map(p=>(Number(p?.chips)||0)<=0);liveSeatBets=players.map(()=>0);
+    if(!setupStandardButtonAndBlinds()){setStatus('Тоглохын тулд дор хаяж 2 тоглогч хэрэгтэй');renderGame();return}
+    liveTurn=0;
+    // Standard deal: fresh shuffled 52-card deck, one card at a time clockwise.
+    dealRoundRobin(currentTable.type==='omaha'?4:2);
+    const sbPaid=liveSB>=0&&players[liveSB].chips>0?pay(liveSB,currentTable.sb):0,
+          bbPaid=liveBB>=0&&players[liveBB].chips>0?pay(liveBB,currentTable.bb):0;
+    if(handHasDuplicateCards()){
+      // Safety-only redeal; normal shuffled decks can never contain duplicate physical cards.
+      deck=makeDeck();burnedCards=[];boardCards=[];holes=players.map(()=>[]);dealRoundRobin(currentTable.type==='omaha'?4:2);
+    }
     toCall=(liveSB===0?Math.max(0,currentTable.bb-currentTable.sb):liveBB===0?0:currentTable.bb);
     $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Шинэ гар эхэллээ');$('game')?.classList.add('dealAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('dealAnim'),650);
     setTimeout(()=>{animateChip(liveSB,sbPaid);animateChip(liveBB,bbPaid)},180);
@@ -545,7 +620,7 @@ load();renderTours();show('auth');
       if(myCardsEl.innerHTML) myCardsEl.innerHTML='';
       myCardsEl.dataset.hand='spectator';
     }else{
-      const handKey=String(handNo);
+      const handKey=(currentTable?.id||'table')+':'+dealSessionToken+':'+String(handNo);
       if(myCardsEl.dataset.hand!==handKey){
         myCardsEl.innerHTML=(holes[0]||[]).map(card).join('');
         myCardsEl.dataset.hand=handKey;
@@ -639,9 +714,9 @@ load();renderTours();show('auth');
 
   nextStreet=function(){
     liveSeatBets=players.map(()=>0);liveTurn=0;
-    if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop — Таны ээлж')}
-    else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn — Таны ээлж')}
-    else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River')}
+    if(street===0){burnOne();boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop — Таны ээлж')}
+    else if(street===1){burnOne();boardCards.push(deck.pop());street=2;setStatus('Turn — Таны ээлж')}
+    else if(street===2){burnOne();boardCards.push(deck.pop());street=3;setStatus('River')}
     else{return showdown()}
     $('game')?.classList.add('boardAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('boardAnim'),450);setTimeout(startUserTurn,500);
   };
@@ -680,9 +755,9 @@ load();renderTours();show('auth');
       }
       liveSeatBets=players.map(()=>0);
       liveTurn=-1;
-      if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop • Бусад тоглогчид үргэлжлүүлж байна')}
-      else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn • Бусад тоглогчид үргэлжлүүлж байна')}
-      else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River • Бусад тоглогчид үргэлжлүүлж байна')}
+      if(street===0){burnOne();boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop • Бусад тоглогчид үргэлжлүүлж байна')}
+      else if(street===1){burnOne();boardCards.push(deck.pop());street=2;setStatus('Turn • Бусад тоглогчид үргэлжлүүлж байна')}
+      else if(street===2){burnOne();boardCards.push(deck.pop());street=3;setStatus('River • Бусад тоглогчид үргэлжлүүлж байна')}
       else {liveRoundBusy=false;showdown();return}
       $('game')?.classList.add('boardAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('boardAnim'),450);await wait(700);
     }
@@ -726,7 +801,7 @@ load();renderTours();show('auth');
 
   showdown=function(){
     stopUserTurnClock();
-    while(boardCards.length<5)boardCards.push(deck.pop());
+    completeBoardToRiver();
     let alive=players.map((_,i)=>i).filter(i=>!folded[i]);
     showdownInfo=players.map((_,i)=>alive.includes(i)?bestHandFor(i):null);
     let best=null;for(let i of alive){if(!best||cmpScore(showdownInfo[i].score,best.score)>0)best=showdownInfo[i]}
