@@ -173,11 +173,11 @@ let db={users:[],tables:[],bots:[],messages:[],settings:{start:25000,banner:'А�
 let deck=[],holes=[],boardCards=[],players=[],folded=[],street=0,potAmt=0,toCall=0,finished=false,spectator=false;
 const $=id=>document.getElementById(id),fmt=n=>Number(n||0).toLocaleString('en-US');
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
-function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});if(!db.users.some(x=>x.id==='admin'))db.users.push({id:'admin',pass:'1234',name:'Админ',chips:200000,role:'admin',stats:{hands:0,wins:0,tables:0}});if(!db.tables.length)db.tables=[
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});if(!db.bots.length)db.bots=[{id:'b1',name:'Тэмүүжин',chips:25000},{id:'b2',name:'Сараа',chips:25000},{id:'b3',name:'Бат',chips:25000},{id:'b4',name:'Номин',chips:25000},{id:'b5',name:'Зоригоо',chips:25000}];save()}
 function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
 function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value;if(!n||!id||p.length<4||p!==p2)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');db.users.push({id,pass:p,name:n,chips:db.settings.start||25000,role:'user',stats:{hands:0,wins:0,tables:0}});save();$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
-function login(){let u=db.users.find(x=>x.id===$('loginId').value.trim()&&x.pass===$('loginPass').value);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;show('home')}
+function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();let u=db.users.find(x=>x.id===id&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;show('home')}
 function logout(){syncUser();currentUser=null;currentTable=null;$('bottom').classList.add('hidden');show('auth')}
 function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables')renderTables();if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
 function featureOpen(key,target,after){let f=db.settings.features||{};if(currentUser?.role!=='admin'&&f[key]===false)return toast('Энэ хэсгийг админ түр хаасан байна');show(target);if(typeof after==='function')after()}
@@ -288,4 +288,155 @@ load();renderTours();show('auth');
 #contact .settingRow b{max-width:62%;text-align:right;color:#f0c55a;word-break:break-all}
 .refFloat{z-index:35!important}.refFloat button:first-child{background:#3b4244!important}.refFloat button:last-child{background:#3b4244!important}
 </style>
+
+<style id="livePokerTableUpgrade">
+/* Live table upgrade based on the supplied reference videos */
+#game.game{background:radial-gradient(circle at 50% 18%,#182124 0,#0b0f10 48%,#080a0b 100%)}
+#game .gameHead{background:linear-gradient(180deg,#08794a,#045735);box-shadow:0 2px 12px #0007}
+#game .gameMeta{padding:7px 14px 5px;color:#cfd8d4;background:#101617;border-bottom:1px solid #25302d}
+#game .pokerTable{overflow:visible;border:7px solid #4a5055;background:radial-gradient(ellipse at 50% 44%,#16995e 0,#087b47 52%,#055a37 72%,#101415 74%);box-shadow:inset 0 0 70px #0009,0 8px 20px #0008}
+#game .pokerTable:before{content:'';position:absolute;inset:7%;border:1px solid #ffffff18;border-radius:48%/30%;pointer-events:none;box-shadow:inset 0 0 26px #fff1}
+#game .pokerTable:after{content:'MP';position:absolute;left:50%;top:51%;transform:translate(-50%,-50%);font:900 56px Arial;color:#d3ab5520;letter-spacing:-5px;text-shadow:0 2px 0 #0003;pointer-events:none}
+#game .center{z-index:9;top:49%}
+#game .pot{display:inline-block;background:#07110dcc;border:1px solid #66c49055;border-radius:16px;padding:5px 12px;font-size:14px;color:#fff;box-shadow:0 0 10px #0006;margin-bottom:8px;animation:potBreath 1.9s ease-in-out infinite}
+@keyframes potBreath{50%{box-shadow:0 0 14px #f5c74755,0 0 7px #000}}
+#game .board{position:relative;z-index:12}
+#game .board .card{box-shadow:0 3px 8px #0008;border:1px solid #ddd;animation:boardFlip .35s ease both}
+@keyframes boardFlip{from{transform:translateY(-18px) rotateY(80deg);opacity:0}to{transform:none;opacity:1}}
+#game .seat{z-index:14;width:76px;transition:.22s ease;filter:drop-shadow(0 3px 3px #0008)}
+#game .seat .pic{width:43px;height:43px;font-size:21px;background:radial-gradient(circle,#fff 0,#ececec 62%,#b9c0bd 100%);border:2px solid #fff;box-shadow:0 0 0 2px #222,0 3px 9px #0009;position:relative}
+#game .seat.active .pic{border-color:#ffd34d;box-shadow:0 0 0 3px #f0bd33,0 0 18px #ffcf4b,0 3px 10px #000;animation:turnGlow .85s ease-in-out infinite alternate}
+@keyframes turnGlow{to{box-shadow:0 0 0 3px #fff1a0,0 0 27px #ffd557,0 3px 10px #000}}
+#game .seat.winner .pic{box-shadow:0 0 0 3px #65f59e,0 0 28px #22e778,0 3px 10px #000;animation:winnerPop .55s ease-in-out infinite alternate}
+@keyframes winnerPop{to{transform:scale(1.09)}}
+#game .seat .nm{display:inline-flex;align-items:center;gap:2px;background:#0a0d0ecc;border-radius:9px 9px 0 0;padding:2px 5px;margin-top:2px;font-size:8px;white-space:nowrap;max-width:76px;overflow:hidden;text-overflow:ellipsis}
+#game .seat .stack{background:#5d285f;border:1px solid #b567a455;padding:2px 6px;font-size:8px;box-shadow:0 2px 5px #0008}
+#game .dealerDot{position:absolute;right:8px;top:-4px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#f5f2df;color:#111;font:900 9px Arial;border:1px solid #222;box-shadow:0 2px 5px #0008;z-index:5}
+#game .blindTag{position:absolute;left:50%;top:45px;transform:translateX(-50%);font:800 7px Arial;background:#111c;color:#ffd253;border:1px solid #80641d;border-radius:7px;padding:1px 4px;white-space:nowrap}
+#game .holeBacks{position:absolute;left:50%;top:34px;transform:translateX(-50%);display:flex;gap:1px;z-index:-1}
+#game .holeBack{width:15px;height:21px;border-radius:3px;background:repeating-linear-gradient(45deg,#1c72d0 0 2px,#e5f3ff 2px 3px,#1859a4 3px 5px);border:1px solid #fff;box-shadow:0 1px 3px #0009;transform:rotate(-8deg);animation:dealBack .28s cubic-bezier(.2,.8,.2,1) both}
+#game .holeBack:nth-child(2){transform:rotate(8deg);margin-left:-5px;animation-delay:.08s}
+@keyframes dealBack{from{opacity:0;transform:translate(80px,90px) rotate(160deg) scale(.45)}to{opacity:1}}
+#game .betTag{position:absolute;left:50%;top:66px;transform:translateX(-50%);display:flex;align-items:center;gap:3px;background:#17201dcc;border:1px solid #776521;border-radius:9px;color:#ffe06a;font:800 8px Arial;padding:2px 5px;white-space:nowrap;box-shadow:0 2px 5px #0007}
+#game .betTag:before{content:'';width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2a1 0,#eabf31 40%,#8d6310 70%);border:1px solid #5d430b}
+#game .seat.folded{filter:grayscale(.85) opacity(.45)}
+#game .s0{left:50%;bottom:4px;transform:translateX(-50%)}
+#game .s1{left:5%;bottom:62px}
+#game .s2{left:-1%;top:49%;transform:translateY(-50%)}
+#game .s3{left:7%;top:36px}
+#game .s4{left:50%;top:0;transform:translateX(-50%)}
+#game .s5{right:7%;top:36px}
+#game .s6{right:-1%;top:49%;transform:translateY(-50%)}
+#game .s7{right:5%;bottom:62px}
+#game .tableHud{position:absolute;inset:0;pointer-events:none;z-index:20}
+#game .hudGroup{position:absolute;display:flex;gap:5px;pointer-events:auto}
+#game .hudTL{left:7px;top:6px}.hudTR{right:7px;top:6px}.hudBL{left:8px;bottom:8px}.hudBR{right:8px;bottom:8px}
+#game .hudBtn{width:27px;height:27px;border-radius:50%;border:1px solid #ffffff2b;background:#151a1dcc;color:#e8eded;display:grid;place-items:center;font-size:13px;box-shadow:0 2px 6px #0008}
+#game .handCode{position:absolute;left:-3px;top:31%;transform:rotate(-90deg);transform-origin:left top;color:#a9b2b0;font-size:6px;letter-spacing:.5px;opacity:.75}
+#game .tableFootInfo{position:absolute;left:50%;bottom:64px;transform:translateX(-50%);font-size:6px;color:#d5ddd899;text-align:center;line-height:1.35;white-space:nowrap;z-index:8}
+#game .tableFootInfo b{color:#f2c94c;font-weight:800}
+#game .flyingChip{position:absolute;width:16px;height:16px;border-radius:50%;z-index:40;pointer-events:none;background:radial-gradient(circle at 35% 30%,#fff6b5 0,#f0ce3d 35%,#a36b0c 70%);border:2px dashed #fff7;box-shadow:0 2px 6px #0009;transition:transform .44s cubic-bezier(.18,.75,.25,1),opacity .44s linear}
+#game .mycards{position:relative;z-index:30;margin-top:3px}
+#game .mycards .card{box-shadow:0 3px 9px #000b;animation:myDeal .32s ease both}
+#game .mycards .card:nth-child(2){animation-delay:.08s}
+#game .mycards .card:nth-child(3){animation-delay:.13s}
+#game .mycards .card:nth-child(4){animation-delay:.18s}
+@keyframes myDeal{from{transform:translateY(-55px) scale(.65) rotate(12deg);opacity:0}to{transform:none;opacity:1}}
+#game .status{background:#1b2022;border-color:#394341;color:#dfe7e3;box-shadow:inset 0 1px #ffffff08}
+#game .actionBar{border:1px solid #176e55;border-radius:4px;background:linear-gradient(180deg,#0b3128,#101817);box-shadow:0 4px 14px #0009}
+#game .baseActions button{box-shadow:inset 0 1px #ffffff18,0 2px 5px #0007;transition:.12s}
+#game .baseActions button:active{transform:translateY(1px) scale(.98)}
+@media(max-width:430px){
+  #game .pokerTable{height:min(55dvh,470px);margin:3px 10px 0}
+  #game .seat{width:70px}.game .seat .pic{width:40px;height:40px}
+  #game .s1{left:3%;bottom:58px}#game .s2{left:-3%}#game .s3{left:4%;top:32px}#game .s5{right:4%;top:32px}#game .s6{right:-3%}#game .s7{right:3%;bottom:58px}
+  #game .tableFootInfo{bottom:56px}
+}
+@media(max-height:740px) and (max-width:430px){#game .pokerTable{height:48dvh}#game .seat .pic{width:36px;height:36px;font-size:18px}#game .seat{width:64px}.game .seat .nm{font-size:7px}}
+</style>
+<script id="livePokerTableLogic">
+(function(){
+  let liveDealer=0, liveSB=-1, liveBB=-1, liveTurn=0, liveWinner=-1, liveSeatBets=[], liveRoundBusy=false;
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  function seatCount(){return Math.max(1,players.length)}
+  function ensureChrome(){
+    const t=document.querySelector('#game .pokerTable'); if(!t)return;
+    if(!t.querySelector('.tableHud')) t.insertAdjacentHTML('beforeend',`<div class="tableHud"><div class="hudGroup hudTL"><button class="hudBtn" onclick="openSide()">☰</button><button class="hudBtn" onclick="openAddMoney()">＋</button></div><div class="hudGroup hudTR"><button class="hudBtn" onclick="toast('Ширээний мэдээлэл')">ⓘ</button><button class="hudBtn" onclick="openTableSettings()">⚙</button></div><div class="hudGroup hudBL"><button class="hudBtn" onclick="show('messages')">💬</button></div><div class="hudGroup hudBR"><button class="hudBtn" onclick="toast('Auto action')">✓</button></div><div class="handCode" id="handCode"></div><div class="tableFootInfo" id="tableFootInfo"></div></div>`);
+  }
+  function animateChip(i,amount){
+    const table=document.querySelector('#game .pokerTable'), seat=document.querySelector(`#game .seat.s${i}`); if(!table||!seat||!amount)return;
+    const tr=table.getBoundingClientRect(), sr=seat.getBoundingClientRect();
+    const chip=document.createElement('div'); chip.className='flyingChip';
+    const sx=sr.left-tr.left+sr.width/2-8, sy=sr.top-tr.top+sr.height/2-8;
+    const tx=tr.width/2-sx-8, ty=tr.height/2-sy-8;
+    chip.style.left=sx+'px';chip.style.top=sy+'px';table.appendChild(chip);
+    requestAnimationFrame(()=>{chip.style.transform=`translate(${tx}px,${ty}px) scale(.72)`;chip.style.opacity='.25'});
+    setTimeout(()=>chip.remove(),500);
+  }
+  function renderBlindTag(i){if(i===liveSB)return 'SB';if(i===liveBB)return 'BB';return ''}
+  function cardsBack(i){if(i===0||folded[i]||finished)return '';return '<div class="holeBacks"><i class="holeBack"></i><i class="holeBack"></i></div>'}
+
+  join=function(id){
+    if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');
+    currentTable=t;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;
+    let emos=['😎','🧔','👩','🤠','🧑','👨','🧕','👩‍🦰'],bots7=[...db.bots].slice(0,7);while(bots7.length<7)bots7.push({id:'tmp'+bots7.length,name:'Player '+(bots7.length+1),chips:t.buy});
+    players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots7.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))];
+    save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 8 MAX';show('game');newHand();
+  };
+
+  newHand=function(){
+    if(!currentTable||!tableSession)return;deck=makeDeck();boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;handNo=(Number(handNo)||0)+1;
+    if(currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.hands++;}
+    holes=players.map(()=>currentTable.type==='omaha'?[deck.pop(),deck.pop(),deck.pop(),deck.pop()]:[deck.pop(),deck.pop()]);folded=players.map(p=>p.chips<=0);liveSeatBets=players.map(()=>0);
+    liveDealer=handNo%seatCount();liveSB=(liveDealer+1)%seatCount();liveBB=(liveDealer+2)%seatCount();liveTurn=0;
+    const sbPaid=players[liveSB].chips>0?pay(liveSB,currentTable.sb):0,bbPaid=players[liveBB].chips>0?pay(liveBB,currentTable.bb):0;
+    toCall=(liveSB===0?Math.max(0,currentTable.bb-currentTable.sb):liveBB===0?0:currentTable.bb);
+    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus(toCall>0?'Таны ээлж — Call, Raise эсвэл Fold':'Таны ээлж — Check эсвэл Raise');renderGame();
+    setTimeout(()=>{animateChip(liveSB,sbPaid);animateChip(liveBB,bbPaid)},180);
+  };
+
+  pay=function(i,n){
+    if(!players[i])return 0;let x=Math.min(players[i].chips,Math.max(0,Number(n)||0));players[i].chips-=x;potAmt+=x;liveSeatBets[i]=(liveSeatBets[i]||0)+x;
+    if(document.querySelector(`#game .seat.s${i}`))animateChip(i,x);return x;
+  };
+
+  renderGame=function(){
+    ensureChrome();
+    $('pot').textContent='Pot: '+fmt(potAmt);$('board').innerHTML=[0,1,2,3,4].map(i=>card(boardCards[i]||null)).join('');
+    $('seats').innerHTML=players.map((p,i)=>{let blind=renderBlindTag(i),bet=liveSeatBets[i]||0;return `<div class="seat s${i}${i===liveTurn&&!finished?' active':''}${i===liveWinner?' winner':''}${folded[i]?' folded':''}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${cardsBack(i)}<div class="nm">🇲🇳 ${p.name}</div><div class="stack">${fmt(p.chips)}</div>${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`}).join('');
+    $('mycards').innerHTML=spectator?'':(holes[0]||[]).map(card).join('');
+    $('checkBtn').disabled=toCall>0||liveRoundBusy;$('checkBtn').style.opacity=toCall>0?'.35':'1';$('callBtn').textContent=toCall>0?'CALL '+fmt(Math.min(toCall,players[0]?.chips||0)):'CHECK';$('callBtn').style.opacity=toCall>0?'1':'.5';
+    if($('handCode'))$('handCode').textContent='#MP'+String(100000+handNo).slice(-6);
+    if($('tableFootInfo'))$('tableFootInfo').innerHTML=`<b>${currentTable?.name||''}</b> • RAKE 1%<br>${currentTable?.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(currentTable?.sb||0)}/${fmt(currentTable?.bb||0)}`;
+  };
+
+  async function botRound(amount=0){
+    liveRoundBusy=true;for(let i=1;i<players.length;i++){
+      if(folded[i]||players[i].chips<=0)continue;liveTurn=i;renderGame();await wait(150+Math.floor(Math.random()*110));
+      if(Math.random()<.10){folded[i]=true;setStatus(players[i].name+' Fold')}else{let paid=pay(i,amount);setStatus(players[i].name+(paid?' • '+fmt(paid):' • Check'))}
+      renderGame();await wait(90);
+    }liveTurn=0;liveRoundBusy=false;renderGame();
+  }
+  bots=function(amount=0){for(let i=1;i<players.length;i++){if(folded[i])continue;if(Math.random()<.10)folded[i]=true;else pay(i,amount)}liveTurn=0;renderGame()};
+
+  checkCall=async function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy)return;let paid=pay(0,toCall);setStatus(paid?'Та '+fmt(paid)+' Call хийлээ':'Та Check хийлээ');renderGame();await botRound(street===0?currentTable.bb:0);toCall=0;setTimeout(nextStreet,120)};
+  confirmRaise=async function(){if(!adminAllows('gameplay'))return;if(liveRoundBusy)return;let a=+$('raiseSlider').value;pay(0,a);$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Та '+fmt(a)+' Raise хийлээ');renderGame();await botRound(Math.max(currentTable.bb,Math.floor(a*.6)));toCall=0;setTimeout(nextStreet,120)};
+
+  nextStreet=function(){
+    liveSeatBets=players.map(()=>0);liveTurn=0;
+    if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop — Таны ээлж')}
+    else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn — Таны ээлж')}
+    else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River — Таны ээлж')}
+    else{return showdown()}renderGame();
+  };
+
+  fold=function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy)return;folded[0]=true;let alive=players.map((_,i)=>i).filter(i=>i!==0&&!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;save();setStatus('Та Fold хийлээ • '+players[w].name+' яллаа • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();setTimeout(newHand,1500)};
+
+  showdown=function(){
+    while(boardCards.length<5)boardCards.push(deck.pop());let alive=players.map((_,i)=>i).filter(i=>!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||0,p=takeRakeFromPot();players[w].chips+=p.net;
+    if(w===0&&currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.wins++;}potAmt=0;finished=true;liveWinner=w;setStatus(players[w].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();syncUser();setTimeout(newHand,1800)
+  };
+})();
+</script>
+
 </body></html>
