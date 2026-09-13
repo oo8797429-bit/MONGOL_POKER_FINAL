@@ -543,9 +543,20 @@ load();renderTours();show('auth');
     if($('tableFootInfo'))$('tableFootInfo').innerHTML=`<b>${currentTable?.name||''}</b> • RAKE 1%<br>${currentTable?.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(currentTable?.sb||0)}/${fmt(currentTable?.bb||0)}`;
   };
 
-  async function botRound(amount=0){
+  /* Bet accounting fix: target is the TOTAL amount each player must have
+     committed on the current street, not an extra amount to add.
+     Example SB/BB 100/200 with no raise:
+       SB adds only 100 more -> total 200
+       BB adds 0 -> total 200
+       everyone else calls 200 -> total 200. */
+  function owedToTarget(i,target){
+    return Math.max(0, Math.min(players[i]?.chips||0, (Number(target)||0) - (liveSeatBets[i]||0)));
+  }
+
+  async function botRound(targetBet=0){
     stopUserTurnClock();
     liveRoundBusy=true;
+    targetBet=Math.max(0,Number(targetBet)||0);
     for(let i=1;i<players.length;i++){
       if(!tableSession||finished)break;
       if(folded[i]||players[i].chips<=0)continue;
@@ -560,17 +571,52 @@ load();renderTours();show('auth');
       if(Math.random()<.10){
         folded[i]=true;setStatus(players[i].name+' • Fold');
       }else{
-        let paid=pay(i,amount);setStatus(players[i].name+(paid?' • '+fmt(paid):' • Check'));
+        const need=owedToTarget(i,targetBet);
+        const paid=pay(i,need);
+        setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
       }
       renderGame();
       await wait(650);
     }
     liveTurn=0;liveRoundBusy=false;turnLeft=TURN_SECONDS;renderGame();
   }
-  bots=function(amount=0){for(let i=1;i<players.length;i++){if(folded[i])continue;if(Math.random()<.10)folded[i]=true;else pay(i,amount)}liveTurn=0;renderGame()};
+  bots=function(targetBet=0){
+    targetBet=Math.max(0,Number(targetBet)||0);
+    for(let i=1;i<players.length;i++){
+      if(folded[i])continue;
+      if(Math.random()<.10)folded[i]=true;
+      else pay(i,owedToTarget(i,targetBet));
+    }
+    liveTurn=0;renderGame();
+  };
 
-  checkCall=async function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();let paid=pay(0,toCall);setStatus(paid?'Та '+fmt(paid)+' Call хийлээ':'Та Check хийлээ');renderGame();await botRound(street===0?currentTable.bb:0);toCall=0;setTimeout(nextStreet,450)};
-  confirmRaise=async function(){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();let a=+$('raiseSlider').value;pay(0,a);$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Та '+fmt(a)+' Raise хийлээ');renderGame();await botRound(Math.max(currentTable.bb,Math.floor(a*.6)));toCall=0;setTimeout(nextStreet,450)};
+  checkCall=async function(){
+    if(!adminAllows('gameplay'))return;
+    if(finished||spectator||liveRoundBusy||liveTurn!==0)return;
+    stopUserTurnClock();
+    const targetBet=street===0?currentTable.bb:Math.max(0,...liveSeatBets);
+    const need=owedToTarget(0,targetBet);
+    const paid=pay(0,need);
+    setStatus(paid?'Та '+fmt(paid)+' Call хийлээ':'Та Check хийлээ');
+    renderGame();
+    await botRound(targetBet);
+    toCall=0;
+    setTimeout(nextStreet,450);
+  };
+  confirmRaise=async function(){
+    if(!adminAllows('gameplay'))return;
+    if(finished||spectator||liveRoundBusy||liveTurn!==0)return;
+    stopUserTurnClock();
+    const raiseTo=+$('raiseSlider').value;
+    const need=owedToTarget(0,raiseTo);
+    pay(0,need);
+    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');
+    setStatus('Та '+fmt(raiseTo)+' хүртэл Raise хийлээ');
+    renderGame();
+    await botRound(raiseTo);
+    toCall=0;
+    setTimeout(nextStreet,450);
+  };
 
   nextStreet=function(){
     liveSeatBets=players.map(()=>0);liveTurn=0;
