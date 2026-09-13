@@ -102,11 +102,46 @@
 @keyframes mpSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 
 </style>
+
+<style id="reference-home-match">
+#home{background:#0b1010!important;min-height:100vh}
+.refHome{min-height:100vh;padding-bottom:58px;background:radial-gradient(circle at 92% 52%,rgba(0,78,38,.26),transparent 32%),#0b1010;position:relative;color:#fff}
+.refTopMini{height:56px;background:#090d0d;border-bottom:1px solid #202626;display:grid;grid-template-columns:64px 1fr 150px;align-items:center;padding:0 8px;gap:5px}
+.refMiniLogo{width:44px;height:44px;border-radius:6px;background:linear-gradient(145deg,#4b1d15,#9b4b22);border:1px solid #8f6a2f;display:grid;place-items:center;position:relative;box-shadow:0 0 8px #000 inset}
+.refMiniLogo span{font-weight:900;color:#ffd66d;font-size:13px;line-height:1}.refMiniLogo small{position:absolute;bottom:4px;font-size:4px;line-height:4px;color:#ffd66d;text-align:center}
+.refMiniStats{font-size:8px;color:#a9b0ae;white-space:nowrap}
+.refMiniActions{display:flex;gap:6px;justify-content:flex-end}.refMiniActions button{border:0;border-radius:14px;padding:5px 11px;background:#555b63;color:#fff;font-size:9px}.refMiniActions .green{background:linear-gradient(#20cf75,#07944e)}
+.refJackpot{height:40px;margin:0 12px;background:linear-gradient(90deg,#161616,#3f2b0e 55%,#151515);border-top:1px solid #2e2e2e;border-bottom:1px solid #2e2e2e;display:grid;grid-template-columns:1fr 1fr 1.3fr;align-items:center;padding:0 9px;color:#e5d2a2;box-shadow:inset 0 0 20px #0008;cursor:pointer}
+.refJackpot small{font-size:7px;text-align:right;padding-right:5px;color:#c4b98d}.refJackpot span{font-size:9px;color:#d7caa3}.refJackpot b{font-size:17px;font-weight:500;color:#d6a43b;text-align:center;text-shadow:0 0 8px #e8bd63aa}
+.refBanner{height:105px;margin:10px 14px 28px;position:relative;overflow:hidden;border:1px solid #174e3a;background:linear-gradient(135deg,rgba(6,115,72,.25),rgba(17,63,48,.25)),repeating-linear-gradient(25deg,#5d7f69 0 17px,#476c59 17px 34px,#7aa186 34px 51px);box-shadow:inset 0 0 35px #102a22,0 0 0 1px #0c261d}
+.refBanner:before{content:'$  $  $  $  $  $  $';position:absolute;inset:-12px;color:#dfe7d5;opacity:.26;font-size:31px;transform:rotate(-11deg);letter-spacing:12px;line-height:55px}
+.refBanner .plane{position:absolute;left:34px;top:26px;font-size:46px;color:#fff;transform:rotate(-20deg);text-shadow:0 0 6px #fff8}.refBanner strong{position:absolute;left:50%;top:50%;transform:translate(-35%,-50%);font-size:24px;line-height:22px;color:#fff;text-shadow:0 2px 3px #000;font-weight:900;white-space:nowrap}
+.refTiles{display:grid;grid-template-columns:1fr 1fr;gap:34px 35px;padding:0 38px}.refTile{text-align:center;font-size:10px;color:#e6e6e6}.refTile.sit{grid-column:1/3}.refIcon{height:68px;display:grid;place-items:center;font-size:50px;line-height:1;filter:drop-shadow(0 3px 2px #0008)}.cardsCoin{letter-spacing:-17px;padding-right:12px}.cupBall{letter-spacing:-18px;padding-right:10px}.cupBolt{letter-spacing:-16px;padding-right:10px}.refTile span{display:block;margin-top:2px}
+.refFloat{position:absolute;right:10px;top:350px;display:grid;gap:8px}.refFloat button{width:35px;height:35px;border:0;border-radius:3px;background:#303638;color:#dbe2df;font-size:18px;box-shadow:0 2px 5px #0007}
+#homeBanner>*{display:block!important}#homeBanner::before{content:'$  $  $  $  $  $  $'!important;width:auto!important;height:auto!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;animation:none!important;display:block!important;color:#dfe7d5!important;font:31px Arial!important;position:absolute!important;left:auto!important;top:auto!important;transform:rotate(-11deg)!important}
+#homeBanner::after{content:none!important}.bottom{background:#090c0d!important;height:54px}.bottom button{font-size:8px!important;color:#747b7d}.bottom .ico{font-size:17px!important}.bottom button:first-child{color:#16c86d!important;border-top:2px solid #16c86d}
+@media(max-width:360px){.refTopMini{grid-template-columns:52px 1fr 132px}.refMiniActions button{padding:5px 8px}.refBanner strong{font-size:21px}.refTiles{padding:0 28px}}
+</style>
 </head>
 <body>
 <div class="app">
 <section id="auth" class="screen active"><div class="auth"><div class="hero"><div class="heroLogo logoImg"></div></div><div class="authCard"><h2 id="authTitle">Нэвтрэх</h2><div id="loginFields"><div class="field"><label>Хэрэглэгчийн нэр</label><input id="loginId" value="admin"></div><div class="field"><label>Нууц үг</label><input id="loginPass" type="password" value="1234"></div><button class="primary" onclick="login()">Нэвтрэх</button><div class="switch" onclick="toggleRegister(true)">Бүртгүүлэх</div></div><div id="regFields" class="hidden"><div class="field"><label>Нэр</label><input id="regName"></div><div class="field"><label>Хэрэглэгчийн нэр</label><input id="regId"></div><div class="field"><label>Нууц үг</label><input id="regPass" type="password"></div><div class="field"><label>Нууц үг давтах</label><input id="regPass2" type="password"></div><button class="primary" onclick="register()">Илгээх</button><div class="switch" onclick="toggleRegister(false)">Нэвтрэх рүү буцах</div></div></div></div></section>
-<section id="home" class="screen"><header class="top"><button onclick="show('menu')">☰</button><div class="ttl">Нүүр</div><button onclick="featureOpen('tables','tables',()=>setTimeout(searchTables,100))">⌕</button></header><div class="home"><div class="userinfo"><div class="avatar">🃏</div><span id="uName">user</span><span class="bal" id="uBal" onclick="openJackpot()" style="cursor:pointer">0</span><div class="brandMark" title="Mongol Poker"></div></div><div class="banner" id="homeBanner" onclick="featureOpen('messages','messages')"><div class="mpOrbit"></div><div class="mpHeroLogo"><span class="shine"></span></div></div><div class="tiles"><div class="tile" onclick="featureOpen('tables','tables')"><span class="icon">🃏</span>Ширээнүүд</div><div class="tile" onclick="featureOpen('tour','tour')"><span class="icon">🏆</span>Тэмцээнүүд</div><div class="tile wide" onclick="featureOpen('sitgo','sitgo')"><span class="icon">🏆⚡</span>Sit & Go</div></div></div></section>
+<section id="home" class="screen"><div class="refHome">
+  <div class="refTopMini">
+    <div class="refMiniLogo"><span>MP</span><small>MONGOL<br>POKER</small></div>
+    <div class="refMiniStats">◉ 2016 &nbsp; ♟ 202 &nbsp; ◎ 80</div>
+    <div class="refMiniActions"><button onclick="logout()">Нэвтрэх</button><button class="green" onclick="logout();toggleRegister(true)">Бүртгүүлэх</button></div>
+  </div>
+  <div class="refJackpot" onclick="openJackpot()"><small>Bad beat</small><span>ЖЕКПОТ</span><b id="uBal">0</b></div>
+  <div class="refBanner" id="homeBanner" onclick="featureOpen('messages','messages')"><span class="plane">✈</span><strong>АДМИНТАЙ<br>ХОЛБОГДОХ</strong></div>
+  <div class="refTiles">
+    <div class="refTile" onclick="featureOpen('tables','tables')"><div class="refIcon cardsCoin">🃏🪙</div><span>Ширээнүүд</span></div>
+    <div class="refTile" onclick="featureOpen('tour','tour')"><div class="refIcon cupBall">🏆🟢</div><span>Тэмцээнүүд</span></div>
+    <div class="refTile sit" onclick="featureOpen('sitgo','sitgo')"><div class="refIcon cupBolt">🏆⚡</div><span>Sit &amp; Go</span></div>
+  </div>
+  <div class="refFloat"><button onclick="featureOpen('messages','messages')">✉</button><button onclick="featureOpen('messages','messages')">◔</button></div>
+  <span id="uName" class="hidden"></span>
+</div></section>
 <section id="jackpot" class="screen"><div class="jpHero"><button class="jpClose" onclick="show('home')">×</button><div class="jpTitle">Bad beat Jackpot</div><div class="jpBig" id="jpAmount">0</div></div><div class="jpTabs" id="jpTabs"><div class="on" onclick="jackpotTab(this,'payouts')">Payouts</div><div onclick="jackpotTab(this,'winners')">Winners</div><div onclick="jackpotTab(this,'conditions')">Conditions</div></div><div id="jpContent" class="jpBody"></div></section>
 <section id="tables" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Ширээнүүд</div><button onclick="searchTables()">⌕</button></header><div class="subtop"><span>↕</span><b id="tableCount">0 ШИРЭЭ</b><span>☷</span></div><div id="tableList"></div></section>
 <section id="tour" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Тэмцээнүүд</div><button onclick="searchTours()">⌕</button></header><div class="subtop"><span>↕</span><b>8 ТЭМЦЭЭНҮҮД</b><span>☷</span></div><div id="tourList"></div></section>
@@ -164,7 +199,7 @@ function startJackpotAnimation(){
   jpSaveTick++; if(jpSaveTick>=10){jpSaveTick=0;save()}
  },420);
 }
-function renderHome(){$('uName').textContent=currentUser?.name||'';$('uBal').textContent='ЖЕКПОТ '+fmt(db.jackpot||0);if(jpAnimValue===null)jpAnimValue=Number(db.jackpot||0);if(!jpAnimTimer)startJackpotAnimation();if($('homeBanner')&&!$('homeBanner').querySelector('.mpHeroLogo'))$('homeBanner').innerHTML='<div class="mpOrbit"></div><div class="mpHeroLogo"><span class="shine"></span></div>';if($('adminMenuItem'))$('adminMenuItem').classList.toggle('hidden',currentUser?.role!=='admin')}
+function renderHome(){if($('uName'))$('uName').textContent=currentUser?.name||'';if($('uBal'))$('uBal').textContent=fmt(db.jackpot||0);if(jpAnimValue===null)jpAnimValue=Number(db.jackpot||0);if(!jpAnimTimer)startJackpotAnimation();if($('adminMenuItem'))$('adminMenuItem').classList.toggle('hidden',currentUser?.role!=='admin')}
 function renderTables(){$('tableCount').textContent=db.tables.length+' ШИРЭЭ';$('tableList').innerHTML=db.tables.map((t,i)=>`<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${t.name} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE 1%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${Math.min(9,2+i)}/10 &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)}</div></div><div class="join"><button ${t.open?'':'disabled'} onclick="join('${t.id}')">Орох дүн<br>${fmt(t.buy)}</button></div></div>`).join('')}
 const tours=[['FREEROLL - 100K','100,000','Үнэгүй'],['УЛААН 500,000₮ BUY IN','100,000','1,000'],['FREEROLL - 100K','100,000','Тоглож байна'],['ШАР 1,500,000₮ BUY IN','50,000','✓'],['FREEROLL - 100K','100,000','✓'],['УЛААН 500,000₮ BUY IN','50,000','✓']];
 function renderTours(){$('tourList').innerHTML=tours.map((t,i)=>`<div class="tourRow"><div class="clock">${i<3?'11:37':'✓'}</div><div class="tourMain"><div class="tourTitle">🏆 ${t[0]}</div><div class="tourMeta">💰 ${t[1]}<br>👥 ${12+i*9}</div></div><div class="tourAction"><button onclick="tourAction(${i})">${t[2]}</button></div></div>`).join('')}
@@ -241,7 +276,7 @@ load();renderTours();show('auth');
 @keyframes mpFloatText{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
 </style>
 <script>
-(function(){function forceMp(){var b=document.getElementById('homeBanner');if(!b)return;b.textContent='';b.removeAttribute('data-banner-text');}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',forceMp);else forceMp();setInterval(forceMp,1000);})();
+
 </script>
 
 </body></html>
