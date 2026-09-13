@@ -405,6 +405,18 @@ load();renderTours();show('auth');
   #game .s5 .betTag,#game .s7 .betTag{right:50px!important;left:auto!important;top:34px!important;transform:none!important}
   #game .s6 .betTag{right:52px!important;left:auto!important;top:25px!important;transform:none!important}
 }
+
+/* FINAL anti-flicker: cards animate only when a NEW hand/street is dealt */
+#game .holeBack{animation:none!important;opacity:1!important}
+#game.dealAnim .holeBack{animation:dealBack .28s cubic-bezier(.2,.8,.2,1) both!important}
+#game.dealAnim .holeBack:nth-child(2){animation-delay:.08s!important}
+#game .board .card{animation:none!important;opacity:1!important}
+#game.boardAnim .board .card:not(.blank){animation:boardFlip .35s ease both!important}
+#game .mycards .card{animation:none!important;opacity:1!important}
+#game.dealAnim .mycards .card{animation:myDeal .32s ease both!important}
+#game.dealAnim .mycards .card:nth-child(2){animation-delay:.08s!important}
+#game.dealAnim .mycards .card:nth-child(3){animation-delay:.13s!important}
+#game.dealAnim .mycards .card:nth-child(4){animation-delay:.18s!important}
 </style>
 <script id="livePokerTableLogic">
 (function(){
@@ -489,7 +501,7 @@ load();renderTours();show('auth');
     liveDealer=handNo%seatCount();liveSB=(liveDealer+1)%seatCount();liveBB=(liveDealer+2)%seatCount();liveTurn=0;
     const sbPaid=players[liveSB].chips>0?pay(liveSB,currentTable.sb):0,bbPaid=players[liveBB].chips>0?pay(liveBB,currentTable.bb):0;
     toCall=(liveSB===0?Math.max(0,currentTable.bb-currentTable.sb):liveBB===0?0:currentTable.bb);
-    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Шинэ гар эхэллээ');renderGame();
+    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Шинэ гар эхэллээ');$('game')?.classList.add('dealAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('dealAnim'),650);
     setTimeout(()=>{animateChip(liveSB,sbPaid);animateChip(liveBB,bbPaid)},180);
     setTimeout(startUserTurn,650);
   };
@@ -566,7 +578,7 @@ load();renderTours();show('auth');
     else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn — Таны ээлж')}
     else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River')}
     else{return showdown()}
-    renderGame();setTimeout(startUserTurn,500);
+    $('game')?.classList.add('boardAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('boardAnim'),450);setTimeout(startUserTurn,500);
   };
 
   fold=function(auto=false){if(!adminAllows('gameplay'))return;if(finished||spectator||liveRoundBusy||liveTurn!==0)return;stopUserTurnClock();folded[0]=true;let alive=players.map((_,i)=>i).filter(i=>i!==0&&!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;save();setStatus((auto?'20 секунд дууслаа — Auto Fold • ':'Та Fold хийлээ • ')+players[w].name+' яллаа • RAKE '+fmt(p.rake)+' → ЖЕКПОТ');renderGame();setTimeout(newHand,1500)};
