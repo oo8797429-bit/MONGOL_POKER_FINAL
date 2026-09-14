@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <title>Mongol Poker</title>
-<meta name="mp-build" content="firebase-withdraw-v2-ui">
+<meta name="mp-build" content="firebase-withdraw-v3-old-ui">
 <style>
 :root{--bg:#111416;--panel:#1d2225;--panel2:#272d30;--line:#353c3f;--green:#067943;--green2:#0caf63;--gold:#d7a42f;--text:#f4f4f4;--muted:#9ba3a7;--red:#a43f48;--blue:#2b75a7}
 *{box-sizing:border-box}html,body{margin:0;background:#090b0c;color:var(--text);font-family:Arial,Helvetica,sans-serif}button,input,select{font:inherit}.app{width:100%;max-width:430px;min-height:100vh;margin:auto;background:var(--bg);position:relative;overflow:hidden}.hidden{display:none!important}.screen{display:none;min-height:100vh}.screen.active{display:block}.top{height:48px;background:linear-gradient(#0c7a49,#075c39);display:grid;grid-template-columns:48px 1fr 48px;align-items:center;position:sticky;top:0;z-index:50}.top button{border:0;background:transparent;color:#fff;font-size:26px}.top .ttl{text-align:center;font-weight:700}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:56px;background:#0d1011;border-top:1px solid #252b2e;display:grid;grid-template-columns:repeat(5,1fr);z-index:60}.bottom button{border:0;background:transparent;color:#777f82;font-size:9px}.bottom .ico{display:block;font-size:18px;margin-bottom:3px}.bottom .on{color:#13cb76}.auth{min-height:100vh;background:#16191b;padding:0 14px 32px}.hero{height:265px;margin:0 -14px 14px;background:radial-gradient(circle at 68% 30%,#8f3e22 0,#4f2118 24%,#1e1614 47%,#101314 75%);position:relative;overflow:hidden}.hero:before{content:'♠ A  ♥ A  ♦ A  ♣ A';position:absolute;right:14px;bottom:35px;color:#fff;font-weight:800;font-size:22px;letter-spacing:3px}.hero:after{content:'MONGOL POKER';position:absolute;left:16px;top:26px;font-weight:900;color:#d8ad43;letter-spacing:1px}.authCard{background:#1c2022;border:1px solid #32383b;padding:14px}.authCard h2{font-size:15px;text-align:center;margin:0 0 12px}.field{margin:9px 0}.field label{display:block;font-size:10px;color:#a6adb0;margin-bottom:5px}.field input,.field select{width:100%;height:38px;background:#141719;border:1px solid #394044;color:#fff;padding:0 10px}.primary{width:100%;height:40px;border:0;background:linear-gradient(#17bd68,#078842);color:white;font-weight:700}.switch{text-align:center;font-size:11px;color:#36d88a;margin-top:12px}.home{padding:10px 10px 72px;background:linear-gradient(180deg,#061f18 0,#111516 36%);min-height:100vh}.userinfo{display:flex;align-items:center;gap:8px;font-size:10px}.avatar{width:32px;height:32px;border-radius:50%;background:#26362e;border:1px solid #50625a;display:grid;place-items:center}.bal{margin-left:auto;color:#f1ca69;font-size:12px;position:relative;overflow:hidden;padding:7px 10px;border-radius:16px;white-space:nowrap;text-shadow:0 0 6px rgba(255,196,70,.45)}
@@ -1027,37 +1027,17 @@ function cashTab(el,tab){
   if($('cashOtherPane'))$('cashOtherPane').classList.add('on');
   if($('cashOtherText')){
     if(tab==='withdraw'){
-      const wb=currentUser?.bank||'Банк бүртгэгдээгүй';
-      const wa=currentUser?.bankAccount||'Данс бүртгэгдээгүй';
-      const max=Math.max(0,Math.floor(Number(currentUser?.chips)||0));
       $('cashOtherText').classList.remove('empty');
       $('cashOtherText').innerHTML=`
-        <div class="depositWrap" style="min-height:calc(100vh - 90px)">
-          <div class="depositTitle">Мөнгө татах хүсэлт</div>
-
-          <div class="depositField">
-            <small>Таны банк</small>
-            <b>${wb}</b>
-          </div>
-
-          <div class="depositField">
-            <small>Таны дансны дугаар</small>
-            <b>${wa}</b>
-          </div>
-
-          <div class="depositMeta">
-            Таталтын мөнгийг дээрх бүртгэлтэй банк / данс руу шилжүүлнэ.<br>
-            Боломжит үлдэгдэл: <b style="color:#e8c25a">${fmt(max)} chip</b>
-          </div>
-
-          <div class="depositRequest">
-            <input id="withdrawAmount" type="number" min="1" max="${max}" inputmode="numeric"
-              placeholder="Татах дүн">
-            <button id="withdrawSendBtn" onclick="requestCashout()">Мөнгө татах хүсэлт илгээх</button>
-          </div>
-
-          <div style="margin-top:12px;font-size:10px;line-height:1.55;color:#8e969a">
-            Хүсэлт админд online очно. Админ төлбөр хийсний дараа “Төлсөн” гэж тэмдэглэнэ.
+        <div style="min-height:calc(100vh - 188px);display:flex;align-items:flex-start;justify-content:center;padding:144px 14px 90px;background:#101314">
+          <div class="simpleCard" style="width:100%;max-width:390px;text-align:center;padding:18px 14px 14px">
+            <h3 style="color:#e8c25a;margin:0 0 12px">Мөнгө татах</h3>
+            <div style="font-size:11px;line-height:1.7;color:#c8d0cd;margin-bottom:14px">
+              Татах дүнгээ оруулаад хүсэлт илгээнэ. Хүсэлт админы<br>“Ирсэн мессеж” хэсэгт орно.
+            </div>
+            <button onclick="requestCashout()" style="width:100%;height:42px;border:0;border-radius:4px;background:#0caf63;color:#fff;font-weight:800">
+              Мөнгө татах хүсэлт илгээх
+            </button>
           </div>
         </div>`;
     }else{
@@ -1085,21 +1065,12 @@ async function requestCashout(){
   if(!adminAllows('cashout'))return;
   if(!currentUser)return;
 
-  const input=$('withdrawAmount');
-  const btn=$('withdrawSendBtn');
-  let a=Math.floor(Number(input?.value)||0);
+  let a=prompt('Татах chip дүнгээ оруулна уу',String(Math.min(currentUser.chips||0,25000)));
+  if(a===null)return;
+  a=Math.floor(Number(a));
 
-  if(!currentUser.bank||!currentUser.bankAccount)
-    return toast('Эхлээд бүртгэлийн банк / дансны мэдээлэл хэрэгтэй');
-  if(!a||a<=0)
-    return toast('Татах дүнгээ оруулна уу');
-  if(a>(currentUser.chips||0))
-    return toast('Үлдэгдэл хүрэхгүй байна');
-
-  if(btn){
-    btn.disabled=true;
-    btn.textContent='Илгээж байна...';
-  }
+  if(!a||a<=0)return toast('Дүнгээ зөв оруулна уу');
+  if(a>(currentUser.chips||0))return toast('Үлдэгдэл хүрэхгүй байна');
 
   const localMsg={
     type:'cashout',
@@ -1109,7 +1080,8 @@ async function requestCashout(){
     status:'pending',
     bank:currentUser.bank||'',
     bankAccount:currentUser.bankAccount||'',
-    text:'МӨНГӨ ТАТАХ ХҮСЭЛТ: '+fmt(a)+' chip • '+(currentUser.bank||'Банк')+' • '+currentUser.bankAccount,
+    text:'МӨНГӨ ТАТАХ ХҮСЭЛТ: '+fmt(a)+' chip'+
+      (currentUser.bankAccount?' • '+(currentUser.bank||'Банк')+' • '+currentUser.bankAccount:''),
     time:new Date().toLocaleString('mn-MN')
   };
 
@@ -1120,16 +1092,10 @@ async function requestCashout(){
     db.messages=db.messages||[];
     db.messages.push(localMsg);
     save();
-    if(input)input.value='';
     toast('Таталтын хүсэлт админд ONLINE илгээгдлээ');
   }catch(e){
     console.warn(e);
     toast('Firebase холболтгүй байна. Хүсэлт илгээгдсэнгүй');
-  }finally{
-    if(btn){
-      btn.disabled=false;
-      btn.textContent='Мөнгө татах хүсэлт илгээх';
-    }
   }
 }
 function sendMessage(){if(!adminAllows('sendmsg'))return;if(!currentUser)return;let t=$('msgText').value.trim();if(!t)return toast('Мессежээ бичнэ үү');db.messages.push({from:currentUser.id,text:t,time:new Date().toLocaleString()});save();$('msgText').value='';renderMessages();toast('Мессеж админд илгээгдлээ')}
