@@ -464,6 +464,64 @@
   #game .vslider{width:96px!important}
 }
 </style>
+
+<style id="homeMainMenuSizeOnly">
+/* ONLY CHANGE: make the three main home menu tiles larger like the reference site. */
+#home .refTiles{
+  gap:54px 42px!important;
+  padding:8px 34px 0!important;
+}
+#home .refTile{
+  font-size:15px!important;
+  font-weight:500!important;
+}
+#home .refIcon{
+  height:92px!important;
+  font-size:68px!important;
+  line-height:1!important;
+}
+#home .refTile span{
+  margin-top:7px!important;
+  font-size:15px!important;
+}
+#home .refTile.sit{
+  margin-top:2px!important;
+}
+@media(max-width:360px){
+  #home .refTiles{gap:46px 30px!important;padding:6px 25px 0!important}
+  #home .refIcon{height:84px!important;font-size:62px!important}
+  #home .refTile,#home .refTile span{font-size:14px!important}
+}
+</style>
+
+<style id="rightFloatButtonsOnly">
+/* ONLY CHANGE: make the two right-side home buttons larger, cleaner and evenly spaced. */
+#home .refFloat{
+  right:8px!important;
+  top:342px!important;
+  gap:12px!important;
+  z-index:35!important;
+}
+#home .refFloat button{
+  width:54px!important;
+  height:54px!important;
+  border-radius:8px!important;
+  border:1px solid #555d60!important;
+  background:linear-gradient(180deg,#454c4f,#383e40)!important;
+  color:#f1f3f2!important;
+  font-size:25px!important;
+  display:grid!important;
+  place-items:center!important;
+  box-shadow:0 4px 9px #0008,inset 0 1px #ffffff12!important;
+  padding:0!important;
+}
+#home .refFloat button:first-child{font-size:27px!important}
+#home .refFloat button:last-child{font-size:26px!important}
+@media(max-width:430px){
+  #home .refFloat{right:7px!important;gap:11px!important}
+  #home .refFloat button{width:52px!important;height:52px!important;border-radius:8px!important}
+}
+</style>
 </head>
 <body>
 <div class="app">
