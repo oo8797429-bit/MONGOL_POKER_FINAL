@@ -1051,4 +1051,86 @@ load();renderTours();show('auth');
 }
 </style>
 
+
+<style id="fireBrandUpgrade">
+/* Fire/gold upgrade for logo text, aces, and auth buttons */
+#auth .heroLogo.logoImg:before{
+  color:transparent!important;
+  background-image:linear-gradient(180deg,#fff8d5 0%,#ffe38a 18%,#ffb94c 42%,#ff7d21 62%,#d74810 82%,#fff0b5 100%)!important;
+  background-size:220% 100%!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  text-shadow:0 0 8px rgba(255,194,88,.35),0 0 16px rgba(255,113,28,.25)!important;
+  animation:mpFireTextShift 2.4s linear infinite,mpFireFlicker 1.5s ease-in-out infinite!important;
+}
+#auth .heroLogo.logoImg:after{
+  color:transparent!important;
+  background-image:linear-gradient(180deg,#fff6cf 0%,#ffe183 16%,#ffbd4d 38%,#ff912e 58%,#e04f12 82%,#fff1bd 100%)!important;
+  background-size:240% 100%!important;
+  -webkit-background-clip:text!important;
+  background-clip:text!important;
+  text-shadow:0 0 10px rgba(255,206,98,.30),0 0 18px rgba(255,111,35,.24)!important;
+  animation:mpFireTextShift 2.8s linear infinite,mpFireFlicker 1.7s ease-in-out infinite!important;
+}
+#auth .heroLogo.logoImg{
+  box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 26px rgba(255,180,58,.42),0 0 36px rgba(255,90,26,.18),inset 0 1px 0 #fff4!important;
+}
+#auth .aceRow .ace{
+  background-image:linear-gradient(180deg,#fff8d8 0%,#ffe68f 18%,#ffc24d 42%,#ff8d24 62%,#d74610 84%,#fff0b7 100%)!important;
+  background-size:220% 100%!important;
+  text-shadow:0 0 9px rgba(255,201,98,.22),0 2px 6px rgba(0,0,0,.86)!important;
+  animation:aceFireShift 2.2s linear infinite,aceFireFlicker 1.15s ease-in-out infinite alternate!important;
+}
+#auth .primary,
+#auth.registerMode .regSubmit{
+  position:relative;
+  overflow:hidden;
+  border:1px solid #f0be53!important;
+  background:linear-gradient(180deg,#fff1b0 0%,#f8c64f 22%,#f19c2a 58%,#ca5b15 100%)!important;
+  color:#261605!important;
+  font-weight:900!important;
+  letter-spacing:.4px;
+  box-shadow:0 0 0 1px rgba(70,35,8,.7),0 6px 16px rgba(0,0,0,.35),0 0 18px rgba(255,197,76,.35)!important;
+  text-shadow:0 1px 0 rgba(255,247,210,.55)!important;
+  animation:authBtnGlow 1.8s ease-in-out infinite!important;
+}
+#auth .primary::after,
+#auth.registerMode .regSubmit::after{
+  content:'';
+  position:absolute;
+  top:-20%;
+  left:-28%;
+  width:24%;
+  height:140%;
+  transform:skewX(-22deg);
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.16) 35%,rgba(255,255,255,.88) 50%,rgba(255,255,255,.18) 65%,transparent 100%);
+  animation:authBtnSweep 2.1s linear infinite;
+  pointer-events:none;
+}
+@keyframes mpFireTextShift{
+  0%{background-position:0% 50%}
+  100%{background-position:240% 50%}
+}
+@keyframes mpFireFlicker{
+  0%,100%{filter:drop-shadow(0 0 2px rgba(255,220,120,.45)) drop-shadow(0 0 8px rgba(255,109,29,.28));opacity:.96}
+  50%{filter:drop-shadow(0 0 5px rgba(255,245,182,.85)) drop-shadow(0 0 14px rgba(255,110,36,.55));opacity:1}
+}
+@keyframes aceFireShift{
+  0%{background-position:0% 50%}
+  100%{background-position:220% 50%}
+}
+@keyframes aceFireFlicker{
+  from{filter:drop-shadow(0 0 2px rgba(255,206,99,.38)) drop-shadow(0 0 6px rgba(255,110,30,.18));transform:translateY(0) scale(1)}
+  to{filter:drop-shadow(0 0 5px rgba(255,236,156,.85)) drop-shadow(0 0 14px rgba(255,95,20,.42));transform:translateY(-1px) scale(1.03)}
+}
+@keyframes authBtnGlow{
+  0%,100%{box-shadow:0 0 0 1px rgba(70,35,8,.7),0 6px 16px rgba(0,0,0,.35),0 0 14px rgba(255,197,76,.28)}
+  50%{box-shadow:0 0 0 1px rgba(70,35,8,.78),0 8px 18px rgba(0,0,0,.4),0 0 24px rgba(255,212,95,.55)}
+}
+@keyframes authBtnSweep{
+  0%{left:-28%}
+  100%{left:112%}
+}
+</style>
+
 </body></html>
