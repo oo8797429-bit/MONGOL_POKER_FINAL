@@ -872,4 +872,69 @@ load();renderTours();show('auth');
   document.addEventListener('webkitfullscreenchange',sync);
 })();
 </script>
+
+<style id="wideAnimatedLoginLogo">
+/* Wide animated MONGOL POKER logo above the A A A A row */
+#auth .hero:after{content:none!important;}
+#auth .heroLogo{
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:28px!important;
+  transform:translateX(-50%)!important;
+  width:min(78vw,290px)!important;
+  height:76px!important;
+  border-radius:18px!important;
+  z-index:4!important;
+  overflow:hidden!important;
+  animation:mpWideFloat 2.4s ease-in-out infinite!important;
+}
+#auth .heroLogo.logoImg{
+  background-image:linear-gradient(105deg,#140d07 0%,#6f4913 18%,#f1c24a 42%,#fff0a3 50%,#d8a62f 58%,#725017 82%,#140d07 100%)!important;
+  background-size:220% 100%!important;
+  background-position:0% 50%!important;
+  border:2px solid #e1b94b!important;
+  box-shadow:0 0 0 2px #3a290d,0 7px 22px #000a,0 0 20px #e9bd4455!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:14px!important;
+  color:#fff!important;
+  text-shadow:0 2px 4px #000!important;
+  animation:mpWideFloat 2.4s ease-in-out infinite,mpWideShine 2.6s linear infinite!important;
+}
+#auth .heroLogo.logoImg:before{
+  content:'MP'!important;
+  position:static!important;
+  font:900 35px/1 Arial,Helvetica,sans-serif!important;
+  letter-spacing:-2px!important;
+  color:#fff!important;
+  text-shadow:0 2px 5px #000,0 0 10px #fff4!important;
+}
+#auth .heroLogo.logoImg:after{
+  content:'MONGOL POKER'!important;
+  position:static!important;
+  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;
+  font:900 18px/1 Arial,Helvetica,sans-serif!important;
+  letter-spacing:2.2px!important;
+  color:#ffe49a!important;
+  white-space:nowrap!important;
+  text-shadow:0 2px 5px #000!important;
+}
+@keyframes mpWideFloat{
+  0%,100%{transform:translateX(-50%) translateY(0) scale(1)}
+  50%{transform:translateX(-50%) translateY(-5px) scale(1.015)}
+}
+@keyframes mpWideShine{
+  0%{background-position:0% 50%}
+  100%{background-position:200% 50%}
+}
+@media(max-width:360px){
+  #auth .heroLogo{width:270px!important;height:72px!important;}
+  #auth .heroLogo.logoImg:before{font-size:31px!important;}
+  #auth .heroLogo.logoImg:after{font-size:16px!important;letter-spacing:1.7px!important;}
+}
+</style>
+
 </body></html>
