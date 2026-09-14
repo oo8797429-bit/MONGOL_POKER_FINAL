@@ -102,6 +102,17 @@
 @keyframes mpShine{0%{transform:translateX(-90%) rotate(8deg)}100%{transform:translateX(90%) rotate(8deg)}}
 @keyframes mpSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 
+
+/* Ajnai-style inline table search — search UI only */
+.tablesTop{padding:0!important;display:block!important;height:48px!important}
+.tablesHeadNormal{height:48px;display:grid;grid-template-columns:48px 1fr 48px;align-items:center}
+.tablesSearchHead{height:48px;display:grid;grid-template-columns:56px 1fr;align-items:center;background:linear-gradient(#07593e,#064531);padding-right:8px}
+.tablesSearchBack{height:48px!important;width:56px!important;font-size:25px!important}
+.tablesSearchBox{height:38px;border:1px solid #19c66e;border-radius:5px;background:#171b1e;display:flex;align-items:center;padding:0 10px;gap:8px}
+.tablesSearchBox span{font-size:23px;color:#f0f0f0;line-height:1}
+.tablesSearchBox input{flex:1;min-width:0;height:34px;border:0!important;outline:0;background:transparent!important;color:#f4f4f4!important;font-size:15px;padding:0!important}
+.tablesSearchBox input::placeholder{color:#888f92}
+.tablesSearchBox input::-webkit-search-cancel-button{filter:invert(1);opacity:.7}
 </style>
 
 <style id="reference-home-match">
@@ -703,7 +714,7 @@
   <span id="uName" class="hidden"></span>
 </div></section>
 <section id="jackpot" class="screen"><div class="jpHero"><button class="jpClose" onclick="show('home')">×</button><div class="jpTitle">Bad beat Jackpot</div><div class="jpBig" id="jpAmount">0</div></div><div class="jpTabs" id="jpTabs"><div class="on" onclick="jackpotTab(this,'payouts')">Payouts</div><div onclick="jackpotTab(this,'winners')">Winners</div><div onclick="jackpotTab(this,'conditions')">Conditions</div></div><div id="jpContent" class="jpBody"></div></section>
-<section id="tables" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Ширээнүүд</div><button onclick="searchTables()">⌕</button></header><div class="subtop"><span>↕</span><b id="tableCount">0 ШИРЭЭ</b><span>☷</span></div><div id="tableList"></div></section>
+<section id="tables" class="screen"><header class="top tablesTop"><div id="tablesNormalHead" class="tablesHeadNormal"><button onclick="show('home')">‹</button><div class="ttl">Ширээнүүд</div><button onclick="searchTables()">⌕</button></div><div id="tablesSearchHead" class="tablesSearchHead hidden"><button class="tablesSearchBack" onclick="closeTableSearch()">←</button><div class="tablesSearchBox"><span>⌕</span><input id="tableSearchInput" type="search" placeholder="Тоглоомын Нэр" autocomplete="off" oninput="filterTablesLive()"></div></div></header><div class="subtop"><span>↕</span><b id="tableCount">0 ШИРЭЭ</b><span>☷</span></div><div id="tableList"></div></section>
 <section id="tour" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Тэмцээнүүд</div><button onclick="searchTours()">⌕</button></header><div class="subtop"><span>↕</span><b>8 ТЭМЦЭЭНҮҮД</b><span>☷</span></div><div id="tourList"></div></section>
 <section id="cash" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Касс</div><button onclick="renderCash()">⟳</button></header><div class="cash"><div class="cashTabs" id="cashTabs"><div class="on" data-tab="status" onclick="cashTab(this,'status')">ⓘ Төлөв</div><div data-tab="deposit" onclick="cashTab(this,'deposit')">🏦 Цэнэглэлт</div><div data-tab="transfer" onclick="cashTab(this,'transfer')">◉</div><div data-tab="withdraw" onclick="cashTab(this,'withdraw')">▣ Таталт</div><div data-tab="history" onclick="cashTab(this,'history')">◴</div></div><div id="cashStatusPane" class="cashPane on"><div class="cashList"><div class="cashBox">CGP <span class="amount" id="cashBal">0</span></div><div class="cashBox">MNT <span class="amount" id="cashMnt">0</span></div></div></div><div id="cashDepositPane" class="cashPane"><div class="depositWrap">
 <div id="depositAdminInline" class="depositAdminInline hidden">
@@ -1188,7 +1199,29 @@ function toast(t){$('toast').textContent=t;$('toast').classList.remove('hidden')
 function openJackpot(){show('jackpot');if($('jpAmount'))$('jpAmount').textContent=fmt(db.jackpot||0);jackpotTab(document.querySelector('#jpTabs div'),'payouts')}
 function jackpotTab(el,tab){document.querySelectorAll('#jpTabs div').forEach(x=>x.classList.remove('on'));if(el)el.classList.add('on');let j=db.jackpotSettings||{},c=$('jpContent');if(!c)return;if(tab==='payouts')c.innerHTML=`<div class="jpSelects"><div class="jpBox"><div class="jpLabel">Blinds</div>${j.blind||'Other values'}⌄</div><div class="jpBox"><div class="jpLabel">Тоглоомын төрөл</div>${j.game||'Холдем'}⌄</div></div><div class="jpTrigger">Bad beat Jackpot Trigger</div><div class="jpCards">A♠　A♣　A♥　2♣　2♦<small>${j.trigger||'Lose with Full House A-ууд ба 2-ууд or better'}</small></div><div class="jpDistTitle">Distribution</div><div class="jpRow"><span>Bad Beat Opponent</span><b>${j.table||15}%</b></div><div class="jpRow"><span>Bad Beat Winner</span><b>${j.winner||35}%</b></div><div class="jpRow"><span>Other Players</span><b>${j.loser||15}%</b></div><div class="jpRow"><span>Other Players at Other Tables</span><b>${j.house||0}%</b></div><button class="jpYes" onclick="show('home')">Тийм</button>`;else if(tab==='winners'){let w=db.jackpotWinners||[];c.innerHTML=`<div class="jpTrigger">Winners</div>${w.length?w.slice().reverse().map(x=>`<div class="jpRow"><span>${x.name}</span><b>${fmt(x.amount)}</b></div>`).join(''):'<div class="empty">Одоогоор Jackpot winner алга</div>'}<button class="jpYes" onclick="show('home')">Тийм</button>`}else c.innerHTML=`<div class="jpTrigger">Conditions</div><div class="jpRow"><span>Blinds</span><b>${j.blind||'-'}</b></div><div class="jpRow"><span>Game</span><b>${j.game||'-'}</b></div><div class="jpCards" style="margin-top:25px">A♠　A♣　A♥　2♣　2♦<small>${j.trigger||'-'}</small></div><button class="jpYes" onclick="show('home')">Тийм</button>`}
 
-function searchTables(){let q=prompt('Ширээ хайх');if(q===null)return;q=q.trim().toLowerCase();renderTables();if(!q)return;document.querySelectorAll('#tableList .tableRow').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'grid':'none')}
+function searchTables(){
+  const normal=$('tablesNormalHead'),search=$('tablesSearchHead'),inp=$('tableSearchInput');
+  if(normal)normal.classList.add('hidden');
+  if(search)search.classList.remove('hidden');
+  if(inp){inp.value='';setTimeout(()=>inp.focus(),40)}
+  filterTablesLive();
+}
+function filterTablesLive(){
+  const q=String($('tableSearchInput')?.value||'').trim().toLowerCase();
+  let shown=0;
+  document.querySelectorAll('#tableList .tableRow').forEach(x=>{
+    const ok=!q||x.textContent.toLowerCase().includes(q);
+    x.style.display=ok?'grid':'none';if(ok)shown++;
+  });
+  if($('tableCount'))$('tableCount').textContent=shown+' ШИРЭЭ';
+}
+function closeTableSearch(){
+  const normal=$('tablesNormalHead'),search=$('tablesSearchHead'),inp=$('tableSearchInput');
+  if(search)search.classList.add('hidden');
+  if(normal)normal.classList.remove('hidden');
+  if(inp)inp.value='';
+  renderTables();
+}
 function searchTours(){let q=prompt('Тэмцээн хайх');if(q===null)return;q=q.trim().toLowerCase();renderTours();if(!q)return;document.querySelectorAll('#tourList .tourRow').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'grid':'none')}
 function tourAction(i){if(!adminAllows('tour'))return;toast((tours[i]?.[0]||'Тэмцээн')+' — сонгогдлоо')}
 function saveDepositBankInline(){
