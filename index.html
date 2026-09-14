@@ -672,6 +672,13 @@
 #auth .refLoginCard .primary{height:52px!important;border-radius:5px!important;background:linear-gradient(180deg,#27c565,#0c8f3a)!important;border:0!important;color:#fff!important;box-shadow:none!important;font-size:17px!important;font-weight:500!important}
 #auth .registerBottom{text-align:center;margin-top:16px;font-size:12px;color:#eee}
 #auth .registerBottom span{color:#39d66b;cursor:pointer}
+
+/* Admin broadcast message panel only */
+.adminBroadcastCard textarea{width:100%;min-height:92px;background:#111516;border:1px solid #444d50;color:#fff;padding:11px;border-radius:4px;resize:vertical}
+.adminBroadcastHint{font-size:9px;color:#8e969a;line-height:1.5;margin-top:7px}
+.adminNotice{margin:10px 0 12px;padding:11px 12px;border-radius:12px;background:linear-gradient(135deg,#54206d,#7a2b91);border:1px solid #a05bbb;box-shadow:0 5px 18px #0005}
+.adminNoticeHead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px}.adminNoticeHead b{font-size:11px;color:#fff}.adminNoticeHead span{font-size:8px;color:#e6c9ef}
+.adminNoticeText{font-size:12px;line-height:1.55;color:#fff;white-space:pre-wrap;word-break:break-word}
 </style>
 </head>
 <body>
@@ -777,11 +784,11 @@
 <div class="field"><label>Дансны дугаар</label><input id="adminBankAccount" inputmode="numeric" placeholder="2905206001"></div>
 <div class="field"><label>IBAN</label><input id="adminBankIban" placeholder="MN00 0000 0000 0000 0000"></div>
 <button class="primary" onclick="saveBankSettings()">Банк / данс хадгалах</button>
-<div style="font-size:10px;color:#9aa2a4;margin-top:9px;line-height:1.5">Энд хадгалсан банк, данс, IBAN нь Касс → Цэнэглэлт дээр тоглогчдод шууд харагдана.</div></div><div class="adminCard"><h3>БҮХ УДИРДЛАГА — Админ ON/OFF</h3><div class="adminFeature"><span>🃏 Ширээнүүд</span><input id="feat_tables" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🏆 Тэмцээнүүд</span><input id="feat_tour" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚡ Sit & Go</span><input id="feat_sitgo" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💼 Касс</span><input id="feat_cash" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◎ Мессеж</span><input id="feat_messages" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>▥ Статистик</span><input id="feat_stats" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚙ Тохиргоо</span><input id="feat_settings" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>❔ Тусламж</span><input id="feat_help" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>👤 Шинэ бүртгэл</span><input id="feat_register" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🚪 Ширээнд суух</span><input id="feat_join" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🎮 FOLD / CHECK / CALL / RAISE</span><input id="feat_gameplay" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>➕ Ширээнд мөнгө нэмэх</span><input id="feat_addmoney" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◔ Тоглолт үзэх</span><input id="feat_spectate" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💸 Мөнгө татах хүсэлт</span><input id="feat_cashout" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>✉ Мессеж илгээх</span><input id="feat_sendmsg" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⌯ Хуваалцах</span><input id="feat_share" type="checkbox" onchange="saveFeatureSettings()"></div><div style="font-size:9px;color:#8e969a;margin-top:8px">OFF болгосон удирдлага хэрэглэгч дээр ажиллахгүй. Админ өөрөө үргэлж ашиглана.</div></div><div class="adminCard"><h3>💸 Таталтын хүсэлтүүд</h3><div id="adminWithdrawals"></div></div><div class="adminCard"><h3>Ирсэн мессеж</h3><div id="adminMessages"></div></div></div></section>
+<div style="font-size:10px;color:#9aa2a4;margin-top:9px;line-height:1.5">Энд хадгалсан банк, данс, IBAN нь Касс → Цэнэглэлт дээр тоглогчдод шууд харагдана.</div></div><div class="adminCard"><h3>БҮХ УДИРДЛАГА — Админ ON/OFF</h3><div class="adminFeature"><span>🃏 Ширээнүүд</span><input id="feat_tables" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🏆 Тэмцээнүүд</span><input id="feat_tour" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚡ Sit & Go</span><input id="feat_sitgo" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💼 Касс</span><input id="feat_cash" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◎ Мессеж</span><input id="feat_messages" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>▥ Статистик</span><input id="feat_stats" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚙ Тохиргоо</span><input id="feat_settings" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>❔ Тусламж</span><input id="feat_help" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>👤 Шинэ бүртгэл</span><input id="feat_register" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🚪 Ширээнд суух</span><input id="feat_join" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🎮 FOLD / CHECK / CALL / RAISE</span><input id="feat_gameplay" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>➕ Ширээнд мөнгө нэмэх</span><input id="feat_addmoney" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◔ Тоглолт үзэх</span><input id="feat_spectate" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💸 Мөнгө татах хүсэлт</span><input id="feat_cashout" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>✉ Мессеж илгээх</span><input id="feat_sendmsg" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⌯ Хуваалцах</span><input id="feat_share" type="checkbox" onchange="saveFeatureSettings()"></div><div style="font-size:9px;color:#8e969a;margin-top:8px">OFF болгосон удирдлага хэрэглэгч дээр ажиллахгүй. Админ өөрөө үргэлж ашиглана.</div></div><div class="adminCard"><h3>💸 Таталтын хүсэлтүүд</h3><div id="adminWithdrawals"></div></div><div class="adminCard adminBroadcastCard"><h3>📣 Бүх тоглогчид бичих</h3><textarea id="adminBroadcastText" placeholder="Тоглогчдод харагдах мессежээ бичнэ үү..."></textarea><button class="primary" onclick="sendAdminBroadcast()">Илгээх</button><div class="adminBroadcastHint">Эндээс илгээсэн зарлал тоглогчдын Мессеж хэсэгт “Admin” нэрээр, цагтайгаа харагдана.</div></div><div class="adminCard"><h3>Ирсэн мессеж</h3><div id="adminMessages"></div></div></div></section>
 
 <section id="registeredUsers" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Бүртгэлтэй хүмүүс</div><button onclick="renderRegisteredUsers()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Бүртгэлтэй хэрэглэгчид <span id="registeredUsersCount"></span></h3><div id="registeredUsersList"></div></div></div></section>
 <section id="contact" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Админтай холбогдох</div><button onclick="renderContact()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Төлбөр / дансны мэдээлэл</h3><div class="settingRow"><span>Банк</span><b id="contactBankName">-</b></div><div class="settingRow"><span>Данс</span><b id="contactBankAccount">-</b></div><div id="contactBankNote" style="font-size:11px;line-height:1.6;color:#c8d0cd;margin-top:12px"></div><button onclick="featureOpen('messages','messages')">✉ Админд мессеж бичих</button></div></div></section>
-<section id="messages" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Мессеж</div><button onclick="renderMessages()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Админд мессеж илгээх</h3><textarea id="msgText" placeholder="Мессежээ бичнэ үү"></textarea><button onclick="sendMessage()">Илгээх</button></div><div id="messageList"></div></div></section>
+<section id="messages" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Мессеж</div><button onclick="renderMessages()">⟳</button></header><div class="simplePage"><div id="adminBroadcastList"></div><div class="simpleCard"><h3>Админд мессеж илгээх</h3><textarea id="msgText" placeholder="Мессежээ бичнэ үү"></textarea><button onclick="sendMessage()">Илгээх</button></div><div id="messageList"></div></div></section>
 <section id="stats" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Статистик</div><button onclick="renderStats()">⟳</button></header><div class="simplePage"><div class="statGrid"><div class="statBox">Гар<b id="stHands">0</b></div><div class="statBox">Хожил<b id="stWins">0</b></div><div class="statBox">Chip<b id="stChips">0</b></div><div class="statBox">Ширээ<b id="stTables">0</b></div></div><div class="simpleCard"><button onclick="featureOpen('tables','tables')">Ширээнүүд рүү орох</button></div></div></section>
 <section id="settings" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тохиргоо</div><button></button></header><div class="simplePage"><div class="simpleCard"><div class="settingRow"><span>Дуу</span><input id="setSound" type="checkbox" checked onchange="saveSettings()"></div><div class="settingRow"><span>Чичиргээ</span><input id="setVibe" type="checkbox" checked onchange="saveSettings()"></div><button onclick="saveSettings();toast('Тохиргоо хадгалагдлаа')">Хадгалах</button></div></div></section>
 <section id="help" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тусламж</div><button></button></header><div class="simplePage"><div class="simpleCard"><h3>Mongol Poker</h3><div style="font-size:12px;line-height:1.7">Ширээ сонгоод орох дүнгээр сууна. Тоглолтын үед FOLD, CHECK/CALL, RAISE товч ажиллана. Асуудал гарвал Мессеж хэсгээс админд бичээрэй.</div><button onclick="featureOpen('messages','messages')">Админд бичих</button></div></div></section>
@@ -814,7 +821,7 @@ const MP_FIREBASE_CONFIG={
   messagingSenderId:'162661425789',
   appId:'1:162661425789:web:945c92df8fa85d96f94714'
 };
-let mpAuth=null,mpRtdb=null,mpRemoteRegistrations=[],mpRemoteWithdrawals=[],mpRegListenerRef=null,mpUserWithdrawRef=null;
+let mpAuth=null,mpRtdb=null,mpRemoteRegistrations=[],mpRemoteWithdrawals=[],mpRegListenerRef=null,mpUserWithdrawRef=null,mpBroadcastRef=null,mpBroadcasts=[];
 try{
   if(!firebase.apps.length)firebase.initializeApp(MP_FIREBASE_CONFIG);
   mpAuth=firebase.auth();
@@ -969,8 +976,34 @@ async function mpFirebaseAdminLogin(email,password){
   mpStartAdminRegistrationListener();
   return c.user;
 }
+function mpStartBroadcastListener(){
+  if(!mpRtdb||mpBroadcastRef)return;
+  mpBroadcastRef=mpRtdb.ref('announcements');
+  mpBroadcastRef.limitToLast(50).on('value',snap=>{
+    const raw=snap.val()||{};
+    mpBroadcasts=Object.entries(raw).map(([key,v])=>Object.assign({_key:key},v||{})).filter(x=>x.text).sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
+    try{renderAdminBroadcasts()}catch(e){}
+  },err=>console.warn('Announcement read failed',err));
+}
+async function sendAdminBroadcast(){
+  if(currentUser?.role!=='admin')return toast('Админ эрх шаардлагатай');
+  const el=document.getElementById('adminBroadcastText'),text=String(el?.value||'').trim();
+  if(!text)return toast('Мессежээ бичнэ үү');
+  const item={from:'Admin',text:text,createdAt:Date.now(),time:new Date().toLocaleString('mn-MN')};
+  try{
+    if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)throw new Error('Firebase admin эрх шаардлагатай');
+    await mpRtdb.ref('announcements').push(item);
+    if(el)el.value='';toast('Бүх тоглогчид илгээлээ');
+  }catch(e){console.warn('Announcement write failed',e);toast('Зарлал илгээж чадсангүй — Firebase announcements эрхийг шалгана уу')}
+}
+function renderAdminBroadcasts(){
+  const host=document.getElementById('adminBroadcastList');if(!host)return;
+  const list=(mpBroadcasts||[]);
+  host.innerHTML=list.length?list.map(m=>`<div class="adminNotice"><div class="adminNoticeHead"><b>Admin</b><span>${m.time||''}</span></div><div class="adminNoticeText">${escapeHtml(String(m.text||''))}</div></div>`).join(''):'';
+}
 function mpInitAfterAppLoad(){
   if(!mpAuth)return;
+  mpStartBroadcastListener();
   mpAuth.onAuthStateChanged(user=>{
     if(user&&user.uid===MP_ADMIN_UID){
       const au=(db.users||[]).find(x=>x.role==='admin')||(db.users||[]).find(x=>x.id==='admin');
@@ -1276,7 +1309,7 @@ function renderAdminWithdrawals(){
   box.innerHTML=list.map(w=>{const st=mpWithdrawalDisplayStatus(w);const actions=st==='pending'?`<div class="wdActions"><button class="wdPay" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','approved')">ЗӨВШӨӨРӨХ</button><button class="wdReject" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','rejected')">БУЦААХ</button></div>`:st==='approved'?`<div class="wdActions"><button class="wdPay" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','paid')">ТӨЛСӨН</button><button class="wdReject" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','rejected')">БУЦААХ</button></div>`:'';return `<div class="adminWithdrawItem"><b>${w.userName||w.userId}</b> (${w.userId})<br><b>${fmt(w.amount)} MNT</b> • ${w.bank||'-'}<br>🏦 ${w.account||'-'}<br>👤 ${w.holder||'-'}<br>${label(st)} • ${w.createdText||''}${actions}</div>`}).join('');
 }
 function sendMessage(){if(!adminAllows('sendmsg'))return;if(!currentUser)return;let t=$('msgText').value.trim();if(!t)return toast('Мессежээ бичнэ үү');db.messages.push({from:currentUser.id,text:t,time:new Date().toLocaleString()});save();$('msgText').value='';renderMessages();toast('Мессеж админд илгээгдлээ')}
-function renderMessages(){if(!$('messageList'))return;let list=currentUser?.role==='admin'?db.messages:db.messages.filter(m=>m.from===currentUser?.id);$('messageList').innerHTML=list.length?list.slice().reverse().map(m=>`<div class="simpleCard"><b>${m.from}</b><div style="margin-top:6px;font-size:12px">${m.text}</div><div style="margin-top:6px;font-size:9px;color:#8e969a">${m.time}</div></div>`).join(''):'<div class="empty">Мессеж алга</div>'}
+function renderMessages(){renderAdminBroadcasts();if(!$('messageList'))return;let list=currentUser?.role==='admin'?db.messages:db.messages.filter(m=>m.from===currentUser?.id);$('messageList').innerHTML=list.length?list.slice().reverse().map(m=>`<div class="simpleCard"><b>${m.from}</b><div style="margin-top:6px;font-size:12px">${m.text}</div><div style="margin-top:6px;font-size:9px;color:#8e969a">${m.time}</div></div>`).join(''):'<div class="empty">Мессеж алга</div>'}
 function renderStats(){let s=currentUser?.stats||{hands:0,wins:0,tables:0};if($('stHands'))$('stHands').textContent=fmt(s.hands);if($('stWins'))$('stWins').textContent=fmt(s.wins);if($('stChips'))$('stChips').textContent=fmt(currentUser?.chips||0);if($('stTables'))$('stTables').textContent=fmt(s.tables)}
 function renderSettings(){if($('setSound'))$('setSound').checked=db.settings.sound!==false;if($('setVibe'))$('setVibe').checked=db.settings.vibe!==false}
 function saveSettings(){db.settings.sound=$('setSound')?.checked!==false;db.settings.vibe=$('setVibe')?.checked!==false;save()}
