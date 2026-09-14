@@ -333,7 +333,7 @@
 </head>
 <body>
 <div class="app">
-<section id="auth" class="screen active"><div class="auth"><div class="hero"><div class="heroLogo logoImg"></div></div><div class="authCard"><h2 id="authTitle">Нэвтрэх</h2><div id="loginFields"><div class="field"><label>Хэрэглэгчийн нэр</label><input id="loginId" placeholder="Хэрэглэгчийн нэр"></div><div class="field"><label>Нууц үг</label><input id="loginPass" type="password" placeholder="Нууц үг"></div><button class="primary" onclick="login()">Нэвтрэх</button><div class="switch" onclick="toggleRegister(true)">Бүртгүүлэх</div></div><div id="regFields" class="hidden"><div class="field"><label>Нэр</label><input id="regName" placeholder="* Нэр"></div><div class="field"><label>Хэрэглэгчийн нэр</label><input id="regId" placeholder="Хэрэглэгчийн нэр"></div><div class="field"><label>Нууц үг</label><input id="regPass" type="password" placeholder="* Нууц үг"></div><div class="field"><label>Нууц үг батлах</label><input id="regPass2" type="password" placeholder="* Нууц үг батлах"></div><div class="field"><label>Утас</label><input id="regPhone" inputmode="tel" placeholder="+976-__-__-____"></div><div class="field"><label>Банкны код</label><select id="regBank"><option value="">* Банкны код</option><option>ХААН БАНК</option><option>ГОЛОМТ БАНК</option><option>ХУДАЛДАА ХӨГЖЛИЙН БАНК</option><option>ТӨРИЙН БАНК</option><option>ХАС БАНК</option><option>КАПИТРОН БАНК</option><option>БОГД БАНК</option><option>АРИГ БАНК</option><option>ТРАНС БАНК</option><option>М БАНК</option><option>БУСАД</option></select></div><div class="field"><label>Банкны дансны дугаар</label><input id="regBankAccount" inputmode="numeric" placeholder="* Банкны дансны дугаар"></div><button class="primary" onclick="register()">Илгээх</button><div class="switch" onclick="toggleRegister(false)">Нэвтрэх рүү буцах</div></div></div></div></section>
+<section id="auth" class="screen active"><div class="auth"><div class="hero"><div class="heroLogo logoImg"></div></div><div class="authCard"><h2 id="authTitle">Нэвтрэх</h2><div id="loginFields"><div class="field"><label>Хэрэглэгчийн нэр / Admin email</label><input id="loginId" placeholder="Хэрэглэгчийн нэр / Admin email"></div><div class="field"><label>Нууц үг</label><input id="loginPass" type="password" placeholder="Нууц үг"></div><button class="primary" onclick="login()">Нэвтрэх</button><div class="switch" onclick="toggleRegister(true)">Бүртгүүлэх</div></div><div id="regFields" class="hidden"><div class="field"><label>Нэр</label><input id="regName" placeholder="* Нэр"></div><div class="field"><label>Хэрэглэгчийн нэр</label><input id="regId" placeholder="Хэрэглэгчийн нэр"></div><div class="field"><label>Нууц үг</label><input id="regPass" type="password" placeholder="* Нууц үг"></div><div class="field"><label>Нууц үг батлах</label><input id="regPass2" type="password" placeholder="* Нууц үг батлах"></div><div class="field"><label>Утас</label><input id="regPhone" inputmode="tel" placeholder="+976-__-__-____"></div><div class="field"><label>Банкны код</label><select id="regBank"><option value="">* Банкны код</option><option>ХААН БАНК</option><option>ГОЛОМТ БАНК</option><option>ХУДАЛДАА ХӨГЖЛИЙН БАНК</option><option>ТӨРИЙН БАНК</option><option>ХАС БАНК</option><option>КАПИТРОН БАНК</option><option>БОГД БАНК</option><option>АРИГ БАНК</option><option>ТРАНС БАНК</option><option>М БАНК</option><option>БУСАД</option></select></div><div class="field"><label>Банкны дансны дугаар</label><input id="regBankAccount" inputmode="numeric" placeholder="* Банкны дансны дугаар"></div><button class="primary" onclick="register()">Илгээх</button><div class="switch" onclick="toggleRegister(false)">Нэвтрэх рүү буцах</div></div></div></div></section>
 <section id="home" class="screen"><div class="refHome">
   <div class="refTopMini">
     <div class="refMiniLogo"><span>MP</span><small>MONGOL<br>POKER</small></div>
@@ -376,6 +376,101 @@
 <div id="moneySheet" class="sheet hidden"><h3>Ширээнд мөнгө нэмэх</h3><div class="sheetRow"><span>Ширээ</span><b id="sheetTable"></b></div><input id="moneyInput" type="number" value="5000" oninput="syncMoney()"><input id="moneyRange" class="range" type="range" min="1000" max="100000" step="1000" value="5000" oninput="syncMoney(true)"><div class="sheetBtns"><button onclick="setMoney(.5)">½ Buy-in</button><button onclick="setMoney(1)">1× Buy-in</button><button onclick="setMoney(2)">2× Buy-in</button></div><div class="sheetRow"><span>Одоогийн stack</span><b id="sheetStack"></b></div><button class="ok" onclick="addMoney()">Мөнгө нэмэх</button><button class="close" onclick="closeMoney()">Хаах</button></div>
 <div id="tableSettingsSheet" class="sheet hidden"><h3>Ширээний тохиргоо</h3><div class="sheetRow"><span>Ширээ</span><b id="tsName"></b></div><div class="field"><label>SB</label><input id="tsSB" type="number"></div><div class="field"><label>BB</label><input id="tsBB" type="number"></div><div class="field"><label>Орох дүн</label><input id="tsBuy" type="number"></div><button class="ok" onclick="saveTableSettings()">Хадгалах</button><button class="close" onclick="closeTableSettings()">Хаах</button></div><div id="toast" class="toast hidden"></div>
 </div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script id="mongolPokerFirebaseBridge">
+const MP_ADMIN_UID='bvOQONdbCxOtiukFcguGhrWna623';
+const MP_FIREBASE_CONFIG={
+  apiKey:'AIzaSyDIn2sTKkQWbjBLSBpsIqkXIXDwwuoJzrc',
+  authDomain:'mongol-poker.firebaseapp.com',
+  databaseURL:'https://mongol-poker-default-rtdb.firebaseio.com',
+  projectId:'mongol-poker',
+  storageBucket:'mongol-poker.firebasestorage.app',
+  messagingSenderId:'162661425789',
+  appId:'1:162661425789:web:945c92df8fa85d96f94714'
+};
+let mpAuth=null,mpRtdb=null,mpRemoteRegistrations=[],mpRegListenerRef=null;
+try{
+  if(!firebase.apps.length)firebase.initializeApp(MP_FIREBASE_CONFIG);
+  mpAuth=firebase.auth();
+  mpRtdb=firebase.database();
+}catch(e){console.warn('Firebase init failed',e)}
+function mpSafeRegistration(u){
+  return {
+    name:String(u?.name||''),id:String(u?.id||''),phone:String(u?.phone||''),
+    bank:String(u?.bank||''),bankAccount:String(u?.bankAccount||''),
+    registeredAt:String(u?.registeredAt||new Date().toLocaleString('mn-MN')),
+    chips:Number(u?.chips||0),createdAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()
+  };
+}
+async function mpEnsureWriter(){
+  if(!mpAuth)throw new Error('Firebase Auth unavailable');
+  if(mpAuth.currentUser)return mpAuth.currentUser;
+  const c=await mpAuth.signInAnonymously();
+  return c.user;
+}
+async function mpWriteRegistration(u){
+  if(!mpRtdb)return false;
+  const user=await mpEnsureWriter();
+  const key=String(Date.now())+'_'+Math.random().toString(36).slice(2,8);
+  await mpRtdb.ref('registrations/'+user.uid+'/'+key).set(mpSafeRegistration(u));
+  return true;
+}
+function mpFlattenRegistrations(raw){
+  const out=[];raw=raw||{};
+  Object.entries(raw).forEach(([uid,bucket])=>{
+    if(!bucket||typeof bucket!=='object')return;
+    const vals=Object.values(bucket);
+    const looksLikeRecord=('id' in bucket)||('name' in bucket)||('phone' in bucket);
+    const records=looksLikeRecord?[bucket]:vals;
+    records.forEach(r=>{if(r&&typeof r==='object'&&(r.id||r.name||r.phone))out.push({...r,_firebaseUid:uid})});
+  });
+  out.sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+  return out;
+}
+function mpMergedRegisteredUsers(){
+  const local=(db?.users||[]).filter(u=>u&&u.role!=='admin');
+  if(!(currentUser?.role==='admin')||!mpRemoteRegistrations.length)return local;
+  const merged=[],seen=new Set();
+  [...local,...mpRemoteRegistrations].forEach(u=>{
+    const k=String(u.id||'').trim().toLowerCase()+'|'+String(u.phone||'').replace(/\s/g,'');
+    if(k==='|'||seen.has(k))return;seen.add(k);merged.push(u);
+  });
+  return merged;
+}
+function mpStopAdminRegistrationListener(){
+  if(mpRegListenerRef){try{mpRegListenerRef.off()}catch(e){}mpRegListenerRef=null}
+  mpRemoteRegistrations=[];
+}
+function mpStartAdminRegistrationListener(){
+  if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)return;
+  mpStopAdminRegistrationListener();
+  mpRegListenerRef=mpRtdb.ref('registrations');
+  mpRegListenerRef.on('value',snap=>{
+    mpRemoteRegistrations=mpFlattenRegistrations(snap.val());
+    try{updateMiniHeader();if(document.getElementById('registeredUsers')?.classList.contains('active'))renderRegisteredUsers()}catch(e){}
+  },err=>{console.warn('Registration read failed',err)});
+}
+async function mpFirebaseAdminLogin(email,password){
+  if(!mpAuth)throw new Error('Firebase холболт ажиллахгүй байна');
+  const c=await mpAuth.signInWithEmailAndPassword(email,password);
+  if(c.user.uid!==MP_ADMIN_UID){await mpAuth.signOut();throw new Error('Энэ хэрэглэгч admin биш');}
+  mpStartAdminRegistrationListener();
+  return c.user;
+}
+function mpInitAfterAppLoad(){
+  if(!mpAuth)return;
+  mpAuth.onAuthStateChanged(user=>{
+    if(user&&user.uid===MP_ADMIN_UID){
+      const au=(db.users||[]).find(x=>x.role==='admin')||(db.users||[]).find(x=>x.id==='admin');
+      if(au){currentUser=au;mpStartAdminRegistrationListener();if(document.getElementById('auth')?.classList.contains('active'))show('home')}
+    }else if(currentUser?.role==='admin'){
+      mpStopAdminRegistrationListener();
+    }
+  });
+}
+</script>
 <script>
 const KEY='mongolPokerAjnaiLikeV1';
 let db={users:[],tables:[],bots:[],messages:[],settings:{start:25000,banner:'АДМИНТАЙ ХОЛБОГДОХ',sound:true,vibe:true}},currentUser=null,currentTable=null;
@@ -392,9 +487,9 @@ function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});/* Keep admin-created custom bots, but permanently remove old automatic Player N / Bot N fillers. */db.bots=db.bots.filter(isAdminCreatedBot).map(b=>Object.assign(b,{adminCreated:true}));save()}
 function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
-function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');db.users.push({id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,role:'user',stats:{hands:0,wins:0,tables:0}});save();$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
-function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();let u=db.users.find(x=>x.id===id&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;show('home')}
-function logout(){syncUser();currentUser=null;currentTable=null;$('bottom').classList.add('hidden');show('auth')}
+async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
+async function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();if(id==='admin')return toast('Admin нэвтрэхдээ Firebase-д бүртгэсэн email-ээ бичнэ үү');if(id.includes('@')){try{await mpFirebaseAdminLogin(id,pass);let u=db.users.find(x=>x.role==='admin')||db.users.find(x=>x.id==='admin');if(!u)throw new Error('Local admin profile missing');currentUser=u;show('home');return}catch(e){console.warn(e);return toast('Admin email эсвэл нууц үг буруу')}}let u=db.users.find(x=>x.id===id&&x.role!=='admin'&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;show('home')}
+async function logout(){syncUser();let wasAdmin=currentUser?.role==='admin';currentUser=null;currentTable=null;mpStopAdminRegistrationListener();if(wasAdmin&&mpAuth?.currentUser?.uid===MP_ADMIN_UID){try{await mpAuth.signOut()}catch(e){}}$('bottom').classList.add('hidden');show('auth')}
 function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables')renderTables();if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
 function featureOpen(key,target,after){let f=db.settings.features||{};if(currentUser?.role!=='admin'&&f[key]===false)return toast('Энэ хэсгийг админ түр хаасан байна');show(target);if(typeof after==='function')after()}
 function adminAllows(key){let f=db.settings.features||{};if(currentUser?.role==='admin')return true;if(f[key]===false){toast('Энэ үйлдлийг админ түр хаасан байна');return false}return true}
@@ -416,7 +511,7 @@ function startJackpotAnimation(){
   jpSaveTick++; if(jpSaveTick>=10){jpSaveTick=0;save()}
  },420);
 }
-function registeredUsersOnly(){return (db.users||[]).filter(u=>u&&u.role!=='admin')}
+function registeredUsersOnly(){return mpMergedRegisteredUsers()}
 function registeredUserCount(){return registeredUsersOnly().length}
 function updateMiniHeader(){
   const c=$('miniClock');
@@ -516,7 +611,7 @@ function closeTableSettings(){$('tableSettingsSheet').classList.add('hidden')}
 function saveTableSettings(){if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');let sb=+$('tsSB').value,bb=+$('tsBB').value,buy=+$('tsBuy').value;if(sb<=0||bb<=sb||buy<=0)return toast('Утгаа шалгана уу');currentTable.sb=sb;currentTable.bb=bb;currentTable.buy=buy;save();$('gameBlind').textContent=fmt(sb)+'/'+fmt(bb);closeTableSettings();toast('Ширээний тохиргоо хадгалагдлаа')}
 async function shareApp(){if(!adminAllows('share'))return;closeSide();let data={title:'Mongol Poker',text:'Mongol Poker',url:location.href};try{if(navigator.share)await navigator.share(data);else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);toast('Link хууллаа')}else toast(location.href)}catch(e){}}
 
-load();renderTours();show('auth');
+load();renderTours();show('auth');mpInitAfterAppLoad();
 </script>
 
 <style id="forceMpBannerFix">
