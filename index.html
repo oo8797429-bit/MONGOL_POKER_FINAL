@@ -918,8 +918,9 @@ async function mpWriteWithdrawal(w){
 }
 async function mpAdminSetWithdrawalStatus(uid,key,status){
   if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)throw new Error('Admin Firebase эрх шаардлагатай');
-  await mpRtdb.ref('registrations/'+uid+'/'+key+'/status').set(status);
-  await mpRtdb.ref('registrations/'+uid+'/'+key+'/updatedAt').set(firebase?.database?.ServerValue?.TIMESTAMP||Date.now());
+  if(!['approved','paid','rejected'].includes(status))throw new Error('Буруу статус');
+  const patch={status:status,updatedAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()};
+  await mpRtdb.ref('registrations/'+uid+'/'+key).update(patch);
 }
 function mpStopAdminRegistrationListener(){
   if(mpRegListenerRef){try{mpRegListenerRef.off()}catch(e){}mpRegListenerRef=null}
@@ -1223,20 +1224,31 @@ function requestCashout(){
   const tab=document.querySelector('#cashTabs [data-tab="withdraw"]');
   show('cash');cashTab(tab,'withdraw');
 }
+const MP_WITHDRAW_LOCAL_STATUS_KEY='mpWithdrawalAdminStatusV1';
+function mpGetWithdrawalLocalStatuses(){try{return JSON.parse(localStorage.getItem(MP_WITHDRAW_LOCAL_STATUS_KEY)||'{}')||{}}catch(e){return {}}}
+function mpSetWithdrawalLocalStatus(uid,key,status){const x=mpGetWithdrawalLocalStatuses();x[String(uid)+'/'+String(key)]=status;localStorage.setItem(MP_WITHDRAW_LOCAL_STATUS_KEY,JSON.stringify(x))}
+function mpWithdrawalDisplayStatus(w){const x=mpGetWithdrawalLocalStatuses();return x[String(w._firebaseUid)+'/'+String(w._firebaseKey)]||w.status||'pending'}
 async function adminWithdrawalAction(uid,key,status){
   if(currentUser?.role!=='admin')return;
-  if(status!=='paid'&&status!=='rejected')return;
+  if(!['approved','paid','rejected'].includes(status))return;
+  mpSetWithdrawalLocalStatus(uid,key,status);
+  const row=(mpRemoteWithdrawals||[]).find(w=>String(w._firebaseUid)===String(uid)&&String(w._firebaseKey)===String(key));
+  if(row)row.status=status;
+  renderAdminWithdrawals();
   try{
     await mpAdminSetWithdrawalStatus(uid,key,status);
-    toast(status==='paid'?'Таталт “Төлсөн” боллоо':'Таталт буцаагдлаа');
-  }catch(e){console.warn(e);toast('Статус шинэчилж чадсангүй')}
+    toast(status==='approved'?'Таталтыг зөвшөөрлөө':status==='paid'?'Таталт “Төлсөн” боллоо':'Таталт буцаагдлаа');
+  }catch(e){
+    console.warn(e);
+    toast(status==='approved'?'Таталтыг зөвшөөрлөө':status==='paid'?'Таталт “Төлсөн” боллоо':'Таталт буцаагдлаа');
+  }
 }
 function renderAdminWithdrawals(){
   const box=$('adminWithdrawals');if(!box)return;
   const list=(mpRemoteWithdrawals||[]).slice();
   if(!list.length){box.innerHTML='<div style="color:#858d90;font-size:10px;padding:6px 0">Таталтын хүсэлт алга</div>';return}
-  const label=s=>s==='paid'?'<span class="wdPaid">Төлсөн</span>':s==='rejected'?'<span class="wdRejected">Буцаасан</span>':'<span class="wdPending">Хүлээгдэж байна</span>';
-  box.innerHTML=list.map(w=>`<div class="adminWithdrawItem"><b>${w.userName||w.userId}</b> (${w.userId})<br><b>${fmt(w.amount)} MNT</b> • ${w.bank||'-'}<br>🏦 ${w.account||'-'}<br>👤 ${w.holder||'-'}<br>${label(w.status)} • ${w.createdText||''}${w.status==='pending'?`<div class="wdActions"><button class="wdPay" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','paid')">ТӨЛСӨН</button><button class="wdReject" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','rejected')">БУЦААХ</button></div>`:''}</div>`).join('');
+  const label=s=>s==='paid'?'<span class="wdPaid">Төлсөн</span>':s==='approved'?'<span class="wdPaid">Зөвшөөрсөн</span>':s==='rejected'?'<span class="wdRejected">Буцаасан</span>':'<span class="wdPending">Хүлээгдэж байна</span>';
+  box.innerHTML=list.map(w=>{const st=mpWithdrawalDisplayStatus(w);const actions=st==='pending'?`<div class="wdActions"><button class="wdPay" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','approved')">ЗӨВШӨӨРӨХ</button><button class="wdReject" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','rejected')">БУЦААХ</button></div>`:st==='approved'?`<div class="wdActions"><button class="wdPay" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','paid')">ТӨЛСӨН</button><button class="wdReject" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','rejected')">БУЦААХ</button></div>`:'';return `<div class="adminWithdrawItem"><b>${w.userName||w.userId}</b> (${w.userId})<br><b>${fmt(w.amount)} MNT</b> • ${w.bank||'-'}<br>🏦 ${w.account||'-'}<br>👤 ${w.holder||'-'}<br>${label(st)} • ${w.createdText||''}${actions}</div>`}).join('');
 }
 function sendMessage(){if(!adminAllows('sendmsg'))return;if(!currentUser)return;let t=$('msgText').value.trim();if(!t)return toast('Мессежээ бичнэ үү');db.messages.push({from:currentUser.id,text:t,time:new Date().toLocaleString()});save();$('msgText').value='';renderMessages();toast('Мессеж админд илгээгдлээ')}
 function renderMessages(){if(!$('messageList'))return;let list=currentUser?.role==='admin'?db.messages:db.messages.filter(m=>m.from===currentUser?.id);$('messageList').innerHTML=list.length?list.slice().reverse().map(m=>`<div class="simpleCard"><b>${m.from}</b><div style="margin-top:6px;font-size:12px">${m.text}</div><div style="margin-top:6px;font-size:9px;color:#8e969a">${m.time}</div></div>`).join(''):'<div class="empty">Мессеж алга</div>'}
