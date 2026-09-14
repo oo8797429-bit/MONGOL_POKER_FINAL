@@ -1714,11 +1714,11 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   join=function(id){
     if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');
     currentTable=t;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;
-    db.bots=db.bots.filter(isAdminCreatedBot);save();let emos=['😎','🧔','👩','🤠','🧑','👨','🧕','👩‍🦰'],bots7=db.bots.filter(isAdminCreatedBot).slice(0,7);
+    db.bots=db.bots.filter(isAdminCreatedBot);save();let emos=['😎','🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','👨‍🦱','🐱'],bots9=db.bots.filter(isAdminCreatedBot).slice(0,9);
     /* Only bots explicitly created from the Admin panel may occupy seats. No automatic/filler players. */
-    players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots7.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))];
+    players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots9.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))];
     dealSessionToken++;burnedCards=[];if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand=''};
-    save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 8 MAX';show('game');newHand();
+    save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 10 MAX';show('game');newHand();
   };
 
   newHand=function(){
@@ -1756,15 +1756,17 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const n=Math.max(1,players.length);
     const maps={
       1:[0],
-      2:[0,4],
-      3:[0,2,6],
-      4:[0,2,4,6],
-      5:[0,1,3,5,7],
-      6:[0,1,2,4,6,7],
-      7:[0,1,2,3,5,6,7],
-      8:[0,1,2,3,4,5,6,7]
+      2:[0,5],
+      3:[0,3,7],
+      4:[0,2,5,8],
+      5:[0,2,4,6,8],
+      6:[0,1,3,5,7,9],
+      7:[0,1,2,4,6,8,9],
+      8:[0,1,2,3,5,7,8,9],
+      9:[0,1,2,3,4,6,7,8,9],
+      10:[0,1,2,3,4,5,6,7,8,9]
     };
-    return maps[Math.min(8,n)]||maps[8];
+    return maps[Math.min(10,n)]||maps[10];
   }
 
   window.inviteToPokerTable=async function(){const d={title:'Mongol Poker',text:(currentTable?.name||'Mongol Poker')+' ширээнд нэгдээрэй',url:location.href};try{if(navigator.share)await navigator.share(d);else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);toast('Ширээний холбоос хууллаа')}}catch(e){}};
@@ -1782,7 +1784,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       const seatClass='s'+String(seatMap[i]??i);
       return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
     }).join('');
-    const emptySeats=Array.from({length:8},(_,i)=>i).filter(i=>!occupied.has(i)).map(i=>`<button class="emptySeat s${i}" onclick="inviteToPokerTable()" aria-label="Тоглогч дуудах">+</button>`).join('');
+    const emptySeats=Array.from({length:10},(_,i)=>i).filter(i=>!occupied.has(i)).map(i=>`<button class="emptySeat s${i}" onclick="inviteToPokerTable()" aria-label="Тоглогч дуудах">+</button>`).join('');
     $('seats').innerHTML=playerSeats+emptySeats;
     let oldBanner=document.querySelector('#game .showdownBanner');if(oldBanner)oldBanner.remove();
     if(finished&&showdownWinners.length&&showdownInfo.length){let names=showdownWinners.map(i=>players[i]?.name).join(', '),hi=showdownInfo[showdownWinners[0]];let b=document.createElement('div');b.className='showdownBanner';b.innerHTML=`<b>${names} яллаа — ${hi?.name||''}</b>${hi?.cardsText||''}`;$('pokerTable')?.appendChild(b)}
@@ -2243,5 +2245,70 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   window.replayToggle=function(){if(!rpOpenHand)return;if(rpTimer){clearInterval(rpTimer);rpTimer=null;rpRenderFrame();return}rpTimer=setInterval(()=>{if(!rpOpenHand)return;if(rpIndex>=rpOpenHand.frames.length-1){clearInterval(rpTimer);rpTimer=null;rpRenderFrame();return}rpIndex++;rpRenderFrame()},900);rpRenderFrame()};
 })();
 </script>
+
+
+<style id="tenSeatCleanTableOnly">
+/* TABLE VISUAL ONLY: clean 10-seat rail layout. Other app screens/logic untouched. */
+#game .pokerTable{
+  height:min(60dvh,520px)!important;
+  margin:4px 10px 0!important;
+  border:8px solid #6e3519!important;
+  border-radius:46%/22%!important;
+  background:radial-gradient(ellipse at 50% 43%,#126a96 0,#07527c 54%,#073e63 76%,#0b1820 77%)!important;
+  box-shadow:inset 0 0 0 7px #0c2433,inset 0 0 70px #0009,0 10px 20px #0009!important;
+  overflow:visible!important;
+}
+#game .pokerTable:before{inset:5%!important;border:2px solid #8a4a22!important;border-radius:45%/22%!important;box-shadow:inset 0 0 18px #0008!important}
+#game .pokerTable:after{content:'MONGOL POKER'!important;top:67%!important;font-size:24px!important;letter-spacing:1px!important;color:#c8e7f21d!important;text-shadow:none!important}
+#game .center{top:49%!important;width:70%!important;z-index:4!important}
+#game .pot{display:inline-block!important;background:#0b211eee!important;border:1px solid #1c6d56!important;border-radius:22px!important;padding:7px 17px!important;font-size:18px!important;box-shadow:0 2px 10px #0009,0 0 12px #1b8d6b44!important}
+#game .board{margin-top:12px!important;gap:5px!important}
+#game .card{width:36px!important;height:52px!important;border-radius:5px!important;font-size:16px!important;box-shadow:0 2px 5px #0009!important}
+#game .seat,#game .emptySeat{z-index:15!important}
+#game .seat{width:66px!important;filter:drop-shadow(0 3px 4px #000a)!important}
+#game .seat .pic{width:42px!important;height:42px!important;font-size:20px!important;background:#15212a!important;color:#fff!important;border:3px solid #4d5a62!important;box-shadow:0 0 0 2px #0a0d10,0 3px 8px #000b!important}
+#game .seat.active .pic{border-color:#ffd54d!important;box-shadow:0 0 0 3px #f0bc28,0 0 18px #ffd34d,0 3px 10px #000!important}
+#game .seat .nm{display:flex!important;justify-content:center!important;background:#080b0de8!important;border-radius:3px 3px 0 0!important;padding:2px 4px!important;margin-top:1px!important;max-width:66px!important;font-size:7px!important}
+#game .seat .stack{display:block!important;background:#080b0de8!important;border:0!important;border-radius:0 0 3px 3px!important;color:#ffd44e!important;font-size:8px!important;font-weight:900!important;padding:2px 4px!important;min-width:54px!important}
+#game .seatStatus{position:absolute!important;left:50%!important;top:-18px!important;transform:translateX(-50%)!important;margin:0!important;z-index:5!important;font-size:7px!important;padding:2px 6px!important;border-radius:9px!important}
+#game .dealerDot{right:-9px!important;bottom:-8px!important}
+#game .blindTag{z-index:6!important}
+#game .betTag{z-index:6!important}
+#game .emptySeat{width:38px!important;height:38px!important;border-radius:50%!important;background:#11171bdd!important;border:2px solid #59636a!important;color:#aeb7bc!important;font-size:29px!important;line-height:30px!important;box-shadow:0 2px 7px #000b!important}
+/* 10 visual rail points: bottom center, lower-left, mid-left, upper-left, top-left, top-center, top-right, upper-right, mid-right, lower-right */
+#game .s0{left:50%!important;bottom:-18px!important;right:auto!important;top:auto!important;transform:translateX(-50%)!important}
+#game .s1{left:15%!important;bottom:17px!important;right:auto!important;top:auto!important;transform:none!important}
+#game .s2{left:-13px!important;top:66%!important;right:auto!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s3{left:-10px!important;top:31%!important;right:auto!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s4{left:17%!important;top:-15px!important;right:auto!important;bottom:auto!important;transform:none!important}
+#game .s5{left:50%!important;top:-18px!important;right:auto!important;bottom:auto!important;transform:translateX(-50%)!important}
+#game .s6{right:17%!important;top:-15px!important;left:auto!important;bottom:auto!important;transform:none!important}
+#game .s7{right:-10px!important;top:31%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s8{right:-13px!important;top:66%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s9{right:15%!important;bottom:17px!important;left:auto!important;top:auto!important;transform:none!important}
+/* bets are pulled inward so chips never sit on another player's name/stack */
+#game .s0 .betTag{left:50%!important;top:-34px!important;bottom:auto!important;right:auto!important;transform:translateX(-50%)!important}
+#game .s1 .betTag{left:55px!important;top:7px!important;right:auto!important;transform:none!important}
+#game .s2 .betTag,#game .s3 .betTag{left:58px!important;top:21px!important;right:auto!important;transform:none!important}
+#game .s4 .betTag{left:48px!important;top:48px!important;right:auto!important;transform:none!important}
+#game .s5 .betTag{left:50%!important;top:56px!important;right:auto!important;transform:translateX(-50%)!important}
+#game .s6 .betTag{right:48px!important;top:48px!important;left:auto!important;transform:none!important}
+#game .s7 .betTag,#game .s8 .betTag{right:58px!important;top:21px!important;left:auto!important;transform:none!important}
+#game .s9 .betTag{right:55px!important;top:7px!important;left:auto!important;transform:none!important}
+#game .status{margin:7px 12px 4px!important;padding:7px 8px!important;border-radius:7px!important;background:#171d20!important;border:1px solid #3e4d51!important;font-size:10px!important}
+#game .mycards{margin:5px!important;gap:7px!important}
+#game .mycards .card{width:55px!important;height:76px!important;font-size:23px!important}
+#game .actionBar{margin:5px 12px!important;padding:7px!important;border-radius:7px!important;background:#0b1715!important}
+#game .baseActions{gap:6px!important}
+#game .baseActions button{height:44px!important;font-size:10px!important;border-radius:5px!important}
+@media(max-height:740px) and (max-width:430px){
+  #game .pokerTable{height:50dvh!important}
+  #game .seat{width:58px!important}
+  #game .seat .pic{width:36px!important;height:36px!important;font-size:18px!important}
+  #game .seat .nm{max-width:58px!important;font-size:6.5px!important}
+  #game .seat .stack{font-size:7px!important;min-width:48px!important}
+  #game .mycards .card{width:48px!important;height:66px!important}
+}
+</style>
 
 </body></html>
