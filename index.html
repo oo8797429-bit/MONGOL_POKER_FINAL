@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <title>Mongol Poker</title>
+<meta name="mp-build" content="firebase-withdraw-v1">
 <style>
 :root{--bg:#111416;--panel:#1d2225;--panel2:#272d30;--line:#353c3f;--green:#067943;--green2:#0caf63;--gold:#d7a42f;--text:#f4f4f4;--muted:#9ba3a7;--red:#a43f48;--blue:#2b75a7}
 *{box-sizing:border-box}html,body{margin:0;background:#090b0c;color:var(--text);font-family:Arial,Helvetica,sans-serif}button,input,select{font:inherit}.app{width:100%;max-width:430px;min-height:100vh;margin:auto;background:var(--bg);position:relative;overflow:hidden}.hidden{display:none!important}.screen{display:none;min-height:100vh}.screen.active{display:block}.top{height:48px;background:linear-gradient(#0c7a49,#075c39);display:grid;grid-template-columns:48px 1fr 48px;align-items:center;position:sticky;top:0;z-index:50}.top button{border:0;background:transparent;color:#fff;font-size:26px}.top .ttl{text-align:center;font-weight:700}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:56px;background:#0d1011;border-top:1px solid #252b2e;display:grid;grid-template-columns:repeat(5,1fr);z-index:60}.bottom button{border:0;background:transparent;color:#777f82;font-size:9px}.bottom .ico{display:block;font-size:18px;margin-bottom:3px}.bottom .on{color:#13cb76}.auth{min-height:100vh;background:#16191b;padding:0 14px 32px}.hero{height:265px;margin:0 -14px 14px;background:radial-gradient(circle at 68% 30%,#8f3e22 0,#4f2118 24%,#1e1614 47%,#101314 75%);position:relative;overflow:hidden}.hero:before{content:'♠ A  ♥ A  ♦ A  ♣ A';position:absolute;right:14px;bottom:35px;color:#fff;font-weight:800;font-size:22px;letter-spacing:3px}.hero:after{content:'MONGOL POKER';position:absolute;left:16px;top:26px;font-weight:900;color:#d8ad43;letter-spacing:1px}.authCard{background:#1c2022;border:1px solid #32383b;padding:14px}.authCard h2{font-size:15px;text-align:center;margin:0 0 12px}.field{margin:9px 0}.field label{display:block;font-size:10px;color:#a6adb0;margin-bottom:5px}.field input,.field select{width:100%;height:38px;background:#141719;border:1px solid #394044;color:#fff;padding:0 10px}.primary{width:100%;height:40px;border:0;background:linear-gradient(#17bd68,#078842);color:white;font-weight:700}.switch{text-align:center;font-size:11px;color:#36d88a;margin-top:12px}.home{padding:10px 10px 72px;background:linear-gradient(180deg,#061f18 0,#111516 36%);min-height:100vh}.userinfo{display:flex;align-items:center;gap:8px;font-size:10px}.avatar{width:32px;height:32px;border-radius:50%;background:#26362e;border:1px solid #50625a;display:grid;place-items:center}.bal{margin-left:auto;color:#f1ca69;font-size:12px;position:relative;overflow:hidden;padding:7px 10px;border-radius:16px;white-space:nowrap;text-shadow:0 0 6px rgba(255,196,70,.45)}
@@ -583,75 +584,6 @@
 #depositHolder{display:none!important}
 </style>
 
-
-<style id="deposit-admin-inline-style">
-#cash .depositAdminInline{
-  margin:0 0 22px;
-  padding:14px;
-  border:1px solid #1e9d61;
-  border-radius:10px;
-  background:linear-gradient(180deg,#10251d,#151a1b);
-  box-shadow:0 0 16px #0bb96618;
-}
-#cash .depositAdminInline.hidden{display:none!important}
-#cash .depositAdminHead{
-  color:#48e696;
-  font-weight:900;
-  font-size:14px;
-  margin-bottom:12px;
-}
-#cash .depositAdminInline label{
-  display:block;
-  color:#aeb6b3;
-  font-size:11px;
-  margin:9px 0 5px;
-}
-#cash .depositAdminInline select,
-#cash .depositAdminInline input{
-  width:100%;
-  height:46px;
-  border:1px solid #3b4643;
-  border-radius:6px;
-  background:#111617;
-  color:#fff;
-  padding:0 12px;
-  font-size:15px;
-}
-#cash .depositAdminInline button{
-  width:100%;
-  height:46px;
-  margin-top:13px;
-  border:0;
-  border-radius:6px;
-  background:linear-gradient(#18c873,#07944d);
-  color:#fff;
-  font-size:14px;
-  font-weight:900;
-}
-</style>
-
-
-<style id="withdraw-system-style">
-#cash .withdrawWrap{padding:16px 16px 90px;background:#1b1f21;min-height:calc(100vh - 110px)}
-#cash .withdrawCard{background:#202527;border:1px solid #394145;border-radius:9px;padding:14px;margin-bottom:12px}
-#cash .withdrawTitle{font-size:17px;font-weight:800;color:#f2f2f2;margin-bottom:6px}
-#cash .withdrawSub{font-size:11px;color:#959da0;line-height:1.55;margin-bottom:14px}
-#cash .withdrawBalance{display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid #315347;background:#14231e;border-radius:7px;margin-bottom:14px}
-#cash .withdrawBalance span{font-size:11px;color:#9ca5a2}
-#cash .withdrawBalance b{font-size:18px;color:#3ee48f}
-#cash .withdrawField{margin:10px 0}
-#cash .withdrawField label{display:block;color:#9ba3a6;font-size:10px;margin-bottom:5px}
-#cash .withdrawField input,#cash .withdrawField select{width:100%;height:45px;background:#141819;border:1px solid #3a4245;border-radius:6px;color:#fff;padding:0 11px;font-size:14px}
-#cash .withdrawBtn{width:100%;height:46px;border:0;border-radius:6px;background:linear-gradient(#19c873,#078e49);color:#fff;font-weight:900;margin-top:12px}
-#cash .withdrawNote{margin-top:10px;font-size:10px;color:#929a9d;line-height:1.55}
-#cash .withdrawHistoryItem{border-top:1px solid #343a3d;padding:10px 0;font-size:11px;line-height:1.55}
-#cash .wdPending{color:#e7c252}.wdPaid{color:#39dc8b}.wdRejected{color:#e27373}
-.adminWithdrawItem{border-top:1px solid #343a3d;padding:10px 0;font-size:10px;line-height:1.55}
-.adminWithdrawItem .wdActions{display:flex;gap:7px;margin-top:8px}
-.adminWithdrawItem .wdActions button{flex:1;height:32px;border:0;border-radius:4px;color:#fff;font-weight:700}
-.adminWithdrawItem .wdPay{background:#0c9d58}.adminWithdrawItem .wdReject{background:#934548}
-</style>
-
 </head>
 <body>
 <div class="app">
@@ -677,61 +609,7 @@
 <section id="jackpot" class="screen"><div class="jpHero"><button class="jpClose" onclick="show('home')">×</button><div class="jpTitle">Bad beat Jackpot</div><div class="jpBig" id="jpAmount">0</div></div><div class="jpTabs" id="jpTabs"><div class="on" onclick="jackpotTab(this,'payouts')">Payouts</div><div onclick="jackpotTab(this,'winners')">Winners</div><div onclick="jackpotTab(this,'conditions')">Conditions</div></div><div id="jpContent" class="jpBody"></div></section>
 <section id="tables" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Ширээнүүд</div><button onclick="searchTables()">⌕</button></header><div class="subtop"><span>↕</span><b id="tableCount">0 ШИРЭЭ</b><span>☷</span></div><div id="tableList"></div></section>
 <section id="tour" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Тэмцээнүүд</div><button onclick="searchTours()">⌕</button></header><div class="subtop"><span>↕</span><b>8 ТЭМЦЭЭНҮҮД</b><span>☷</span></div><div id="tourList"></div></section>
-<section id="cash" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Касс</div><button onclick="renderCash()">⟳</button></header><div class="cash"><div class="cashTabs" id="cashTabs"><div class="on" data-tab="status" onclick="cashTab(this,'status')">ⓘ Төлөв</div><div data-tab="deposit" onclick="cashTab(this,'deposit')">🏦 Цэнэглэлт</div><div data-tab="transfer" onclick="cashTab(this,'transfer')">◉</div><div data-tab="withdraw" onclick="cashTab(this,'withdraw')">▣ Таталт</div><div data-tab="history" onclick="cashTab(this,'history')">◴</div></div><div id="cashStatusPane" class="cashPane on"><div class="cashList"><div class="cashBox">CGP <span class="amount" id="cashBal">0</span></div><div class="cashBox">MNT <span class="amount" id="cashMnt">0</span></div></div></div><div id="cashDepositPane" class="cashPane"><div class="depositWrap">
-<div id="depositAdminInline" class="depositAdminInline hidden">
-  <div class="depositAdminHead">🛠 АДМИН — БАНК / ДАНС СОЛИХ</div>
-  <label>Банк сонгох</label>
-  <select id="depositAdminBank">
-    <option value="ХААН БАНК">ХААН БАНК</option>
-    <option value="ГОЛОМТ БАНК">ГОЛОМТ БАНК</option>
-    <option value="ХУДАЛДАА ХӨГЖЛИЙН БАНК">ХУДАЛДАА ХӨГЖЛИЙН БАНК</option>
-    <option value="ТӨРИЙН БАНК">ТӨРИЙН БАНК</option>
-    <option value="ХАС БАНК">ХАС БАНК</option>
-    <option value="КАПИТРОН БАНК">КАПИТРОН БАНК</option>
-    <option value="БОГД БАНК">БОГД БАНК</option>
-    <option value="АРИГ БАНК">АРИГ БАНК</option>
-    <option value="ТРАНС БАНК">ТРАНС БАНК</option>
-    <option value="М БАНК">М БАНК</option>
-    <option value="БУСАД">БУСАД</option>
-  </select>
-  <label>Дансны дугаар</label>
-  <input id="depositAdminAccount" inputmode="numeric" placeholder="Дансны дугаар">
-  <label>IBAN</label>
-  <input id="depositAdminIban" placeholder="IBAN">
-  <button type="button" onclick="saveDepositBankInline()">ХАДГАЛАХ</button>
-</div>
-<div class="depositTitle">1. Төлбөрийн нөхцөлөө сонгоно уу</div><div class="depositBankPick">🏦</div><div id="depositBankName" class="depositBankName">Банк</div><div id="depositSectionTitle" class="depositSection">2. Банк</div><div class="depositField"><small>Банкны дансны дугаар</small><b id="depositAccount">-</b><button class="copyBtn" onclick="copyDeposit('depositAccount')">▣</button></div><div class="depositField"><small>IBAN</small><b id="depositIban">-</b><button class="copyBtn" onclick="copyDeposit('depositIban')">▣</button></div><div id="depositNote" class="depositMeta"></div><div class="depositRequest"><input id="depositAmount" type="number" min="1" inputmode="numeric" placeholder="Цэнэглэх дүн"><button onclick="requestDeposit()">Цэнэглэлтийн хүсэлт илгээх</button></div></div></div><div id="cashWithdrawPane" class="cashPane">
-  <div class="withdrawWrap">
-    <div class="withdrawCard">
-      <div class="withdrawTitle">💸 Мөнгө татах</div>
-      <div class="withdrawSub">Татах дүнгээ оруулаад өөрийн банкны мэдээллээ шалгана. Хүсэлт илгээмэгц тухайн дүн түр түгжигдэнэ.</div>
-      <div class="withdrawBalance"><span>Татах боломжтой үлдэгдэл</span><b id="withdrawBalance">0 MNT</b></div>
-      <div class="withdrawField"><label>Банк</label><select id="withdrawBank">
-        <option value="ХААН БАНК">ХААН БАНК</option>
-        <option value="ГОЛОМТ БАНК">ГОЛОМТ БАНК</option>
-        <option value="ХУДАЛДАА ХӨГЖЛИЙН БАНК">ХУДАЛДАА ХӨГЖЛИЙН БАНК</option>
-        <option value="ТӨРИЙН БАНК">ТӨРИЙН БАНК</option>
-        <option value="ХАС БАНК">ХАС БАНК</option>
-        <option value="КАПИТРОН БАНК">КАПИТРОН БАНК</option>
-        <option value="БОГД БАНК">БОГД БАНК</option>
-        <option value="АРИГ БАНК">АРИГ БАНК</option>
-        <option value="ТРАНС БАНК">ТРАНС БАНК</option>
-        <option value="М БАНК">М БАНК</option>
-        <option value="БУСАД">БУСАД</option>
-      </select></div>
-      <div class="withdrawField"><label>Дансны дугаар / IBAN</label><input id="withdrawAccount" placeholder="Дансны дугаар эсвэл IBAN"></div>
-      <div class="withdrawField"><label>Данс эзэмшигчийн нэр</label><input id="withdrawHolder" placeholder="Данс эзэмшигчийн нэр"></div>
-      <div class="withdrawField"><label>Татах дүн (MNT)</label><input id="withdrawAmount" type="number" inputmode="numeric" min="1" placeholder="Жишээ: 50000"></div>
-      <button class="withdrawBtn" onclick="submitWithdrawal()">ТАТАЛТЫН ХҮСЭЛТ ИЛГЭЭХ</button>
-      <div class="withdrawNote">Админ хүсэлтийг шалгаад төлбөр хийсний дараа “Төлсөн” гэж батална. Буцаасан хүсэлтийн дүн таны үлдэгдэлд автоматаар буцна.</div>
-    </div>
-    <div class="withdrawCard">
-      <div class="withdrawTitle">Таталтын түүх</div>
-      <div id="withdrawHistory"></div>
-    </div>
-  </div>
-</div>
-<div id="cashOtherPane" class="cashPane"><div id="cashOtherText" class="empty">Хэсэг</div></div></div></section>
+<section id="cash" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Касс</div><button onclick="renderCash()">⟳</button></header><div class="cash"><div class="cashTabs" id="cashTabs"><div class="on" data-tab="status" onclick="cashTab(this,'status')">ⓘ Төлөв</div><div data-tab="deposit" onclick="cashTab(this,'deposit')">🏦 Цэнэглэлт</div><div data-tab="transfer" onclick="cashTab(this,'transfer')">◉</div><div data-tab="withdraw" onclick="cashTab(this,'withdraw')">▣ Таталт</div><div data-tab="history" onclick="cashTab(this,'history')">◴</div></div><div id="cashStatusPane" class="cashPane on"><div class="cashList"><div class="cashBox">CGP <span class="amount" id="cashBal">0</span></div><div class="cashBox">MNT <span class="amount" id="cashMnt">0</span></div></div></div><div id="cashDepositPane" class="cashPane"><div class="depositWrap"><div class="depositTitle">1. Төлбөрийн нөхцөлөө сонгоно уу</div><div class="depositBankPick">🏦</div><div id="depositBankName" class="depositBankName">Банк</div><div id="depositSectionTitle" class="depositSection">2. Банк</div><div class="depositField"><small>Банкны дансны дугаар</small><b id="depositAccount">-</b><button class="copyBtn" onclick="copyDeposit('depositAccount')">▣</button></div><div class="depositField"><small>IBAN</small><b id="depositIban">-</b><button class="copyBtn" onclick="copyDeposit('depositIban')">▣</button></div><div id="depositNote" class="depositMeta"></div><div class="depositRequest"><input id="depositAmount" type="number" min="1" inputmode="numeric" placeholder="Цэнэглэх дүн"><button onclick="requestDeposit()">Цэнэглэлтийн хүсэлт илгээх</button></div></div></div><div id="cashOtherPane" class="cashPane"><div id="cashOtherText" class="empty">Хэсэг</div></div></div></section>
 <section id="menu" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Цэс</div><button></button></header><div class="menu"><div class="menuItem adminOnly" id="adminMenuItem" onclick="show('admin')">🛠 Админ удирдлага</div><div class="menuItem" onclick="featureOpen('cash','cash')">💼 Касс</div><div class="menuItem" onclick="featureOpen('settings','settings')">⚙ Тохиргоо</div><div class="menuItem" onclick="featureOpen('help','help')">❔ Тусламж</div><div class="menuItem" onclick="logout()">↪ Гарах</div></div></section>
 <section id="admin" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Админ</div><button></button></header><div class="admin">
 <div class="adminCard"><h3>Ширээ нээх</h3><div class="field"><label>Төрөл</label><select id="newType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Нэр</label><input id="newName" placeholder="25K ШИРЭЭ"></div><div class="field"><label>SB / BB</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="newSB" type="number" value="500"><input id="newBB" type="number" value="1000"></div></div><div class="field"><label>Орох дүн</label><input id="newBuy" type="number" value="25000"></div><button class="primary" onclick="createTable()">Ширээ нээх</button></div>
@@ -756,7 +634,7 @@
 <div class="field"><label>Дансны дугаар</label><input id="adminBankAccount" inputmode="numeric" placeholder="2905206001"></div>
 <div class="field"><label>IBAN</label><input id="adminBankIban" placeholder="MN00 0000 0000 0000 0000"></div>
 <button class="primary" onclick="saveBankSettings()">Банк / данс хадгалах</button>
-<div style="font-size:10px;color:#9aa2a4;margin-top:9px;line-height:1.5">Энд хадгалсан банк, данс, IBAN нь Касс → Цэнэглэлт дээр тоглогчдод шууд харагдана.</div></div><div class="adminCard"><h3>БҮХ УДИРДЛАГА — Админ ON/OFF</h3><div class="adminFeature"><span>🃏 Ширээнүүд</span><input id="feat_tables" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🏆 Тэмцээнүүд</span><input id="feat_tour" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚡ Sit & Go</span><input id="feat_sitgo" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💼 Касс</span><input id="feat_cash" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◎ Мессеж</span><input id="feat_messages" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>▥ Статистик</span><input id="feat_stats" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚙ Тохиргоо</span><input id="feat_settings" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>❔ Тусламж</span><input id="feat_help" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>👤 Шинэ бүртгэл</span><input id="feat_register" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🚪 Ширээнд суух</span><input id="feat_join" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🎮 FOLD / CHECK / CALL / RAISE</span><input id="feat_gameplay" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>➕ Ширээнд мөнгө нэмэх</span><input id="feat_addmoney" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◔ Тоглолт үзэх</span><input id="feat_spectate" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💸 Мөнгө татах хүсэлт</span><input id="feat_cashout" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>✉ Мессеж илгээх</span><input id="feat_sendmsg" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⌯ Хуваалцах</span><input id="feat_share" type="checkbox" onchange="saveFeatureSettings()"></div><div style="font-size:9px;color:#8e969a;margin-top:8px">OFF болгосон удирдлага хэрэглэгч дээр ажиллахгүй. Админ өөрөө үргэлж ашиглана.</div></div><div class="adminCard"><h3>💸 Таталтын хүсэлтүүд</h3><div id="adminWithdrawals"></div></div><div class="adminCard"><h3>Ирсэн мессеж</h3><div id="adminMessages"></div></div></div></section>
+<div style="font-size:10px;color:#9aa2a4;margin-top:9px;line-height:1.5">Энд хадгалсан банк, данс, IBAN нь Касс → Цэнэглэлт дээр тоглогчдод шууд харагдана.</div></div><div class="adminCard"><h3>БҮХ УДИРДЛАГА — Админ ON/OFF</h3><div class="adminFeature"><span>🃏 Ширээнүүд</span><input id="feat_tables" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🏆 Тэмцээнүүд</span><input id="feat_tour" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚡ Sit & Go</span><input id="feat_sitgo" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💼 Касс</span><input id="feat_cash" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◎ Мессеж</span><input id="feat_messages" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>▥ Статистик</span><input id="feat_stats" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚙ Тохиргоо</span><input id="feat_settings" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>❔ Тусламж</span><input id="feat_help" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>👤 Шинэ бүртгэл</span><input id="feat_register" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🚪 Ширээнд суух</span><input id="feat_join" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🎮 FOLD / CHECK / CALL / RAISE</span><input id="feat_gameplay" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>➕ Ширээнд мөнгө нэмэх</span><input id="feat_addmoney" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◔ Тоглолт үзэх</span><input id="feat_spectate" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💸 Мөнгө татах хүсэлт</span><input id="feat_cashout" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>✉ Мессеж илгээх</span><input id="feat_sendmsg" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⌯ Хуваалцах</span><input id="feat_share" type="checkbox" onchange="saveFeatureSettings()"></div><div style="font-size:9px;color:#8e969a;margin-top:8px">OFF болгосон удирдлага хэрэглэгч дээр ажиллахгүй. Админ өөрөө үргэлж ашиглана.</div></div><div class="adminCard"><h3>Ирсэн мессеж</h3><div id="adminMessages"></div></div></div></section>
 
 <section id="registeredUsers" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Бүртгэлтэй хүмүүс</div><button onclick="renderRegisteredUsers()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Бүртгэлтэй хэрэглэгчид <span id="registeredUsersCount"></span></h3><div id="registeredUsersList"></div></div></div></section>
 <section id="contact" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Админтай холбогдох</div><button onclick="renderContact()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Төлбөр / дансны мэдээлэл</h3><div class="settingRow"><span>Банк</span><b id="contactBankName">-</b></div><div class="settingRow"><span>Данс</span><b id="contactBankAccount">-</b></div><div id="contactBankNote" style="font-size:11px;line-height:1.6;color:#c8d0cd;margin-top:12px"></div><button onclick="featureOpen('messages','messages')">✉ Админд мессеж бичих</button></div></div></section>
@@ -793,7 +671,7 @@ const MP_FIREBASE_CONFIG={
   messagingSenderId:'162661425789',
   appId:'1:162661425789:web:945c92df8fa85d96f94714'
 };
-let mpAuth=null,mpRtdb=null,mpRemoteRegistrations=[],mpRemoteWithdrawals=[],mpRegListenerRef=null,mpUserWithdrawRef=null;
+let mpAuth=null,mpRtdb=null,mpRemoteRegistrations=[],mpRemoteWithdrawals=[],mpRegListenerRef=null;
 try{
   if(!firebase.apps.length)firebase.initializeApp(MP_FIREBASE_CONFIG);
   mpAuth=firebase.auth();
@@ -820,6 +698,49 @@ async function mpWriteRegistration(u){
   await mpRtdb.ref('registrations/'+user.uid+'/'+key).set(mpSafeRegistration(u));
   return true;
 }
+
+function mpSafeWithdrawal(u,amount){
+  return {
+    type:'cashout',
+    from:String(u?.id||''),
+    name:String(u?.name||u?.id||''),
+    amount:Math.max(0,Math.floor(Number(amount)||0)),
+    bank:String(u?.bank||''),
+    bankAccount:String(u?.bankAccount||''),
+    status:'pending',
+    time:new Date().toLocaleString('mn-MN'),
+    createdAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()
+  };
+}
+async function mpWriteWithdrawal(u,amount){
+  if(!mpRtdb)throw new Error('Firebase database unavailable');
+  const user=await mpEnsureWriter();
+  const key=String(Date.now())+'_'+Math.random().toString(36).slice(2,8);
+  const data=mpSafeWithdrawal(u,amount);
+  await mpRtdb.ref('registrations/'+user.uid+'/'+key).set(data);
+  return {uid:user.uid,key,data};
+}
+function mpFlattenWithdrawals(raw){
+  const out=[];raw=raw||{};
+  Object.entries(raw).forEach(([uid,bucket])=>{
+    if(!bucket||typeof bucket!=='object')return;
+    Object.entries(bucket).forEach(([key,r])=>{
+      if(r&&typeof r==='object'&&r.type==='cashout'){
+        out.push({...r,_firebaseUid:uid,_firebaseKey:key});
+      }
+    });
+  });
+  out.sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+  return out;
+}
+async function mpMarkWithdrawalPaid(uid,key){
+  if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)throw new Error('Admin Firebase auth required');
+  await mpRtdb.ref('registrations/'+uid+'/'+key).update({
+    status:'paid',
+    paidAt:new Date().toLocaleString('mn-MN'),
+    paidAtMs:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()
+  });
+}
 function mpFlattenRegistrations(raw){
   const out=[];raw=raw||{};
   Object.entries(raw).forEach(([uid,bucket])=>{
@@ -842,88 +763,10 @@ function mpMergedRegisteredUsers(){
   });
   return merged;
 }
-
-function mpFlattenWithdrawals(raw){
-  const out=[];raw=raw||{};
-  Object.entries(raw).forEach(([uid,bucket])=>{
-    if(!bucket||typeof bucket!=='object')return;
-    Object.entries(bucket).forEach(([key,r])=>{
-      if(r&&typeof r==='object'&&r._type==='withdrawal'){
-        out.push({...r,_firebaseUid:uid,_firebaseKey:key});
-      }
-    });
-  });
-  out.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-  return out;
-}
-function mpStopUserWithdrawalListener(){
-  if(mpUserWithdrawRef){try{mpUserWithdrawRef.off()}catch(e){}mpUserWithdrawRef=null}
-}
-async function mpStartUserWithdrawalListener(userId){
-  if(!mpRtdb||!userId)return;
-  try{
-    const fbUser=await mpEnsureWriter();
-    mpStopUserWithdrawalListener();
-    mpUserWithdrawRef=mpRtdb.ref('registrations/'+fbUser.uid);
-    mpUserWithdrawRef.on('value',snap=>{
-      const bucket=snap.val()||{};
-      const list=[];
-      Object.entries(bucket).forEach(([key,r])=>{
-        if(r&&r._type==='withdrawal'&&String(r.userId||'')===String(userId)){
-          list.push({...r,_firebaseUid:fbUser.uid,_firebaseKey:key});
-        }
-      });
-      list.sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-      db.withdrawals=db.withdrawals||[];
-      list.forEach(remote=>{
-        let local=db.withdrawals.find(x=>x.remoteKey===remote._firebaseKey);
-        if(!local){
-          local={...remote,remoteKey:remote._firebaseKey,remoteUid:remote._firebaseUid};
-          db.withdrawals.push(local);
-        }else{
-          const prev=local.status;
-          Object.assign(local,remote);
-          local.remoteKey=remote._firebaseKey;
-          local.remoteUid=remote._firebaseUid;
-          if(remote.status==='rejected'&&prev!=='rejected'&&!local.refunded){
-            const u=(db.users||[]).find(x=>x.id===remote.userId);
-            if(u){u.chips=Math.max(0,Number(u.chips)||0)+Math.max(0,Number(remote.amount)||0)}
-            local.refunded=true;
-          }
-        }
-      });
-      save();
-      try{if(document.getElementById('cash')?.classList.contains('active'))renderCash()}catch(e){}
-    },err=>console.warn('Withdrawal listener failed',err));
-  }catch(e){console.warn('Withdrawal listener setup failed',e)}
-}
-async function mpWriteWithdrawal(w){
-  if(!mpRtdb)return null;
-  const user=await mpEnsureWriter();
-  const key=String(Date.now())+'_'+Math.random().toString(36).slice(2,8);
-  const payload={
-    _type:'withdrawal',
-    userId:String(w.userId||''),
-    userName:String(w.userName||''),
-    bank:String(w.bank||''),
-    account:String(w.account||''),
-    holder:String(w.holder||''),
-    amount:Math.max(0,Math.floor(Number(w.amount)||0)),
-    status:'pending',
-    createdAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now(),
-    createdText:new Date().toLocaleString('mn-MN')
-  };
-  await mpRtdb.ref('registrations/'+user.uid+'/'+key).set(payload);
-  return {uid:user.uid,key};
-}
-async function mpAdminSetWithdrawalStatus(uid,key,status){
-  if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)throw new Error('Admin Firebase эрх шаардлагатай');
-  await mpRtdb.ref('registrations/'+uid+'/'+key+'/status').set(status);
-  await mpRtdb.ref('registrations/'+uid+'/'+key+'/updatedAt').set(firebase?.database?.ServerValue?.TIMESTAMP||Date.now());
-}
 function mpStopAdminRegistrationListener(){
   if(mpRegListenerRef){try{mpRegListenerRef.off()}catch(e){}mpRegListenerRef=null}
   mpRemoteRegistrations=[];
+  mpRemoteWithdrawals=[];
 }
 function mpStartAdminRegistrationListener(){
   if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)return;
@@ -936,9 +779,9 @@ function mpStartAdminRegistrationListener(){
     try{
       updateMiniHeader();
       if(document.getElementById('registeredUsers')?.classList.contains('active'))renderRegisteredUsers();
-      if(document.getElementById('admin')?.classList.contains('active'))renderAdmin();
+      if(document.getElementById('admin')?.classList.contains('active'))renderAdminMessages();
     }catch(e){}
-  },err=>{console.warn('Registration read failed',err)});
+  },err=>{console.warn('Firebase admin read failed',err)});
 }
 async function mpFirebaseAdminLogin(email,password){
   if(!mpAuth)throw new Error('Firebase холболт ажиллахгүй байна');
@@ -972,12 +815,12 @@ function isAdminCreatedBot(b){
   return !!b && !isAutoFillerBot(b) && (b.adminCreated===true || /^b\d{10,}$/.test(String(b.id||'')));
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
-function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.withdrawals=db.withdrawals||[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});/* Keep admin-created custom bots, but permanently remove old automatic Player N / Bot N fillers. */db.bots=db.bots.filter(isAdminCreatedBot).map(b=>Object.assign(b,{adminCreated:true}));save()}
 function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
 async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,cgp:0,stars:0,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
-async function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();if(id==='admin'||id.includes('@')){try{let adminEmail=id==='admin'?'darkness881100@gmail.com':id;await mpFirebaseAdminLogin(adminEmail,pass);let u=db.users.find(x=>x.role==='admin')||db.users.find(x=>x.id==='admin');if(!u)throw new Error('Local admin profile missing');currentUser=u;show('home');return}catch(e){console.warn(e);return toast('Admin нэр эсвэл нууц үг буруу')}}let u=db.users.find(x=>x.id===id&&x.role!=='admin'&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;mpStartUserWithdrawalListener(u.id);show('home')}
-async function logout(){syncUser();let wasAdmin=currentUser?.role==='admin';currentUser=null;currentTable=null;mpStopAdminRegistrationListener();mpStopUserWithdrawalListener();if(wasAdmin&&mpAuth?.currentUser?.uid===MP_ADMIN_UID){try{await mpAuth.signOut()}catch(e){}}$('bottom').classList.add('hidden');show('auth')}
+async function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();if(id==='admin'||id.includes('@')){try{let adminEmail=id==='admin'?'darkness881100@gmail.com':id;await mpFirebaseAdminLogin(adminEmail,pass);let u=db.users.find(x=>x.role==='admin')||db.users.find(x=>x.id==='admin');if(!u)throw new Error('Local admin profile missing');currentUser=u;show('home');return}catch(e){console.warn(e);return toast('Admin нэр эсвэл нууц үг буруу')}}let u=db.users.find(x=>x.id===id&&x.role!=='admin'&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;show('home')}
+async function logout(){syncUser();let wasAdmin=currentUser?.role==='admin';currentUser=null;currentTable=null;mpStopAdminRegistrationListener();if(wasAdmin&&mpAuth?.currentUser?.uid===MP_ADMIN_UID){try{await mpAuth.signOut()}catch(e){}}$('bottom').classList.add('hidden');show('auth')}
 function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables')renderTables();if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
 function featureOpen(key,target,after){let f=db.settings.features||{};if(currentUser?.role!=='admin'&&f[key]===false)return toast('Энэ хэсгийг админ түр хаасан байна');show(target);if(typeof after==='function')after()}
 function adminAllows(key){let f=db.settings.features||{};if(currentUser?.role==='admin')return true;if(f[key]===false){toast('Энэ үйлдлийг админ түр хаасан байна');return false}return true}
@@ -1029,15 +872,6 @@ function renderCash(){
   if($('cashBal'))$('cashBal').textContent=fmt(currentUser.cgp);
   if($('cashMnt'))$('cashMnt').textContent=fmt(currentUser.chips||0);
   let b=db.settings.bank||{};
-  if($('depositAdminInline')){
-    const isAdmin=currentUser?.role==='admin';
-    $('depositAdminInline').classList.toggle('hidden',!isAdmin);
-    if(isAdmin){
-      if($('depositAdminBank'))$('depositAdminBank').value=b.name||'ХААН БАНК';
-      if($('depositAdminAccount'))$('depositAdminAccount').value=b.account||'';
-      if($('depositAdminIban'))$('depositAdminIban').value=b.iban||'';
-    }
-  }
   if($('depositBankName'))$('depositBankName').textContent=b.name||'Банк';
   if($('depositSectionTitle'))$('depositSectionTitle').textContent='2. '+(b.name||'Банк');
   if($('depositAccount'))$('depositAccount').textContent=b.account||'Данс оруулаагүй';
@@ -1046,13 +880,65 @@ function renderCash(){
   const playerName=currentUser?.name||currentUser?.id||'';
   $('depositNote').innerHTML='<b class="depWarn">⚠ АНХААР</b><br>Гүйлгээ хийхдээ банкны гүйлгээний <b class="depKey">УТГА</b> хэсэгт тоглогчийн нэрээ алдаагүй, зөв бүтнээр нь оруулна уу.<br><span class="depPlayer">Таны тоглогчийн нэр: <b>'+playerName+'</b></span><br>Нэрээ буруу, дутуу эсвэл өөрөөр бичсэн тохиолдолд цэнэглэлтийг танихад саатал үүсэж болзошгүй тул тоглогчийн нэрээ яг бүртгэлтэй байгаа хэлбэрээр нь зөв бичиж оруулна уу.';
 }
-  if($('withdrawBalance'))$('withdrawBalance').textContent=fmt(currentUser?.chips||0)+' MNT';
-  if($('withdrawBank')&&!$('withdrawBank').dataset.touched)$('withdrawBank').value=currentUser?.bank||'ХААН БАНК';
-  if($('withdrawAccount')&&!$('withdrawAccount').value)$('withdrawAccount').value=currentUser?.bankAccount||'';
-  if($('withdrawHolder')&&!$('withdrawHolder').value)$('withdrawHolder').value=currentUser?.name||'';
-  renderWithdrawalHistory();
 }
-function renderAdmin(){if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> — ${fmt(b.chips)}</span><button class="smallBtn red" onclick="deleteBot('${b.id}')">Устгах</button></div>`).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=db.settings.start||25000;if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminWithdrawals();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
+function renderAdminMessages(){
+  const box=$('adminMessages');
+  if(!box)return;
+
+  const remote=(mpRemoteWithdrawals||[]).slice().reverse();
+  const local=(db.messages||[]).map((m,i)=>({m,i}))
+    .filter(x=>x.m?.type==='cashout'||/^МӨНГӨ ТАТАХ ХҮСЭЛТ:/i.test(String(x.m?.text||'')))
+    .reverse();
+
+  const remoteHtml=remote.map(m=>{
+    const paid=m.status==='paid';
+    const label='МӨНГӨ ТАТАХ ХҮСЭЛТ: '+fmt(m.amount)+' chip'+(m.bankAccount?' • '+(m.bank||'Банк')+' '+m.bankAccount:'');
+    const action=paid
+      ? `<button class="smallBtn" disabled style="opacity:.65;margin-top:7px">✓ Төлөгдсөн</button>`
+      : `<button class="smallBtn" style="margin-top:7px" onclick="adminMarkRemoteCashoutPaid('${m._firebaseUid}','${m._firebaseKey}')">Төлсөн</button>`;
+    const paidLine=paid&&m.paidAt?`<br><span style="color:#52d98a">Төлсөн: ${m.paidAt}</span>`:'';
+    return `<div style="padding:9px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.5">
+      <b>${m.name||m.from||'-'}</b> (${m.from||'-'})<br>${label}<br>
+      <span style="color:#8e969a">${m.time||''}</span>${paidLine}<br>${action}
+    </div>`;
+  }).join('');
+
+  const remoteKeys=new Set(remote.map(m=>String(m.from||'')+'|'+String(m.amount||'')+'|'+String(m.time||'')));
+  const localHtml=local.filter(({m})=>!remoteKeys.has(String(m.from||'')+'|'+String(m.amount||'')+'|'+String(m.time||''))).map(({m,i})=>{
+    const paid=m.status==='paid';
+    const action=paid
+      ? `<button class="smallBtn" disabled style="opacity:.65;margin-top:7px">✓ Төлөгдсөн</button>`
+      : `<button class="smallBtn" style="margin-top:7px" onclick="adminMarkLocalCashoutPaid(${i})">Төлсөн</button>`;
+    const paidLine=paid&&m.paidAt?`<br><span style="color:#52d98a">Төлсөн: ${m.paidAt}</span>`:'';
+    return `<div style="padding:9px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.5">
+      <b>${m.from||'-'}</b>: ${m.text||''}<br><span style="color:#8e969a">${m.time||''}</span>${paidLine}<br>${action}
+    </div>`;
+  }).join('');
+
+  box.innerHTML=(remoteHtml+localHtml)||'Таталтын хүсэлт алга';
+}
+async function adminMarkRemoteCashoutPaid(uid,key){
+  if(currentUser?.role!=='admin')return toast('Зөвхөн админ');
+  try{
+    await mpMarkWithdrawalPaid(uid,key);
+    toast('Таталтын хүсэлтийг ТӨЛСӨН болголоо');
+  }catch(e){
+    console.warn(e);
+    toast('Firebase дээр Төлсөн болгоход алдаа гарлаа');
+  }
+}
+function adminMarkLocalCashoutPaid(index){
+  if(currentUser?.role!=='admin')return toast('Зөвхөн админ');
+  const m=(db.messages||[])[Number(index)];
+  if(!m)return toast('Хүсэлт олдсонгүй');
+  if(m.status==='paid')return toast('Аль хэдийн төлөгдсөн');
+  m.status='paid';
+  m.paidAt=new Date().toLocaleString('mn-MN');
+  save();
+  renderAdminMessages();
+  toast('Таталтын хүсэлтийг ТӨЛСӨН болголоо');
+}
+function renderAdmin(){if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> — ${fmt(b.chips)}</span><button class="smallBtn red" onclick="deleteBot('${b.id}')">Устгах</button></div>`).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=db.settings.start||25000;if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminMessages()}
 function saveBankSettings(){
   if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');
   const name=$('adminBankName')?.value.trim()||'';
@@ -1132,36 +1018,20 @@ function jackpotTab(el,tab){document.querySelectorAll('#jpTabs div').forEach(x=>
 function searchTables(){let q=prompt('Ширээ хайх');if(q===null)return;q=q.trim().toLowerCase();renderTables();if(!q)return;document.querySelectorAll('#tableList .tableRow').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'grid':'none')}
 function searchTours(){let q=prompt('Тэмцээн хайх');if(q===null)return;q=q.trim().toLowerCase();renderTours();if(!q)return;document.querySelectorAll('#tourList .tourRow').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'grid':'none')}
 function tourAction(i){if(!adminAllows('tour'))return;toast((tours[i]?.[0]||'Тэмцээн')+' — сонгогдлоо')}
-function saveDepositBankInline(){
-  if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');
-  const name=$('depositAdminBank')?.value||'ХААН БАНК';
-  const account=String($('depositAdminAccount')?.value||'').trim();
-  const iban=String($('depositAdminIban')?.value||'').trim();
-  if(!account)return toast('Дансны дугаараа оруулна уу');
-  db.settings.bank=Object.assign({},db.settings.bank||{},{
-    name:name,
-    account:account,
-    iban:iban,
-    holder:'',
-    note:''
-  });
-  save();
-  renderCash();
-  renderContact();
-  if($('adminBankName'))$('adminBankName').value=name;
-  if($('adminBankAccount'))$('adminBankAccount').value=account;
-  if($('adminBankIban'))$('adminBankIban').value=iban;
-  toast('Банк / данс хадгалагдлаа');
-}
 function cashTab(el,tab){
   document.querySelectorAll('#cashTabs div').forEach(x=>x.classList.remove('on'));
   if(el)el.classList.add('on');
-  ['cashStatusPane','cashDepositPane','cashWithdrawPane','cashOtherPane'].forEach(id=>{let e=$(id);if(e)e.classList.remove('on')});
+  ['cashStatusPane','cashDepositPane','cashOtherPane'].forEach(id=>{let e=$(id);if(e)e.classList.remove('on')});
   if(tab==='status'){if($('cashStatusPane'))$('cashStatusPane').classList.add('on');renderCash();return}
   if(tab==='deposit'){if($('cashDepositPane'))$('cashDepositPane').classList.add('on');renderCash();return}
-  if(tab==='withdraw'){if($('cashWithdrawPane'))$('cashWithdrawPane').classList.add('on');renderCash();return}
   if($('cashOtherPane'))$('cashOtherPane').classList.add('on');
-  if($('cashOtherText'))$('cashOtherText').textContent=tab==='history'?'Түүх хэсэг':'Гүйлгээ хэсэг';
+  if($('cashOtherText')){
+    if(tab==='withdraw'){
+      $('cashOtherText').innerHTML=`<div class="simpleCard" style="width:calc(100% - 28px);margin:14px"><h3>Мөнгө татах</h3><div style="font-size:11px;line-height:1.6;color:#c8d0cd">Татах дүнгээ оруулаад хүсэлт илгээнэ. Хүсэлт админы “Ирсэн мессеж” хэсэгт орно.</div><button onclick="requestCashout()">Мөнгө татах хүсэлт илгээх</button></div>`;
+    }else{
+      $('cashOtherText').textContent=tab==='history'?'Түүх хэсэг':'Гүйлгээ хэсэг';
+    }
+  }
 }
 async function copyDeposit(id){
   let e=$(id),t=(e?.textContent||'').trim();
@@ -1179,67 +1049,40 @@ function requestDeposit(){
   if($('depositAmount'))$('depositAmount').value='';
   toast('Цэнэглэлтийн хүсэлт админд илгээгдлээ');
 }
-function renderWithdrawalHistory(){
-  const box=$('withdrawHistory');if(!box)return;
-  const list=(db.withdrawals||[]).filter(w=>String(w.userId||'')===String(currentUser?.id||'')).slice().sort((a,b)=>Number(b.createdAt||0)-Number(a.createdAt||0));
-  if(!list.length){box.innerHTML='<div style="color:#858d90;font-size:11px;padding:8px 0">Одоогоор таталтын хүсэлт алга.</div>';return}
-  const label=s=>s==='paid'?'<span class="wdPaid">Төлсөн</span>':s==='rejected'?'<span class="wdRejected">Буцаасан</span>':'<span class="wdPending">Хүлээгдэж байна</span>';
-  box.innerHTML=list.map(w=>`<div class="withdrawHistoryItem"><b>${fmt(w.amount)} MNT</b> • ${w.bank||'-'}<br>${w.account||'-'}<br>${label(w.status)} • ${w.createdText||new Date(Number(w.createdAt)||Date.now()).toLocaleString('mn-MN')}</div>`).join('');
-}
-async function submitWithdrawal(){
+async function requestCashout(){
   if(!adminAllows('cashout'))return;
   if(!currentUser)return;
-  const amount=Math.floor(Number($('withdrawAmount')?.value)||0);
-  const bank=String($('withdrawBank')?.value||'').trim();
-  const account=String($('withdrawAccount')?.value||'').trim();
-  const holder=String($('withdrawHolder')?.value||'').trim();
-  if(amount<=0)return toast('Татах дүнгээ оруулна уу');
-  if(amount>Number(currentUser.chips||0))return toast('Үлдэгдэл хүрэхгүй байна');
-  if(!bank||!account||!holder)return toast('Банкны мэдээллээ бүрэн оруулна уу');
-  currentUser.chips=Math.max(0,Number(currentUser.chips||0)-amount);
-  const local={
-    id:'wd_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
-    userId:currentUser.id,userName:currentUser.name||currentUser.id,
-    bank,account,holder,amount,status:'pending',
-    createdAt:Date.now(),createdText:new Date().toLocaleString('mn-MN')
+  let a=prompt('Татах chip дүнгээ оруулна уу',String(Math.min(currentUser.chips||0,25000)));
+  if(a===null)return;
+  a=Math.floor(Number(a));
+  if(!a||a<=0)return toast('Дүнгээ зөв оруулна уу');
+  if(a>(currentUser.chips||0))return toast('Үлдэгдэл хүрэхгүй байна');
+
+  const localMsg={
+    type:'cashout',from:currentUser.id,name:currentUser.name||currentUser.id,amount:a,status:'pending',
+    bank:currentUser.bank||'',bankAccount:currentUser.bankAccount||'',
+    text:'МӨНГӨ ТАТАХ ХҮСЭЛТ: '+fmt(a)+' chip'+(currentUser.bankAccount?' • '+(currentUser.bank||'Банк')+' '+currentUser.bankAccount:''),
+    time:new Date().toLocaleString('mn-MN')
   };
-  db.withdrawals=db.withdrawals||[];
-  db.withdrawals.push(local);
-  save();renderCash();renderHome();
+
   try{
-    const remote=await mpWriteWithdrawal(local);
-    if(remote){local.remoteUid=remote.uid;local.remoteKey=remote.key;save();mpStartUserWithdrawalListener(currentUser.id)}
-    if($('withdrawAmount'))$('withdrawAmount').value='';
-    toast('Таталтын хүсэлт илгээгдлээ');
+    const remote=await mpWriteWithdrawal(currentUser,a);
+    localMsg._firebaseUid=remote.uid;
+    localMsg._firebaseKey=remote.key;
+    db.messages=db.messages||[];
+    db.messages.push(localMsg);
+    save();
+    toast('Таталтын хүсэлт админд ONLINE илгээгдлээ');
   }catch(e){
-    currentUser.chips=Math.max(0,Number(currentUser.chips||0)+amount);
-    db.withdrawals=db.withdrawals.filter(x=>x!==local);
-    save();renderCash();renderHome();
     console.warn(e);
-    toast('Таталтын хүсэлт илгээгдсэнгүй. Дахин оролдоно уу');
+    db.messages=db.messages||[];
+    db.messages.push(localMsg);
+    save();
+    toast('Firebase холболтгүй байна — хүсэлт зөвхөн энэ утсанд хадгалагдлаа');
   }
 }
-function requestCashout(){
-  const tab=document.querySelector('#cashTabs [data-tab="withdraw"]');
-  show('cash');cashTab(tab,'withdraw');
-}
-async function adminWithdrawalAction(uid,key,status){
-  if(currentUser?.role!=='admin')return;
-  if(status!=='paid'&&status!=='rejected')return;
-  try{
-    await mpAdminSetWithdrawalStatus(uid,key,status);
-    toast(status==='paid'?'Таталт “Төлсөн” боллоо':'Таталт буцаагдлаа');
-  }catch(e){console.warn(e);toast('Статус шинэчилж чадсангүй')}
-}
-function renderAdminWithdrawals(){
-  const box=$('adminWithdrawals');if(!box)return;
-  const list=(mpRemoteWithdrawals||[]).slice();
-  if(!list.length){box.innerHTML='<div style="color:#858d90;font-size:10px;padding:6px 0">Таталтын хүсэлт алга</div>';return}
-  const label=s=>s==='paid'?'<span class="wdPaid">Төлсөн</span>':s==='rejected'?'<span class="wdRejected">Буцаасан</span>':'<span class="wdPending">Хүлээгдэж байна</span>';
-  box.innerHTML=list.map(w=>`<div class="adminWithdrawItem"><b>${w.userName||w.userId}</b> (${w.userId})<br><b>${fmt(w.amount)} MNT</b> • ${w.bank||'-'}<br>🏦 ${w.account||'-'}<br>👤 ${w.holder||'-'}<br>${label(w.status)} • ${w.createdText||''}${w.status==='pending'?`<div class="wdActions"><button class="wdPay" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','paid')">ТӨЛСӨН</button><button class="wdReject" onclick="adminWithdrawalAction('${w._firebaseUid}','${w._firebaseKey}','rejected')">БУЦААХ</button></div>`:''}</div>`).join('');
-}
 function sendMessage(){if(!adminAllows('sendmsg'))return;if(!currentUser)return;let t=$('msgText').value.trim();if(!t)return toast('Мессежээ бичнэ үү');db.messages.push({from:currentUser.id,text:t,time:new Date().toLocaleString()});save();$('msgText').value='';renderMessages();toast('Мессеж админд илгээгдлээ')}
-function renderMessages(){if(!$('messageList'))return;let list=currentUser?.role==='admin'?db.messages:db.messages.filter(m=>m.from===currentUser?.id);$('messageList').innerHTML=list.length?list.slice().reverse().map(m=>`<div class="simpleCard"><b>${m.from}</b><div style="margin-top:6px;font-size:12px">${m.text}</div><div style="margin-top:6px;font-size:9px;color:#8e969a">${m.time}</div></div>`).join(''):'<div class="empty">Мессеж алга</div>'}
+function renderMessages(){if(!$('messageList'))return;let list=currentUser?.role==='admin'?db.messages:db.messages.filter(m=>m.from===currentUser?.id);$('messageList').innerHTML=list.length?list.slice().reverse().map(m=>{let isCashout=m?.type==='cashout'||/^МӨНГӨ ТАТАХ ХҮСЭЛТ:/i.test(String(m?.text||'')),status=isCashout?`<div style="margin-top:7px;font-size:10px;color:${m.status==='paid'?'#52d98a':'#e8c25a'}">${m.status==='paid'?'✓ Төлөгдсөн':'⏳ Хүлээгдэж байна'}</div>`:'';return `<div class="simpleCard"><b>${m.from}</b><div style="margin-top:6px;font-size:12px">${m.text}</div><div style="margin-top:6px;font-size:9px;color:#8e969a">${m.time}</div>${status}</div>`}).join(''):'<div class="empty">Мессеж алга</div>'}
 function renderStats(){let s=currentUser?.stats||{hands:0,wins:0,tables:0};if($('stHands'))$('stHands').textContent=fmt(s.hands);if($('stWins'))$('stWins').textContent=fmt(s.wins);if($('stChips'))$('stChips').textContent=fmt(currentUser?.chips||0);if($('stTables'))$('stTables').textContent=fmt(s.tables)}
 function renderSettings(){if($('setSound'))$('setSound').checked=db.settings.sound!==false;if($('setVibe'))$('setVibe').checked=db.settings.vibe!==false}
 function saveSettings(){db.settings.sound=$('setSound')?.checked!==false;db.settings.vibe=$('setVibe')?.checked!==false;save()}
