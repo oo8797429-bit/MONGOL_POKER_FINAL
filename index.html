@@ -718,6 +718,64 @@
  #game .s5{right:18%!important;top:1px!important}#game .s6{right:0!important;top:20%!important}#game .s7{right:-2%!important;bottom:30%!important}#game .s8{right:10%!important;bottom:22px!important}
 }
 </style>
+
+<style id="pokerman-proportion-final-only">
+/* PokerMan-like proportions only: table/seat visual sizing and spacing. No game logic or other screens changed. */
+#game .pokerTable{
+  height:min(55dvh,470px)!important;
+  margin:4px 10px 0!important;
+  border-width:8px!important;
+  border-radius:49%/31%!important;
+}
+#game .pokerTable:before{inset:4.5%!important;border-radius:49%/31%!important}
+#game .seat{width:54px!important;font-size:7px!important}
+#game .seat .pic{width:34px!important;height:34px!important;font-size:17px!important;border-width:2px!important}
+#game .seat .nm{max-width:54px!important;font-size:6.3px!important;padding:1px 4px!important;margin-top:1px!important}
+#game .seat .stack{font-size:6.4px!important;padding:1px 4px!important;line-height:1.2!important}
+#game .seatStatus{font-size:6px!important;padding:1px 4px!important;top:-10px!important}
+#game .dealerDot{width:15px!important;height:15px!important;font-size:7px!important;right:5px!important;top:-3px!important}
+#game .blindTag{font-size:6px!important;top:36px!important;padding:1px 3px!important}
+#game .holeBacks{top:28px!important}
+#game .holeBack{width:12px!important;height:17px!important}
+#game .betTag{font-size:6.5px!important;padding:1px 4px!important;gap:2px!important}
+#game .betTag:before{width:7px!important;height:7px!important}
+
+/* 10 fixed seats around the outer rim */
+#game .s0{left:50%!important;bottom:-7px!important;top:auto!important;right:auto!important;transform:translateX(-50%)!important}
+#game .s1{left:15%!important;bottom:8px!important;top:auto!important;right:auto!important;transform:none!important}
+#game .s2{left:-2%!important;bottom:26%!important;top:auto!important;right:auto!important;transform:none!important}
+#game .s3{left:-1%!important;top:27%!important;bottom:auto!important;right:auto!important;transform:none!important}
+#game .s4{left:17%!important;top:-7px!important;bottom:auto!important;right:auto!important;transform:none!important}
+#game .s9{left:50%!important;top:-13px!important;bottom:auto!important;right:auto!important;transform:translateX(-50%)!important}
+#game .s5{right:17%!important;top:-7px!important;left:auto!important;bottom:auto!important;transform:none!important}
+#game .s6{right:-1%!important;top:27%!important;left:auto!important;bottom:auto!important;transform:none!important}
+#game .s7{right:-2%!important;bottom:26%!important;top:auto!important;left:auto!important;transform:none!important}
+#game .s8{right:15%!important;bottom:8px!important;top:auto!important;left:auto!important;transform:none!important}
+
+/* Push each player's bet/action inward, away from names/chips */
+#game .s4 .betTag,#game .s9 .betTag,#game .s5 .betTag{top:54px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important}
+#game .s0 .betTag,#game .s1 .betTag,#game .s8 .betTag{top:-20px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important}
+#game .s2 .betTag,#game .s3 .betTag{left:58px!important;right:auto!important;top:15px!important;transform:none!important}
+#game .s6 .betTag,#game .s7 .betTag{right:58px!important;left:auto!important;top:15px!important;transform:none!important}
+
+/* Keep the center clean like PokerMan */
+#game .center{width:58%!important;top:50%!important;z-index:6!important}
+#game .pot{font-size:12px!important;padding:4px 10px!important;margin-bottom:6px!important}
+#game .board{gap:2px!important}
+#game .board .card{width:31px!important;height:43px!important;font-size:14px!important}
+#game .tableBrandMP{transform:translate(-50%,-50%) scale(.82)!important}
+#game .tableFootInfo{bottom:52px!important;font-size:5.5px!important}
+
+@media(max-width:430px){
+  #game .pokerTable{height:min(54dvh,455px)!important;margin:3px 9px 0!important}
+  #game .seat{width:52px!important}
+  #game .seat .pic{width:33px!important;height:33px!important;font-size:16px!important}
+  #game .seat .nm{max-width:52px!important;font-size:6px!important}
+  #game .seat .stack{font-size:6px!important}
+  #game .s1{left:14%!important}#game .s8{right:14%!important}
+  #game .s4{left:16%!important}#game .s5{right:16%!important}
+}
+</style>
 </head>
 <body>
 <div class="app">
