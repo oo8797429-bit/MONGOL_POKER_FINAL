@@ -121,6 +121,12 @@
 #homeBanner>*{display:block!important}#homeBanner::before{content:'$  $  $  $  $  $  $'!important;width:auto!important;height:auto!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;animation:none!important;display:block!important;color:#dfe7d5!important;font:31px Arial!important;position:absolute!important;left:auto!important;top:auto!important;transform:rotate(-11deg)!important}
 #homeBanner::after{content:none!important}.bottom{background:#090c0d!important;height:54px}.bottom button{font-size:8px!important;color:#747b7d}.bottom .ico{font-size:17px!important}.bottom button:first-child{color:#16c86d!important;border-top:2px solid #16c86d}
 @media(max-width:360px){.refTopMini{grid-template-columns:52px 1fr 132px}.refMiniActions button{padding:5px 8px}.refBanner strong{font-size:21px}.refTiles{padding:0 28px}}
+
+/* Home header account: replaces the old Register button */
+.refMiniActions .accountPill{display:flex;align-items:center;gap:4px;min-width:84px;max-width:102px;padding:4px 6px!important;background:#171d1d!important;border:1px solid #3b4744!important;color:#eef3f1!important;border-radius:14px!important;overflow:hidden}
+.refMiniActions .accountPill .accWord{font-size:7px;color:#29d67d;font-weight:800;flex:0 0 auto}
+.refMiniActions .accountPill #homeAccText{font-size:8px;font-weight:700;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.refMiniActions .accountPill .accAvatarMini{font-size:12px;flex:0 0 auto}
 </style>
 
 <style id="showdownResultStyle">
@@ -145,34 +151,176 @@
 @media(max-height:740px) and (max-width:430px){#game.tableExpanded .pokerTable{height:54dvh!important}}
 </style>
 
-<style id="accOnlyPatch">
-/* Keep clock + registration controls; only replace the home Register button with ACC. */
-.refMiniActions .accountPill{
-  display:flex;align-items:center;justify-content:center;gap:4px;
-  min-width:86px;max-width:112px;padding:5px 7px!important;
-  background:#18201f!important;border:1px solid #3b4d47!important;
-  color:#f4f4f4!important;border-radius:14px!important;overflow:hidden
+<style id="removeHeroPersonFix">
+/* Login hero: keep Mongol Poker branding, remove any person/model artwork on the right */
+#auth .hero{
+  background:radial-gradient(circle at 68% 30%,#8f3e22 0,#4f2118 24%,#1e1614 47%,#101314 75%)!important;
 }
-.refMiniActions .accountPill .accWord{
-  color:#24d17a;font-size:8px;font-weight:900;flex:0 0 auto
+#auth .hero > img:not(.heroLogo),
+#auth .hero .heroPerson,
+#auth .hero .person,
+#auth .hero .heroModel,
+#auth .hero .model{display:none!important;}
+</style>
+
+
+<style id="restoreOldLoginLook">
+/* Restore the login screen to the earlier gold Mongol Poker look */
+#auth .auth{
+  background:#121719!important;
 }
-.refMiniActions .accountPill #homeAccText{
-  font-size:8px;font-weight:700;max-width:52px;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+#auth .hero{
+  height:505px!important;
+  margin:0 -14px 14px!important;
+  position:relative!important;
+  overflow:hidden!important;
+  background:
+    radial-gradient(circle at 62% 13%,rgba(187,73,32,.68) 0,rgba(93,36,22,.47) 24%,rgba(18,20,20,.96) 61%),
+    #0f1314!important;
 }
-.refMiniActions .accountPill .accAvatarMini{
-  font-size:12px;line-height:1;flex:0 0 auto
+
+/* card row */
+#auth .hero::before{
+  content:"♠  A  ♥  A  ♦  A  ♣  A"!important;
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:60px!important;
+  transform:translateX(-50%)!important;
+  width:max-content!important;
+  color:#fff!important;
+  font-size:31px!important;
+  line-height:1!important;
+  font-weight:900!important;
+  letter-spacing:5px!important;
+  text-shadow:0 0 10px rgba(255,160,50,.5)!important;
+}
+
+/* suppress old extra logo/person decorations */
+#auth .hero::after{
+  content:none!important;
+  display:none!important;
+}
+#auth .hero > img,
+#auth .hero > picture,
+#auth .hero > .avatar,
+#auth .hero > .brandMark,
+#auth .hero > .person,
+#auth .hero > .heroPerson,
+#auth .hero > .heroModel,
+#auth .hero > .model{
+  display:none!important;
+}
+
+/* big horizontal gold MP MONGOL POKER logo */
+#auth .hero .heroLogo.logoImg{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  position:absolute!important;
+  left:8%!important;
+  right:auto!important;
+  top:74px!important;
+  width:84%!important;
+  height:158px!important;
+  padding:0 34px!important;
+  border-radius:36px!important;
+  box-sizing:border-box!important;
+  background-image:none!important;
+  background:
+    linear-gradient(105deg,#55300d 0%,#cf8f18 17%,#ffca46 58%,#e9bb3b 100%)!important;
+  border:4px solid #edc34a!important;
+  box-shadow:
+    0 0 0 3px rgba(73,45,12,.95),
+    0 0 30px rgba(255,121,35,.58),
+    inset 0 0 24px rgba(255,255,255,.18)!important;
+  color:transparent!important;
+  font-size:0!important;
+  overflow:hidden!important;
+  animation:oldMpGlow 2.2s ease-in-out infinite alternate!important;
+}
+
+/* MP */
+#auth .hero .heroLogo.logoImg::before{
+  content:"MP"!important;
+  position:static!important;
+  display:block!important;
+  transform:none!important;
+  margin-right:24px!important;
+  color:#ff9b29!important;
+  font-size:51px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:-4px!important;
+  text-shadow:
+    0 0 8px rgba(255,74,22,.75),
+    0 1px 0 #ffe69c!important;
+  white-space:nowrap!important;
+}
+
+/* MONGOL POKER */
+#auth .hero .heroLogo.logoImg::after{
+  content:"MONGOL POKER"!important;
+  display:block!important;
+  position:static!important;
+  transform:none!important;
+  color:#ffa02b!important;
+  font-size:26px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:2px!important;
+  text-shadow:
+    0 0 8px rgba(255,75,20,.78),
+    0 1px 0 #ffe59a!important;
+  white-space:nowrap!important;
+  background:none!important;
+}
+
+/* orange login button as in the earlier version */
+#auth .primary{
+  background:
+    linear-gradient(180deg,#ffd968 0%,#ffb126 36%,#ff6b0a 72%,#e64700 100%)!important;
+  border:1px solid #ffd052!important;
+  color:#171717!important;
+  box-shadow:0 0 14px rgba(255,174,39,.32)!important;
+  font-weight:900!important;
+}
+
+/* subtle moving shine */
+#auth .hero .heroLogo.logoImg{
+  isolation:isolate!important;
+}
+@keyframes oldMpGlow{
+  from{filter:brightness(.98)}
+  to{filter:brightness(1.07)}
+}
+
+@media(max-width:380px){
+  #auth .hero .heroLogo.logoImg{
+    left:7%!important;
+    width:86%!important;
+    height:145px!important;
+    padding:0 25px!important;
+  }
+  #auth .hero .heroLogo.logoImg::before{
+    font-size:44px!important;
+    margin-right:18px!important;
+  }
+  #auth .hero .heroLogo.logoImg::after{
+    font-size:22px!important;
+  }
 }
 </style>
 
 </head>
 <body>
 <div class="app">
-<section id="auth" class="screen active"><div class="auth"><div class="hero"><div class="heroLogo logoImg"></div><div class="aceRow" aria-hidden="true"><span class="suit black">♠</span><span class="ace">A</span><span class="suit red">♥</span><span class="ace">A</span><span class="suit red">♦</span><span class="ace">A</span><span class="suit black">♣</span><span class="ace">A</span></div></div><div class="authCard"><h2 id="authTitle">Нэвтрэх</h2><div id="loginFields"><div class="field"><label>Нэр / Утас</label><input id="loginId" placeholder="Нэр эсвэл утас"></div><div class="field"><label>Нууц үг</label><div class="passWrap"><input id="loginPass" type="password" placeholder="Нууц үг"><button type="button" onclick="togglePass('loginPass',this)">◉</button></div></div><button class="primary" onclick="login()">Нэвтрэх</button><div class="switch" onclick="toggleRegister(true)">Бүртгүүлэх</div></div><div id="regFields" class="hidden"><div class="field"><label>* Нэр</label><input id="regName" placeholder="Нэр" autocomplete="name"></div><div class="field"><label>* Нууц үг</label><div class="passWrap"><input id="regPass" type="password" placeholder="Нууц үг" autocomplete="new-password"><button type="button" onclick="togglePass('regPass',this)">◉</button></div></div><div class="field"><label>* Нууц үг батлах</label><div class="passWrap"><input id="regPass2" type="password" placeholder="Нууц үг батлах" autocomplete="new-password"><button type="button" onclick="togglePass('regPass2',this)">◉</button></div></div><div class="field"><label>* Утас</label><div class="phoneWrap"><span>+976</span><input id="regPhone" inputmode="numeric" maxlength="8" placeholder="________" autocomplete="tel"></div></div><div class="field"><label>* Банкны код</label><select id="regBank"><option value="">Банкны код</option><option>Хаан Банк</option><option>Голомт Банк</option><option>Хас Банк</option><option>Төрийн Банк</option><option>Худалдаа хөгжлийн Банк</option><option>Улаанбаатар хотын банк</option><option>M bank</option></select></div><div class="field"><label>* Банкны дансны дугаар</label><input id="regBankAccount" inputmode="numeric" placeholder="Банкны дансны дугаар"></div><button class="primary regSubmit" onclick="register()">Илгээх</button><div class="switch" onclick="toggleRegister(false)">Нэвтрэх рүү буцах</div></div></div></div></section>
+<section id="auth" class="screen active"><div class="auth"><div class="hero"><div class="heroLogo logoImg"></div></div><div class="authCard"><h2 id="authTitle">Нэвтрэх</h2><div id="loginFields"><div class="field"><label>Хэрэглэгчийн нэр</label><input id="loginId" placeholder="Хэрэглэгчийн нэр"></div><div class="field"><label>Нууц үг</label><input id="loginPass" type="password" placeholder="Нууц үг"></div><button class="primary" onclick="login()">Нэвтрэх</button><div class="switch" onclick="toggleRegister(true)">Бүртгүүлэх</div></div><div id="regFields" class="hidden"><div class="field"><label>Нэр</label><input id="regName"></div><div class="field"><label>Хэрэглэгчийн нэр</label><input id="regId"></div><div class="field"><label>Нууц үг</label><input id="regPass" type="password"></div><div class="field"><label>Нууц үг давтах</label><input id="regPass2" type="password"></div><button class="primary" onclick="register()">Илгээх</button><div class="switch" onclick="toggleRegister(false)">Нэвтрэх рүү буцах</div></div></div></div></section>
 <section id="home" class="screen"><div class="refHome">
   <div class="refTopMini">
     <div class="refMiniLogo"><span>MP</span><small>MONGOL<br>POKER</small></div>
-    <div class="refMiniStats"><span class="miniClock" id="miniClock">--:--</span><button class="miniUsersBtn" id="miniUsersBtn" type="button" onclick="openRegisteredUsers()" title="Бүртгэлтэй хэрэглэгчид">👤 <b id="miniUserCount">0</b></button></div>
+    <div class="refMiniStats">◉ 2016 &nbsp; ♟ 202 &nbsp; ◎ 80</div>
     <div class="refMiniActions"><button onclick="logout()">Нэвтрэх</button><button class="accountPill" onclick="show('menu')" title="Аккаунт"><span class="accWord">ACC</span><span id="homeAccText">ACC</span><span class="accAvatarMini">👤</span></button></div>
   </div>
   <div class="refJackpot" onclick="openJackpot()"><small>Bad beat</small><span>ЖЕКПОТ</span><b id="uBal">0</b></div>
@@ -198,12 +346,10 @@
 <div class="adminCard"><h3>Апп удирдлага</h3><div class="field"><label>Нүүр баннер</label><input id="adminBanner" value="АДМИНТАЙ ХОЛБОГДОХ"></div><div class="field"><label>Шинэ хэрэглэгчийн эхлэх chip</label><input id="adminStart" type="number" value="25000"></div><button class="primary" onclick="saveAdminSettings()">Хадгалах</button></div><div class="adminCard"><h3>Ширээний татас (RAKE)</h3><div class="field"><label>Татас %</label><input id="adminRakePercent" type="number" min="0" max="20" step="0.1" value="1"></div><div class="settingRow"><span>Одоогийн татас</span><b id="adminRakeBalance">0</b></div><div class="settingRow"><span>Нийт цугларсан</span><b id="adminRakeTotal">0</b></div><div class="rowBtns"><button class="smallBtn" onclick="saveRakeSettings()">Хадгалах</button><button class="smallBtn" onclick="collectAdminRake()">Татас авах</button></div><div style="font-size:9px;color:#8e969a;margin-top:8px">Гар дуусах бүрт pot-оос тохируулсан хувийн татас автоматаар суутгагдаж энд цугларна. “Татас авах” дарахад админы chip үлдэгдэлд орно.</div></div><div class="adminCard"><h3>Жекпот удирдлага</h3><div class="field"><label>Жекпот дүн</label><input id="adminJackpot" type="number" min="0" step="100" value="200000"></div><div class="field"><label>Blind</label><input id="adminJpBlind" value="500/1000+"></div><div class="field"><label>Тоглоом</label><select id="adminJpGame"><option value="Texas Hold'em">Texas Hold'em</option><option value="Omaha">Omaha</option></select></div><div class="field"><label>Bad Beat Trigger</label><input id="adminJpTrigger" value="AAAA beaten by Straight Flush or better"></div><div class="field"><label>Ялагдсан гар %</label><input id="adminJpLoser" type="number" value="25"></div><div class="field"><label>Ялагч гар %</label><input id="adminJpWinner" type="number" value="40"></div><div class="field"><label>Ширээний бусад тоглогч %</label><input id="adminJpTable" type="number" value="15"></div><div class="field"><label>House %</label><input id="adminJpHouse" type="number" value="0"></div><div class="rowBtns"><button class="smallBtn" onclick="adminSetJackpot()">Хадгалах</button><button class="smallBtn" onclick="adminAddJackpot(10000)">+10,000</button><button class="smallBtn red" onclick="adminResetJackpot()">200,000 болгох</button></div><div style="font-size:9px;color:#8e969a;margin-top:8px">Жекпот тусдаа удирдлагатай. Ширээний RAKE нь дээрх “Ширээний татас” хэсэгт цугларна.</div></div>
 <div class="adminCard"><h3>Банк / дансны мэдээлэл — зөвхөн админ</h3><div class="field"><label>Банк</label><input id="adminBankName" placeholder="ХААН БАНК"></div><div class="field"><label>Дансны дугаар</label><input id="adminBankAccount" placeholder="0000000000"></div><div class="field"><label>Данс эзэмшигч</label><input id="adminBankHolder" placeholder="Нэр"></div><div class="field"><label>Хэрэглэгчид харагдах тайлбар</label><input id="adminBankNote" placeholder="Гүйлгээний утгад ID-гаа бичнэ үү"></div><button class="primary" onclick="saveBankSettings()">Данс хадгалах</button><div style="font-size:9px;color:#8e969a;margin-top:8px">Энэ хэсэгт зөвхөн админ орж засна. Энгийн хэрэглэгч зөвхөн Мессеж/Холбоо хэсэгт хадгалсан дансыг харна.</div></div><div class="adminCard"><h3>БҮХ УДИРДЛАГА — Админ ON/OFF</h3><div class="adminFeature"><span>🃏 Ширээнүүд</span><input id="feat_tables" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🏆 Тэмцээнүүд</span><input id="feat_tour" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚡ Sit & Go</span><input id="feat_sitgo" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💼 Касс</span><input id="feat_cash" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◎ Мессеж</span><input id="feat_messages" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>▥ Статистик</span><input id="feat_stats" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⚙ Тохиргоо</span><input id="feat_settings" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>❔ Тусламж</span><input id="feat_help" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>👤 Шинэ бүртгэл</span><input id="feat_register" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🚪 Ширээнд суух</span><input id="feat_join" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>🎮 FOLD / CHECK / CALL / RAISE</span><input id="feat_gameplay" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>➕ Ширээнд мөнгө нэмэх</span><input id="feat_addmoney" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>◔ Тоглолт үзэх</span><input id="feat_spectate" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>💸 Мөнгө татах хүсэлт</span><input id="feat_cashout" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>✉ Мессеж илгээх</span><input id="feat_sendmsg" type="checkbox" onchange="saveFeatureSettings()"></div><div class="adminFeature"><span>⌯ Хуваалцах</span><input id="feat_share" type="checkbox" onchange="saveFeatureSettings()"></div><div style="font-size:9px;color:#8e969a;margin-top:8px">OFF болгосон удирдлага хэрэглэгч дээр ажиллахгүй. Админ өөрөө үргэлж ашиглана.</div></div><div class="adminCard"><h3>Ирсэн мессеж</h3><div id="adminMessages"></div></div></div></section>
 
-<section id="registeredUsers" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Бүртгэлтэй хүмүүс</div><button onclick="renderRegisteredUsers()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Бүртгэлтэй хэрэглэгчид <span id="registeredUsersCount"></span></h3><div id="registeredUsersList"></div></div></div></section>
-
 <section id="contact" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Админтай холбогдох</div><button onclick="renderContact()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Төлбөр / дансны мэдээлэл</h3><div class="settingRow"><span>Банк</span><b id="contactBankName">-</b></div><div class="settingRow"><span>Данс</span><b id="contactBankAccount">-</b></div><div class="settingRow"><span>Эзэмшигч</span><b id="contactBankHolder">-</b></div><div id="contactBankNote" style="font-size:11px;line-height:1.6;color:#c8d0cd;margin-top:12px"></div><button onclick="featureOpen('messages','messages')">✉ Админд мессеж бичих</button></div></div></section>
 <section id="messages" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Мессеж</div><button onclick="renderMessages()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Админд мессеж илгээх</h3><textarea id="msgText" placeholder="Мессежээ бичнэ үү"></textarea><button onclick="sendMessage()">Илгээх</button></div><div id="messageList"></div></div></section>
 <section id="stats" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Статистик</div><button onclick="renderStats()">⟳</button></header><div class="simplePage"><div class="statGrid"><div class="statBox">Гар<b id="stHands">0</b></div><div class="statBox">Хожил<b id="stWins">0</b></div><div class="statBox">Chip<b id="stChips">0</b></div><div class="statBox">Ширээ<b id="stTables">0</b></div></div><div class="simpleCard"><button onclick="featureOpen('tables','tables')">Ширээнүүд рүү орох</button></div></div></section>
-<section id="settings" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тохиргоо</div><button></button></header><div class="simplePage"><div class="simpleCard"><div class="settingRow"><span>Дуу</span><input id="setSound" type="checkbox" checked onchange="saveSettings()"></div><div class="settingRow"><span>Чичиргээ</span><input id="setVibe" type="checkbox" checked onchange="saveSettings()"></div><button onclick="saveSettings();toast('Тохиргоо хадгалагдлаа')">Хадгалах</button></div><div class="simpleCard" id="registrationInfoCard"><h3>Бүртгэлийн мэдээлэл</h3><div id="registrationInfo">Бүртгэлийн мэдээлэл алга</div></div></div></section>
+<section id="settings" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тохиргоо</div><button></button></header><div class="simplePage"><div class="simpleCard"><div class="settingRow"><span>Дуу</span><input id="setSound" type="checkbox" checked onchange="saveSettings()"></div><div class="settingRow"><span>Чичиргээ</span><input id="setVibe" type="checkbox" checked onchange="saveSettings()"></div><button onclick="saveSettings();toast('Тохиргоо хадгалагдлаа')">Хадгалах</button></div></div></section>
 <section id="help" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тусламж</div><button></button></header><div class="simplePage"><div class="simpleCard"><h3>Mongol Poker</h3><div style="font-size:12px;line-height:1.7">Ширээ сонгоод орох дүнгээр сууна. Тоглолтын үед FOLD, CHECK/CALL, RAISE товч ажиллана. Асуудал гарвал Мессеж хэсгээс админд бичээрэй.</div><button onclick="featureOpen('messages','messages')">Админд бичих</button></div></div></section>
 <section id="sitgo" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Sit & Go</div><button></button></header><div class="simplePage"><div class="simpleCard"><h3>Sit & Go</h3><div style="font-size:12px">Sit & Go хэсэг ажиллаж байна. Админ тэмцээн нээх хүртэл энд хүлээнэ.</div><button onclick="featureOpen('tour','tour')">Тэмцээнүүд харах</button></div></div></section>
 <section id="game" class="screen game"><div class="gameHead"><button onclick="leaveTable()">‹</button><b>Тоглолт</b><button onclick="openSide()">☰</button></div><button id="tableSizeBtn" class="tableSizeBtn" onclick="toggleTableSize()" aria-label="Ширээ том/жижиг болгох">⛶</button><div class="gameMeta"><b id="gameName">Ширээ</b><span id="gameBlind">0/0</span></div><div class="pokerTable"><div id="seats"></div><div class="center"><div class="pot" id="pot">Pot: 0</div><div class="board" id="board"></div></div></div><div class="status" id="status">Ачаалж байна...</div><div class="mycards" id="mycards"></div><div class="actionBar"><div id="baseActions" class="baseActions"><button class="fold" onclick="fold()">FOLD</button><button class="check" id="checkBtn" onclick="checkCall()">CHECK</button><button class="call" id="callBtn" onclick="checkCall()">CALL</button><button class="raise" onclick="showRaise()">RAISE</button></div><div id="raisePanel" class="raisePanel hidden"><div class="raiseLeft"><div class="raiseAmount" id="raiseAmount">0</div><div class="quick"><button onclick="preset(.33)">1/3</button><button onclick="preset(.5)">1/2</button><button onclick="preset(.66)">2/3</button><button onclick="preset(1)">POT</button></div><button class="confirmRaise" onclick="confirmRaise()">BET / RAISE</button></div><div class="vwrap"><input id="raiseSlider" class="vslider" type="range" oninput="updateRaise()"></div></div></div></section>
@@ -227,36 +373,11 @@ function isAdminCreatedBot(b){
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
 function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});/* Keep admin-created custom bots, but permanently remove old automatic Player N / Bot N fillers. */db.bots=db.bots.filter(isAdminCreatedBot).map(b=>Object.assign(b,{adminCreated:true}));save()}
-function toggleRegister(on){
-  if(on&&!adminAllows('register'))return;
-  $('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';
-  $('loginFields').classList.toggle('hidden',on);
-  $('regFields').classList.toggle('hidden',!on);
-  $('auth').classList.toggle('registerMode',!!on);
-  if(on){setTimeout(()=>{try{$('regName').focus()}catch(e){}},50)}
-}
-function togglePass(id,btn){let el=$(id);if(!el)return;el.type=el.type==='password'?'text':'password';if(btn)btn.textContent=el.type==='password'?'◉':'◎'}
-function normalizePhone(v){return String(v||'').replace(/\D/g,'').replace(/^976/,'').slice(-8)}
-function register(){
-  if(!adminAllows('register'))return;
-  let n=$('regName').value.trim(),p=$('regPass').value,p2=$('regPass2').value;
-  let phone=normalizePhone($('regPhone').value),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();
-  if(!n||p.length<4||p!==p2||phone.length!==8||!bank||!bankAccount)return toast('Бүртгэлийн бүх мэдээллээ зөв бөглөнө үү');
-  if(db.users.some(x=>normalizePhone(x.phone||x.id)===phone))return toast('Энэ утас бүртгэлтэй байна');
-  let id=phone;
-  let user={id,pass:p,name:n,phone:'+976'+phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,role:'user',stats:{hands:0,wins:0,tables:0}};
-  db.users.push(user);save();
-  $('loginId').value=phone;$('loginPass').value=p;
-  ['regName','regPass','regPass2','regPhone','regBankAccount'].forEach(k=>{if($(k))$(k).value=''});if($('regBank'))$('regBank').value='';
-  toggleRegister(false);toast('Бүртгэл амжилттай хадгалагдлаа');
-}
-function login(){
-  let raw=$('loginId').value.trim(),pass=$('loginPass').value.trim(),ph=normalizePhone(raw),low=raw.toLowerCase();
-  let u=db.users.find(x=>String(x.pass)===pass&&(String(x.id).toLowerCase()===low||String(x.name||'').toLowerCase()===low||(ph&&normalizePhone(x.phone||x.id)===ph)));
-  if(!u)return toast('Нэр/утас эсвэл нууц үг буруу');currentUser=u;show('home')
-}
+function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
+function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value;if(!n||!id||p.length<4||p!==p2)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');db.users.push({id,pass:p,name:n,chips:db.settings.start||25000,role:'user',stats:{hands:0,wins:0,tables:0}});save();$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
+function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();let u=db.users.find(x=>x.id===id&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;show('home')}
 function logout(){syncUser();currentUser=null;currentTable=null;$('bottom').classList.add('hidden');show('auth')}
-function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables')renderTables();if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
+function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables')renderTables();if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
 function featureOpen(key,target,after){let f=db.settings.features||{};if(currentUser?.role!=='admin'&&f[key]===false)return toast('Энэ хэсгийг админ түр хаасан байна');show(target);if(typeof after==='function')after()}
 function adminAllows(key){let f=db.settings.features||{};if(currentUser?.role==='admin')return true;if(f[key]===false){toast('Энэ үйлдлийг админ түр хаасан байна');return false}return true}
 function saveFeatureSettings(){if(currentUser?.role!=='admin')return;db.settings.features=db.settings.features||{};['tables','tour','sitgo','cash','messages','stats','settings','help','register','join','gameplay','addmoney','spectate','cashout','sendmsg','share'].forEach(k=>{let e=$('feat_'+k);if(e)db.settings.features[k]=!!e.checked});save();toast('Товчны удирдлага хадгалагдлаа')}
@@ -277,50 +398,12 @@ function startJackpotAnimation(){
   jpSaveTick++; if(jpSaveTick>=10){jpSaveTick=0;save()}
  },420);
 }
-function registeredUsersOnly(){
-  return (db.users||[]).filter(u=>u && u.role!=='admin');
-}
-function registeredUserCount(){
-  return registeredUsersOnly().length;
-}
-function updateMiniHeader(){
-  const c=$('miniClock');
-  if(c){
-    const d=new Date();
-    c.textContent=String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-  }
-  const n=$('miniUserCount');
-  if(n)n.textContent=String(registeredUserCount());
-  const b=$('miniUsersBtn');
-  if(b){
-    b.classList.toggle('adminTap',currentUser?.role==='admin');
-    b.setAttribute('aria-disabled',currentUser?.role==='admin'?'false':'true');
-  }
-}
-function openRegisteredUsers(){
-  if(currentUser?.role!=='admin')return toast('Зөвхөн админ бүртгэлтэй хүмүүсийг харна');
-  show('registeredUsers');
-}
-function renderRegisteredUsers(){
-  if(currentUser?.role!=='admin'){toast('Зөвхөн админ');show('home');return}
-  updateMiniHeader();
-  const users=registeredUsersOnly();
-  if($('registeredUsersCount'))$('registeredUsersCount').textContent='('+users.length+')';
-  const list=$('registeredUsersList'); if(!list)return;
-  const phoneText=(u)=>{
-    const raw=String(u.phone||'').trim();
-    if(!raw)return '-';
-    return raw.startsWith('+976')?raw:('+976 '+raw.replace(/^976/,''));
-  };
-  list.innerHTML=users.length?users.slice().reverse().map((u,i)=>`<div class="registeredUserCard"><div class="registeredUserNo">${users.length-i}</div><div class="registeredUserBody"><b>${u.name||'-'}</b><span>🆔 ${u.id||'-'}</span><span>📱 ${phoneText(u)}</span><span>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</span><span>💰 ${fmt(u.chips||0)} chip</span>${u.registeredAt?`<span>🕒 ${u.registeredAt}</span>`:''}</div></div>`).join(''):'<div class="empty">Бүртгэлтэй хэрэглэгч алга</div>';
-}
-setInterval(updateMiniHeader,30000);
-function renderHome(){updateMiniHeader();if($('uName'))$('uName').textContent=currentUser?.name||'';if($('homeAccText'))$('homeAccText').textContent=currentUser?.id||currentUser?.name||'ACC';if($('uBal'))$('uBal').textContent=fmt(db.jackpot||0);if(jpAnimValue===null)jpAnimValue=Number(db.jackpot||0);if(!jpAnimTimer)startJackpotAnimation();if($('adminMenuItem'))$('adminMenuItem').classList.toggle('hidden',currentUser?.role!=='admin')}
+function renderHome(){if($('uName'))$('uName').textContent=currentUser?.name||'';if($('homeAccText'))$('homeAccText').textContent=currentUser?.id||currentUser?.name||'ACC';if($('uBal'))$('uBal').textContent=fmt(db.jackpot||0);if(jpAnimValue===null)jpAnimValue=Number(db.jackpot||0);if(!jpAnimTimer)startJackpotAnimation();if($('adminMenuItem'))$('adminMenuItem').classList.toggle('hidden',currentUser?.role!=='admin')}
 function renderTables(){let adminBotCount=Math.min(7,db.bots.filter(isAdminCreatedBot).length);$('tableCount').textContent=db.tables.length+' ШИРЭЭ';$('tableList').innerHTML=db.tables.map((t,i)=>`<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${t.name} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${adminBotCount}/10 &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)}</div></div><div class="join"><button ${t.open?'':'disabled'} onclick="join('${t.id}')">Орох дүн<br>${fmt(t.buy)}</button></div></div>`).join('')}
 const tours=[['FREEROLL - 100K','100,000','Үнэгүй'],['УЛААН 500,000₮ BUY IN','100,000','1,000'],['FREEROLL - 100K','100,000','Тоглож байна'],['ШАР 1,500,000₮ BUY IN','50,000','✓'],['FREEROLL - 100K','100,000','✓'],['УЛААН 500,000₮ BUY IN','50,000','✓']];
 function renderTours(){$('tourList').innerHTML=tours.map((t,i)=>`<div class="tourRow"><div class="clock">${i<3?'11:37':'✓'}</div><div class="tourMain"><div class="tourTitle">🏆 ${t[0]}</div><div class="tourMeta">💰 ${t[1]}<br>👥 ${12+i*9}</div></div><div class="tourAction"><button onclick="tourAction(${i})">${t[2]}</button></div></div>`).join('')}
 function renderCash(){$('cashBal').textContent=fmt(currentUser?.chips||0)}
-function renderAdmin(){if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div class="adminUserReg"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br><span>Утас: ${u.phone||'-'} • Банк: ${u.bank||'-'} • Данс: ${u.bankAccount||'-'}</span>${u.registeredAt?`<br><span>Бүртгэсэн: ${u.registeredAt}</span>`:''}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> — ${fmt(b.chips)}</span><button class="smallBtn red" onclick="deleteBot('${b.id}')">Устгах</button></div>`).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=db.settings.start||25000;if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankHolder'))$('adminBankHolder').value=bk.holder||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
+function renderAdmin(){if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> — ${fmt(b.chips)}</span><button class="smallBtn red" onclick="deleteBot('${b.id}')">Устгах</button></div>`).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=db.settings.start||25000;if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankHolder'))$('adminBankHolder').value=bk.holder||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
 function saveBankSettings(){if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');db.settings.bank={name:$('adminBankName')?.value.trim()||'',account:$('adminBankAccount')?.value.trim()||'',holder:$('adminBankHolder')?.value.trim()||'',note:$('adminBankNote')?.value.trim()||''};save();renderContact();toast('Дансны мэдээлэл хадгалагдлаа')}
 function renderContact(){let b=db.settings.bank||{};if($('contactBankName'))$('contactBankName').textContent=b.name||'-';if($('contactBankAccount'))$('contactBankAccount').textContent=b.account||'Данс оруулаагүй';if($('contactBankHolder'))$('contactBankHolder').textContent=b.holder||'-';if($('contactBankNote'))$('contactBankNote').textContent=b.note||''}
 function adminSetJackpot(){if(currentUser?.role!=='admin')return;let a=Number($('adminJackpot')?.value);if(!Number.isFinite(a)||a<0)return toast('Жекпот дүнгээ шалгана уу');db.jackpot=Math.floor(a);db.jackpotSettings={blind:$('adminJpBlind')?.value||'500/1000+',game:$('adminJpGame')?.value||"Texas Hold'em",trigger:$('adminJpTrigger')?.value||'',loser:Number($('adminJpLoser')?.value)||0,winner:Number($('adminJpWinner')?.value)||0,table:Number($('adminJpTable')?.value)||0,house:Number($('adminJpHouse')?.value)||0};save();renderAdmin();renderHome();toast('Жекпот тохиргоо хадгалагдлаа')}
@@ -388,7 +471,7 @@ function requestCashout(){if(!adminAllows('cashout'))return;if(!currentUser)retu
 function sendMessage(){if(!adminAllows('sendmsg'))return;if(!currentUser)return;let t=$('msgText').value.trim();if(!t)return toast('Мессежээ бичнэ үү');db.messages.push({from:currentUser.id,text:t,time:new Date().toLocaleString()});save();$('msgText').value='';renderMessages();toast('Мессеж админд илгээгдлээ')}
 function renderMessages(){if(!$('messageList'))return;let list=currentUser?.role==='admin'?db.messages:db.messages.filter(m=>m.from===currentUser?.id);$('messageList').innerHTML=list.length?list.slice().reverse().map(m=>`<div class="simpleCard"><b>${m.from}</b><div style="margin-top:6px;font-size:12px">${m.text}</div><div style="margin-top:6px;font-size:9px;color:#8e969a">${m.time}</div></div>`).join(''):'<div class="empty">Мессеж алга</div>'}
 function renderStats(){let s=currentUser?.stats||{hands:0,wins:0,tables:0};if($('stHands'))$('stHands').textContent=fmt(s.hands);if($('stWins'))$('stWins').textContent=fmt(s.wins);if($('stChips'))$('stChips').textContent=fmt(currentUser?.chips||0);if($('stTables'))$('stTables').textContent=fmt(s.tables)}
-function renderSettings(){if($('setSound'))$('setSound').checked=db.settings.sound!==false;if($('setVibe'))$('setVibe').checked=db.settings.vibe!==false;if($('registrationInfo')){let u=currentUser||{};$('registrationInfo').innerHTML=u.role==='admin'?'Админ бүртгэл':`<div class="regInfoRow"><span>Нэр</span><b>${u.name||'-'}</b></div><div class="regInfoRow"><span>Утас</span><b>${u.phone||u.id||'-'}</b></div><div class="regInfoRow"><span>Банк</span><b>${u.bank||'-'}</b></div><div class="regInfoRow"><span>Данс</span><b>${u.bankAccount||'-'}</b></div>`}}
+function renderSettings(){if($('setSound'))$('setSound').checked=db.settings.sound!==false;if($('setVibe'))$('setVibe').checked=db.settings.vibe!==false}
 function saveSettings(){db.settings.sound=$('setSound')?.checked!==false;db.settings.vibe=$('setVibe')?.checked!==false;save()}
 function saveAdminSettings(){if(currentUser?.role!=='admin')return;db.settings.banner=$('adminBanner').value.trim()||'АДМИНТАЙ ХОЛБОГДОХ';let s=+$('adminStart').value;if(s>0)db.settings.start=s;save();renderAdmin();renderHome();toast('Апп тохиргоо хадгалагдлаа')}
 function openTableSettings(){closeSide();if(!currentTable)return toast('Ширээ сонгоогүй байна');$('tsName').textContent=currentTable.name;$('tsSB').value=currentTable.sb;$('tsBB').value=currentTable.bb;$('tsBuy').value=currentTable.buy;let can=currentUser?.role==='admin';['tsSB','tsBB','tsBuy'].forEach(id=>$(id).disabled=!can);$('tableSettingsSheet').classList.remove('hidden')}
@@ -401,13 +484,10 @@ load();renderTours();show('auth');
 
 <style id="forceMpBannerFix">
 /* Force the center home banner to always show the animated MP logo */
-#homeBanner{font-size:0!important;color:transparent!important;text-shadow:none!important;position:relative!important;overflow:hidden!important;height:110px!important;margin:10px 14px 28px!important;border:3px solid #efc859!important;border-radius:24px!important;background:linear-gradient(105deg,#120a05 0%,#5b3910 14%,#c89428 32%,#ffe27f 50%,#f7d66a 58%,#b78320 72%,#4b2d0c 86%,#120a05 100%)!important;background-size:240% 100%!important;background-position:0% 50%!important;box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 24px #e9bd4466,inset 0 1px 0 #fff4!important;animation:homeWidePulse 2.8s ease-in-out infinite,homeWideShine 3s linear infinite!important}
+#homeBanner{font-size:0!important;color:transparent!important;text-shadow:none!important;position:relative!important;overflow:hidden!important}
 #homeBanner>*{display:none!important}
-#homeBanner::before{content:'MP';position:absolute;left:24px;top:50%;transform:translateY(-50%);display:block;color:transparent!important;background-image:linear-gradient(180deg,#fff8d5 0%,#ffe38a 18%,#ffb94c 42%,#ff7d21 62%,#d74810 82%,#fff0b5 100%)!important;background-size:220% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;font:900 44px/1 Arial,sans-serif!important;letter-spacing:-2px;text-shadow:0 0 8px rgba(255,194,88,.35),0 0 16px rgba(255,113,28,.25)!important;animation:mpFireTextShift 2.4s linear infinite,mpFireFlicker 1.5s ease-in-out infinite!important;z-index:2}
-#homeBanner::after{content:'MONGOL POKER';position:absolute;left:118px;right:18px;top:50%;transform:translateY(-50%);display:block;color:transparent!important;background-image:linear-gradient(180deg,#fff6cf 0%,#ffe183 16%,#ffbd4d 38%,#ff912e 58%,#e04f12 82%,#fff1bd 100%)!important;background-size:240% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;font:900 24px/1 Arial,sans-serif!important;letter-spacing:2.2px;text-align:left;white-space:nowrap!important;text-shadow:0 0 10px rgba(255,206,98,.30),0 0 18px rgba(255,111,35,.24)!important;animation:mpFireTextShift 2.8s linear infinite,mpFireFlicker 1.7s ease-in-out infinite!important;z-index:3}
-@keyframes homeWidePulse{0%,100%{box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 18px #e9bd444d,inset 0 1px 0 #fff4}50%{box-shadow:0 0 0 2px #3a290d,0 12px 30px #000c,0 0 28px #ffd86a99,inset 0 1px 0 #fff7}}
-@keyframes homeWideShine{0%{background-position:0% 50%}100%{background-position:240% 50%}}
-@media(max-width:360px){#homeBanner{height:96px!important}#homeBanner::before{left:18px;font-size:38px!important}#homeBanner::after{left:96px;right:14px;font-size:20px!important;letter-spacing:1.5px!important}}
+#homeBanner::before{content:'MP';position:absolute;left:50%;top:50%;width:118px;height:118px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,#fff4b0 0,#f3c349 18%,#b87913 48%,#3a2407 72%);border:4px solid #f0c04a;box-shadow:0 0 0 3px #5a3a0a,0 0 28px #ffd86a99,0 8px 24px #0008;color:#fff!important;font:900 34px Arial,sans-serif!important;letter-spacing:-2px;text-shadow:0 3px 3px #000!important;animation:mpFloat 2.4s ease-in-out infinite,mpGlow 1.5s ease-in-out infinite alternate;z-index:2}
+#homeBanner::after{content:'MONGOL\A POKER';white-space:pre;position:absolute;left:50%;top:calc(50% + 24px);transform:translateX(-50%);font:900 9px/9px Arial,sans-serif!important;letter-spacing:1px;color:#ffe99e!important;text-align:center;text-shadow:none!important;z-index:3;animation:mpFloatText 2.4s ease-in-out infinite}
 @keyframes mpFloatText{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
 </style>
 <script>
@@ -961,300 +1041,4 @@ load();renderTours();show('auth');
   document.addEventListener('webkitfullscreenchange',sync);
 })();
 </script>
-
-<style id="wideAnimatedLoginLogo">
-/* Bigger, slightly lower, animated wide MONGOL POKER logo with visible title */
-#auth .hero:after{content:none!important;}
-#auth .heroLogo{
-  position:absolute!important;
-  left:50%!important;
-  right:auto!important;
-  top:42px!important;
-  transform:translateX(-50%)!important;
-  width:min(84vw,330px)!important;
-  height:90px!important;
-  border-radius:22px!important;
-  z-index:4!important;
-  overflow:hidden!important;
-  animation:mpWideFloat 2.8s ease-in-out infinite!important;
-}
-#auth .heroLogo.logoImg{
-  position:relative!important;
-  background-image:linear-gradient(105deg,#120a05 0%,#5b3910 14%,#c89428 32%,#ffe27f 50%,#f7d66a 58%,#b78320 72%,#4b2d0c 86%,#120a05 100%)!important;
-  background-size:240% 100%!important;
-  background-position:0% 50%!important;
-  border:3px solid #efc859!important;
-  box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 24px #e9bd4466,inset 0 1px 0 #fff4!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
-  padding:0 22px!important;
-  gap:16px!important;
-  color:#fff!important;
-  text-shadow:0 2px 4px #000!important;
-  animation:mpWidePulse 2.8s ease-in-out infinite,mpWideShine 3s linear infinite!important;
-}
-#auth .heroLogo.logoImg:before{
-  content:'MP'!important;
-  position:static!important;
-  flex:0 0 auto!important;
-  font:900 44px/1 Arial,Helvetica,sans-serif!important;
-  letter-spacing:-2px!important;
-  color:#fff!important;
-  text-shadow:0 3px 7px #000,0 0 14px #fff4!important;
-}
-#auth .heroLogo.logoImg:after{
-  content:'MONGOL POKER'!important;
-  position:static!important;
-  display:block!important;
-  flex:1 1 auto!important;
-  left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
-  transform:none!important;
-  font:900 22px/1 Arial,Helvetica,sans-serif!important;
-  letter-spacing:2.2px!important;
-  color:#ffe8a8!important;
-  white-space:nowrap!important;
-  text-shadow:0 2px 6px #000!important;
-}
-@keyframes mpWideFloat{
-  0%,100%{transform:translateX(-50%) translateY(0)}
-  50%{transform:translateX(-50%) translateY(5px)}
-}
-@keyframes mpWidePulse{
-  0%,100%{box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 18px #e9bd444d,inset 0 1px 0 #fff4}
-  50%{box-shadow:0 0 0 2px #3a290d,0 12px 30px #000c,0 0 28px #ffd86a99,inset 0 1px 0 #fff7}
-}
-@keyframes mpWideShine{
-  0%{background-position:0% 50%}
-  100%{background-position:240% 50%}
-}
-@media(max-width:360px){
-  #auth .heroLogo{top:40px!important;width:300px!important;height:82px!important;}
-  #auth .heroLogo.logoImg{padding:0 18px!important;gap:12px!important;}
-  #auth .heroLogo.logoImg:before{font-size:38px!important;}
-  #auth .heroLogo.logoImg:after{font-size:18px!important;letter-spacing:1.6px!important;}
-}
-</style>
-
-
-<style id="referenceRegistrationUpgrade">
-/* Registration screen modeled on the supplied reference video */
-#auth.registerMode .auth{padding:0 10px 24px;background:#1b1d20}
-#auth.registerMode .hero{height:112px;margin:0 -10px 0;background:linear-gradient(180deg,#063a29 0,#16191c 72%,#1b1d20 100%)}
-#auth.registerMode .hero:before{content:none!important}
-#auth.registerMode .heroLogo{top:18px!important;width:190px!important;height:58px!important;border-radius:15px!important;animation:mpWideFloat 2.8s ease-in-out infinite!important}
-#auth.registerMode .heroLogo.logoImg:before{font-size:28px!important}
-#auth.registerMode .heroLogo.logoImg:after{font-size:13px!important;letter-spacing:1.5px!important}
-#auth.registerMode .authCard{border:0;background:#1b1d20;padding:4px 10px 12px}
-#auth.registerMode .authCard h2{font-size:16px;letter-spacing:.3px;margin:0 0 14px}
-#auth.registerMode .field{margin:8px 0}
-#auth.registerMode .field label{font-size:10px;color:#b5b9bc;margin-bottom:4px}
-#auth.registerMode .field input,#auth.registerMode .field select{height:42px;border:1px solid #383d40;background:#17191c;color:#fff;border-radius:2px;font-size:13px}
-#auth.registerMode .field select{appearance:auto}
-.passWrap{position:relative}
-.passWrap input{padding-right:44px!important}
-.passWrap button{position:absolute;right:0;top:0;width:42px;height:100%;border:0;background:transparent;color:#858c90;font-size:17px}
-.phoneWrap{display:flex;height:42px;border:1px solid #383d40;background:#17191c;border-radius:2px;overflow:hidden}
-.phoneWrap span{display:flex;align-items:center;padding:0 9px;color:#fff;font-size:13px;border-right:1px solid #303639}
-.phoneWrap input{border:0!important;height:40px!important;flex:1;min-width:0;padding-left:8px!important}
-#auth.registerMode .regSubmit{height:44px;margin-top:16px;background:linear-gradient(#16c866,#079147);font-size:13px}
-#auth.registerMode .switch{margin-top:10px;font-size:11px}
-.adminUserReg{padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45}
-.adminUserReg span{color:#aeb5b7}
-.regInfoRow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #343a3d;font-size:11px}
-.regInfoRow b{max-width:62%;text-align:right;color:#e8c25a;word-break:break-all}
-@media(max-height:740px){#auth.registerMode .hero{height:92px}#auth.registerMode .heroLogo{top:10px!important;height:54px!important}#auth.registerMode .field{margin:6px 0}#auth.registerMode .field input,#auth.registerMode .field select,.phoneWrap{height:38px}.phoneWrap input{height:36px!important}#auth.registerMode .regSubmit{margin-top:10px;height:40px}}
-</style>
-
-<style id="goldAcesRow">
-#auth .hero:before{content:none!important;}
-#auth .aceRow{
-  position:absolute;
-  right:22px;
-  bottom:38px;
-  display:flex;
-  align-items:center;
-  gap:16px;
-  font-weight:900;
-  font-family:Arial,Helvetica,sans-serif;
-  z-index:3;
-  user-select:none;
-}
-#auth .aceRow .suit{
-  font-size:22px;
-  line-height:1;
-  text-shadow:0 2px 6px #000;
-}
-#auth .aceRow .suit.black{
-  color:#f2f2f2;
-}
-#auth .aceRow .suit.red{
-  color:#ff5d5d;
-}
-#auth .aceRow .ace{
-  display:inline-block;
-  font-size:27px;
-  line-height:1;
-  letter-spacing:.4px;
-  color:transparent;
-  background-image:linear-gradient(180deg,#fff6c8 0%,#ffe07a 26%,#f2c44d 55%,#b77718 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
-  text-shadow:0 0 8px rgba(255,214,102,.18),0 2px 6px rgba(0,0,0,.85);
-  animation:aceGoldGlow 1.9s ease-in-out infinite alternate;
-}
-#auth.registerMode .aceRow{display:none!important;}
-@keyframes aceGoldGlow{
-  from{filter:drop-shadow(0 0 2px rgba(255,214,102,.25)) drop-shadow(0 0 5px rgba(255,214,102,.15));transform:translateY(0)}
-  to{filter:drop-shadow(0 0 5px rgba(255,231,156,.78)) drop-shadow(0 0 12px rgba(255,208,86,.45));transform:translateY(-1px)}
-}
-@media(max-width:360px){
-  #auth .aceRow{right:16px;gap:12px;bottom:34px;}
-  #auth .aceRow .suit{font-size:20px;}
-  #auth .aceRow .ace{font-size:24px;}
-}
-</style>
-
-
-<style id="fireBrandUpgrade">
-/* Fire/gold upgrade for logo text, aces, and auth buttons */
-#auth .heroLogo.logoImg:before{
-  color:transparent!important;
-  background-image:linear-gradient(180deg,#fff8d5 0%,#ffe38a 18%,#ffb94c 42%,#ff7d21 62%,#d74810 82%,#fff0b5 100%)!important;
-  background-size:220% 100%!important;
-  -webkit-background-clip:text!important;
-  background-clip:text!important;
-  text-shadow:0 0 8px rgba(255,194,88,.35),0 0 16px rgba(255,113,28,.25)!important;
-  animation:mpFireTextShift 2.4s linear infinite,mpFireFlicker 1.5s ease-in-out infinite!important;
-}
-#auth .heroLogo.logoImg:after{
-  color:transparent!important;
-  background-image:linear-gradient(180deg,#fff6cf 0%,#ffe183 16%,#ffbd4d 38%,#ff912e 58%,#e04f12 82%,#fff1bd 100%)!important;
-  background-size:240% 100%!important;
-  -webkit-background-clip:text!important;
-  background-clip:text!important;
-  text-shadow:0 0 10px rgba(255,206,98,.30),0 0 18px rgba(255,111,35,.24)!important;
-  animation:mpFireTextShift 2.8s linear infinite,mpFireFlicker 1.7s ease-in-out infinite!important;
-}
-#auth .heroLogo.logoImg{
-  box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 26px rgba(255,180,58,.42),0 0 36px rgba(255,90,26,.18),inset 0 1px 0 #fff4!important;
-}
-#auth .aceRow .ace{
-  background-image:linear-gradient(180deg,#fff8d8 0%,#ffe68f 18%,#ffc24d 42%,#ff8d24 62%,#d74610 84%,#fff0b7 100%)!important;
-  background-size:220% 100%!important;
-  text-shadow:0 0 9px rgba(255,201,98,.22),0 2px 6px rgba(0,0,0,.86)!important;
-  animation:aceFireShift 2.2s linear infinite,aceFireFlicker 1.15s ease-in-out infinite alternate!important;
-}
-#auth .primary,
-#auth.registerMode .regSubmit{
-  position:relative;
-  overflow:hidden;
-  border:1px solid #f0be53!important;
-  background:linear-gradient(180deg,#fff1b0 0%,#f8c64f 22%,#f19c2a 58%,#ca5b15 100%)!important;
-  color:#261605!important;
-  font-weight:900!important;
-  letter-spacing:.4px;
-  box-shadow:0 0 0 1px rgba(70,35,8,.7),0 6px 16px rgba(0,0,0,.35),0 0 18px rgba(255,197,76,.35)!important;
-  text-shadow:0 1px 0 rgba(255,247,210,.55)!important;
-  animation:authBtnGlow 1.8s ease-in-out infinite!important;
-}
-#auth .primary::after,
-#auth.registerMode .regSubmit::after{
-  content:'';
-  position:absolute;
-  top:-20%;
-  left:-28%;
-  width:24%;
-  height:140%;
-  transform:skewX(-22deg);
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.16) 35%,rgba(255,255,255,.88) 50%,rgba(255,255,255,.18) 65%,transparent 100%);
-  animation:authBtnSweep 2.1s linear infinite;
-  pointer-events:none;
-}
-@keyframes mpFireTextShift{
-  0%{background-position:0% 50%}
-  100%{background-position:240% 50%}
-}
-@keyframes mpFireFlicker{
-  0%,100%{filter:drop-shadow(0 0 2px rgba(255,220,120,.45)) drop-shadow(0 0 8px rgba(255,109,29,.28));opacity:.96}
-  50%{filter:drop-shadow(0 0 5px rgba(255,245,182,.85)) drop-shadow(0 0 14px rgba(255,110,36,.55));opacity:1}
-}
-@keyframes aceFireShift{
-  0%{background-position:0% 50%}
-  100%{background-position:220% 50%}
-}
-@keyframes aceFireFlicker{
-  from{filter:drop-shadow(0 0 2px rgba(255,206,99,.38)) drop-shadow(0 0 6px rgba(255,110,30,.18));transform:translateY(0) scale(1)}
-  to{filter:drop-shadow(0 0 5px rgba(255,236,156,.85)) drop-shadow(0 0 14px rgba(255,95,20,.42));transform:translateY(-1px) scale(1.03)}
-}
-@keyframes authBtnGlow{
-  0%,100%{box-shadow:0 0 0 1px rgba(70,35,8,.7),0 6px 16px rgba(0,0,0,.35),0 0 14px rgba(255,197,76,.28)}
-  50%{box-shadow:0 0 0 1px rgba(70,35,8,.78),0 8px 18px rgba(0,0,0,.4),0 0 24px rgba(255,212,95,.55)}
-}
-@keyframes authBtnSweep{
-  0%{left:-28%}
-  100%{left:112%}
-}
-</style>
-
-
-<style id="strongFireUpgrade">
-/* Stronger flame-like glow for MP, MONGOL POKER, Aces and auth buttons */
-#auth .heroLogo.logoImg:before,
-#auth .heroLogo.logoImg:after{
-  background-image:linear-gradient(180deg,#fffbe0 0%,#ffe66f 16%,#ffb329 34%,#ff7417 54%,#e73d0b 72%,#8d1607 90%,#ffd95a 100%)!important;
-  background-size:260% 120%!important;
-  animation:fireTextFlow 1.7s linear infinite,fireTextFlicker .72s ease-in-out infinite alternate!important;
-}
-#auth .heroLogo.logoImg{
-  box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 24px rgba(255,193,57,.55),0 0 44px rgba(255,96,21,.36),0 0 68px rgba(230,53,8,.20),inset 0 1px 0 #fff5!important;
-}
-#auth .aceRow .ace{
-  background-image:linear-gradient(180deg,#fffbe0 0%,#ffe66f 15%,#ffb329 34%,#ff7417 55%,#e73d0b 76%,#8d1607 92%,#ffd95a 100%)!important;
-  background-size:260% 120%!important;
-  animation:aceFireFlow 1.45s linear infinite,aceFireFlickerStrong .58s ease-in-out infinite alternate!important;
-}
-#auth .primary,
-#auth.registerMode .regSubmit{
-  background:linear-gradient(180deg,#fff2a8 0%,#ffc43c 20%,#ff8a1d 48%,#e24a0e 75%,#9d2609 100%)!important;
-  border-color:#ffd36a!important;
-  box-shadow:0 0 0 1px #5a2608,0 7px 18px #0007,0 0 18px rgba(255,185,55,.55),0 0 30px rgba(255,91,18,.28)!important;
-  animation:buttonFirePulse 1.05s ease-in-out infinite!important;
-}
-@keyframes fireTextFlow{
-  0%{background-position:0% 100%}
-  100%{background-position:260% 0%}
-}
-@keyframes fireTextFlicker{
-  0%{filter:drop-shadow(0 0 3px rgba(255,225,120,.5)) drop-shadow(0 0 9px rgba(255,111,24,.35));transform:translateY(0) scale(1)}
-  50%{filter:drop-shadow(0 0 6px rgba(255,244,180,.95)) drop-shadow(0 0 16px rgba(255,91,17,.75));transform:translateY(-1px) scale(1.015)}
-  100%{filter:drop-shadow(0 0 4px rgba(255,224,116,.7)) drop-shadow(0 0 12px rgba(225,55,8,.55));transform:translateY(1px) scale(1)}
-}
-@keyframes aceFireFlow{
-  0%{background-position:0% 100%}
-  100%{background-position:260% 0%}
-}
-@keyframes aceFireFlickerStrong{
-  from{filter:drop-shadow(0 0 3px rgba(255,221,112,.55)) drop-shadow(0 0 8px rgba(255,104,18,.28));transform:translateY(0) scale(1)}
-  to{filter:drop-shadow(0 0 7px rgba(255,245,184,.95)) drop-shadow(0 0 16px rgba(255,75,12,.68));transform:translateY(-2px) scale(1.055)}
-}
-@keyframes buttonFirePulse{
-  0%,100%{box-shadow:0 0 0 1px #5a2608,0 7px 18px #0007,0 0 14px rgba(255,188,62,.42),0 0 22px rgba(255,91,18,.18)}
-  50%{box-shadow:0 0 0 1px #6b2b08,0 8px 20px #0008,0 0 24px rgba(255,209,91,.78),0 0 40px rgba(255,75,12,.42)}
-}
-</style>
-
-
-<style id="adminRegisteredUsersHeader">
-.refMiniStats{display:flex!important;align-items:center!important;gap:10px!important;font-size:9px!important;color:#b6bdbb!important;white-space:nowrap!important}
-.miniClock{display:inline-flex;align-items:center;gap:3px;font-weight:800;color:#d6dcda}.miniClock:before{content:'◷';font-size:12px;color:#aeb5b3}
-.miniUsersBtn{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;color:#aeb5b3;padding:4px 2px;font-size:10px;line-height:1;cursor:default}
-.miniUsersBtn b{font-size:10px;color:#d6dcda}.miniUsersBtn.adminTap{cursor:pointer}.miniUsersBtn.adminTap:active{transform:scale(.96)}
-.registeredUserCard{display:grid;grid-template-columns:32px 1fr;gap:9px;padding:11px 0;border-bottom:1px solid #343a3d}
-.registeredUserNo{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#17231d;border:1px solid #285a43;color:#46d58c;font-size:10px;font-weight:900}
-.registeredUserBody{min-width:0;display:flex;flex-direction:column;gap:4px;font-size:10px;color:#aeb6b3}
-.registeredUserBody b{font-size:12px;color:#f0c85d}.registeredUserBody span{word-break:break-word}
-@media(max-width:360px){.refMiniStats{gap:7px!important}.miniClock,.miniUsersBtn,.miniUsersBtn b{font-size:8px!important}}
-</style>
-
 </body></html>
