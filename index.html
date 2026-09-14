@@ -340,10 +340,13 @@ load();renderTours();show('auth');
 
 <style id="forceMpBannerFix">
 /* Force the center home banner to always show the animated MP logo */
-#homeBanner{font-size:0!important;color:transparent!important;text-shadow:none!important;position:relative!important;overflow:hidden!important}
+#homeBanner{font-size:0!important;color:transparent!important;text-shadow:none!important;position:relative!important;overflow:hidden!important;height:110px!important;margin:10px 14px 28px!important;border:3px solid #efc859!important;border-radius:24px!important;background:linear-gradient(105deg,#120a05 0%,#5b3910 14%,#c89428 32%,#ffe27f 50%,#f7d66a 58%,#b78320 72%,#4b2d0c 86%,#120a05 100%)!important;background-size:240% 100%!important;background-position:0% 50%!important;box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 24px #e9bd4466,inset 0 1px 0 #fff4!important;animation:homeWidePulse 2.8s ease-in-out infinite,homeWideShine 3s linear infinite!important}
 #homeBanner>*{display:none!important}
-#homeBanner::before{content:'MP';position:absolute;left:50%;top:50%;width:118px;height:118px;border-radius:50%;display:grid;place-items:center;transform:translate(-50%,-50%);background:radial-gradient(circle at 35% 30%,#fff4b0 0,#f3c349 18%,#b87913 48%,#3a2407 72%);border:4px solid #f0c04a;box-shadow:0 0 0 3px #5a3a0a,0 0 28px #ffd86a99,0 8px 24px #0008;color:#fff!important;font:900 34px Arial,sans-serif!important;letter-spacing:-2px;text-shadow:0 3px 3px #000!important;animation:mpFloat 2.4s ease-in-out infinite,mpGlow 1.5s ease-in-out infinite alternate;z-index:2}
-#homeBanner::after{content:'MONGOL\A POKER';white-space:pre;position:absolute;left:50%;top:calc(50% + 24px);transform:translateX(-50%);font:900 9px/9px Arial,sans-serif!important;letter-spacing:1px;color:#ffe99e!important;text-align:center;text-shadow:none!important;z-index:3;animation:mpFloatText 2.4s ease-in-out infinite}
+#homeBanner::before{content:'MP';position:absolute;left:24px;top:50%;transform:translateY(-50%);display:block;color:transparent!important;background-image:linear-gradient(180deg,#fff8d5 0%,#ffe38a 18%,#ffb94c 42%,#ff7d21 62%,#d74810 82%,#fff0b5 100%)!important;background-size:220% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;font:900 44px/1 Arial,sans-serif!important;letter-spacing:-2px;text-shadow:0 0 8px rgba(255,194,88,.35),0 0 16px rgba(255,113,28,.25)!important;animation:mpFireTextShift 2.4s linear infinite,mpFireFlicker 1.5s ease-in-out infinite!important;z-index:2}
+#homeBanner::after{content:'MONGOL POKER';position:absolute;left:118px;right:18px;top:50%;transform:translateY(-50%);display:block;color:transparent!important;background-image:linear-gradient(180deg,#fff6cf 0%,#ffe183 16%,#ffbd4d 38%,#ff912e 58%,#e04f12 82%,#fff1bd 100%)!important;background-size:240% 100%!important;-webkit-background-clip:text!important;background-clip:text!important;font:900 24px/1 Arial,sans-serif!important;letter-spacing:2.2px;text-align:left;white-space:nowrap!important;text-shadow:0 0 10px rgba(255,206,98,.30),0 0 18px rgba(255,111,35,.24)!important;animation:mpFireTextShift 2.8s linear infinite,mpFireFlicker 1.7s ease-in-out infinite!important;z-index:3}
+@keyframes homeWidePulse{0%,100%{box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 18px #e9bd444d,inset 0 1px 0 #fff4}50%{box-shadow:0 0 0 2px #3a290d,0 12px 30px #000c,0 0 28px #ffd86a99,inset 0 1px 0 #fff7}}
+@keyframes homeWideShine{0%{background-position:0% 50%}100%{background-position:240% 50%}}
+@media(max-width:360px){#homeBanner{height:96px!important}#homeBanner::before{left:18px;font-size:38px!important}#homeBanner::after{left:96px;right:14px;font-size:20px!important;letter-spacing:1.5px!important}}
 @keyframes mpFloatText{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
 </style>
 <script>
@@ -1130,6 +1133,53 @@ load();renderTours();show('auth');
 @keyframes authBtnSweep{
   0%{left:-28%}
   100%{left:112%}
+}
+</style>
+
+
+<style id="strongFireUpgrade">
+/* Stronger flame-like glow for MP, MONGOL POKER, Aces and auth buttons */
+#auth .heroLogo.logoImg:before,
+#auth .heroLogo.logoImg:after{
+  background-image:linear-gradient(180deg,#fffbe0 0%,#ffe66f 16%,#ffb329 34%,#ff7417 54%,#e73d0b 72%,#8d1607 90%,#ffd95a 100%)!important;
+  background-size:260% 120%!important;
+  animation:fireTextFlow 1.7s linear infinite,fireTextFlicker .72s ease-in-out infinite alternate!important;
+}
+#auth .heroLogo.logoImg{
+  box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 24px rgba(255,193,57,.55),0 0 44px rgba(255,96,21,.36),0 0 68px rgba(230,53,8,.20),inset 0 1px 0 #fff5!important;
+}
+#auth .aceRow .ace{
+  background-image:linear-gradient(180deg,#fffbe0 0%,#ffe66f 15%,#ffb329 34%,#ff7417 55%,#e73d0b 76%,#8d1607 92%,#ffd95a 100%)!important;
+  background-size:260% 120%!important;
+  animation:aceFireFlow 1.45s linear infinite,aceFireFlickerStrong .58s ease-in-out infinite alternate!important;
+}
+#auth .primary,
+#auth.registerMode .regSubmit{
+  background:linear-gradient(180deg,#fff2a8 0%,#ffc43c 20%,#ff8a1d 48%,#e24a0e 75%,#9d2609 100%)!important;
+  border-color:#ffd36a!important;
+  box-shadow:0 0 0 1px #5a2608,0 7px 18px #0007,0 0 18px rgba(255,185,55,.55),0 0 30px rgba(255,91,18,.28)!important;
+  animation:buttonFirePulse 1.05s ease-in-out infinite!important;
+}
+@keyframes fireTextFlow{
+  0%{background-position:0% 100%}
+  100%{background-position:260% 0%}
+}
+@keyframes fireTextFlicker{
+  0%{filter:drop-shadow(0 0 3px rgba(255,225,120,.5)) drop-shadow(0 0 9px rgba(255,111,24,.35));transform:translateY(0) scale(1)}
+  50%{filter:drop-shadow(0 0 6px rgba(255,244,180,.95)) drop-shadow(0 0 16px rgba(255,91,17,.75));transform:translateY(-1px) scale(1.015)}
+  100%{filter:drop-shadow(0 0 4px rgba(255,224,116,.7)) drop-shadow(0 0 12px rgba(225,55,8,.55));transform:translateY(1px) scale(1)}
+}
+@keyframes aceFireFlow{
+  0%{background-position:0% 100%}
+  100%{background-position:260% 0%}
+}
+@keyframes aceFireFlickerStrong{
+  from{filter:drop-shadow(0 0 3px rgba(255,221,112,.55)) drop-shadow(0 0 8px rgba(255,104,18,.28));transform:translateY(0) scale(1)}
+  to{filter:drop-shadow(0 0 7px rgba(255,245,184,.95)) drop-shadow(0 0 16px rgba(255,75,12,.68));transform:translateY(-2px) scale(1.055)}
+}
+@keyframes buttonFirePulse{
+  0%,100%{box-shadow:0 0 0 1px #5a2608,0 7px 18px #0007,0 0 14px rgba(255,188,62,.42),0 0 22px rgba(255,91,18,.18)}
+  50%{box-shadow:0 0 0 1px #6b2b08,0 8px 20px #0008,0 0 24px rgba(255,209,91,.78),0 0 40px rgba(255,75,12,.42)}
 }
 </style>
 
