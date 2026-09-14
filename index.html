@@ -839,6 +839,56 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 #game.dealAnim .mycards .card:nth-child(2){animation-delay:.08s!important}
 #game.dealAnim .mycards .card:nth-child(3){animation-delay:.13s!important}
 #game.dealAnim .mycards .card:nth-child(4){animation-delay:.18s!important}
+
+/* PLAYER TAG VISIBILITY FIX ONLY — flag / action / bet */
+#game .seat .nm{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  white-space:nowrap!important;
+}
+#game .seatFlag{
+  display:inline-block!important;
+  font-size:12px!important;
+  line-height:1!important;
+  filter:drop-shadow(0 1px 1px #000)!important;
+}
+#game .seatStatus{
+  display:inline-block!important;
+  margin-top:2px!important;
+  padding:2px 6px!important;
+  min-width:34px!important;
+  border-radius:8px!important;
+  background:#101817ee!important;
+  border:1px solid #4c7b68!important;
+  color:#eafff5!important;
+  font:900 7.5px Arial,sans-serif!important;
+  line-height:1.2!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  box-shadow:0 1px 5px #000a!important;
+}
+#game .seatStatus.fold{background:#2b3031ee!important;border-color:#777!important;color:#e1e4e4!important}
+#game .seatStatus.allin{background:#5b3e0dee!important;border-color:#e2b43b!important;color:#fff0a1!important;box-shadow:0 0 8px #f0c34d88!important}
+#game .seatStatus.raise{background:#51360fee!important;border-color:#c68d27!important;color:#ffe08a!important}
+#game .betTag{
+  min-width:38px!important;
+  justify-content:center!important;
+  padding:3px 6px!important;
+  border-radius:10px!important;
+  background:#111917f2!important;
+  border:1px solid #ad8c2e!important;
+  color:#ffe26e!important;
+  font:900 8px Arial,sans-serif!important;
+  box-shadow:0 1px 6px #000b,0 0 5px #d8a82c33!important;
+}
+#game .betTag:before{
+  width:10px!important;
+  height:10px!important;
+  flex:0 0 10px!important;
+}
+
 </style>
 <script id="livePokerTableLogic">
 (function(){
