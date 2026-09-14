@@ -163,6 +163,75 @@
 #auth .hero .model{display:none!important;}
 </style>
 
+
+<style id="loginHeroSingleLogoFix">
+/* Login screen: remove the old person picture completely.
+   Keep only the Mongol Poker MP logo on the right. */
+#auth .hero{
+  position:relative!important;
+  overflow:hidden!important;
+  background:radial-gradient(circle at 68% 28%,#873d22 0,#4a2119 25%,#201715 48%,#101314 76%)!important;
+}
+#auth .hero::after{
+  content:none!important;
+  display:none!important;
+  background:none!important;
+  background-image:none!important;
+}
+#auth .hero > img,
+#auth .hero > picture,
+#auth .hero > .avatar,
+#auth .hero > .person,
+#auth .hero > .heroPerson,
+#auth .hero > .heroModel,
+#auth .hero > .model,
+#auth .hero > .brandMark{
+  display:none!important;
+  background-image:none!important;
+}
+#auth .hero .heroLogo.logoImg{
+  display:grid!important;
+  position:absolute!important;
+  left:auto!important;
+  right:18px!important;
+  top:18px!important;
+  width:82px!important;
+  height:82px!important;
+  border-radius:50%!important;
+  place-items:center!important;
+  background-image:none!important;
+  background:radial-gradient(circle at 35% 30%,#ffe08a 0,#d6a52c 18%,#6b4810 55%,#15100a 72%)!important;
+  border:3px solid #d7a42f!important;
+  box-shadow:0 0 0 2px #32240d,0 3px 14px #0009!important;
+  color:#fff!important;
+  font-size:25px!important;
+  font-weight:900!important;
+  text-shadow:0 2px 2px #000!important;
+}
+#auth .hero .heroLogo.logoImg::before{
+  content:"MP"!important;
+  position:static!important;
+  transform:none!important;
+  font-size:25px!important;
+  color:#fff!important;
+}
+#auth .hero .heroLogo.logoImg::after{
+  content:"MONGOL POKER"!important;
+  display:block!important;
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:10px!important;
+  transform:translateX(-50%)!important;
+  font-size:6px!important;
+  letter-spacing:.6px!important;
+  color:#ffe39a!important;
+  white-space:nowrap!important;
+  background:none!important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
