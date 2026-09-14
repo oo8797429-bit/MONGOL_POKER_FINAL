@@ -1437,11 +1437,33 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 <style id="fourSeatOnlyFix">
 /* ONLY FIX: 4-player seats spread evenly around the long table.
    visualSeatMap(4) uses s0, s2, s4, s6. */
-#game .pokerTable[data-seat-count="4"] .seat.s0{left:50%!important;right:auto!important;bottom:8px!important;top:auto!important;transform:translateX(-50%)!important}
-#game .pokerTable[data-seat-count="4"] .seat.s2{left:5%!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .pokerTable[data-seat-count="4"] .seat.s4{left:50%!important;right:auto!important;top:8px!important;bottom:auto!important;transform:translateX(-50%)!important}
-#game .pokerTable[data-seat-count="4"] .seat.s6{right:5%!important;left:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .pokerTable[data-seat-count="4"] .seat.s0{left:50%!important;right:auto!important;bottom:-18px!important;top:auto!important;transform:translateX(-50%)!important}
+#game .pokerTable[data-seat-count="4"] .seat.s2{left:-18px!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .pokerTable[data-seat-count="4"] .seat.s4{left:50%!important;right:auto!important;top:-18px!important;bottom:auto!important;transform:translateX(-50%)!important}
+#game .pokerTable[data-seat-count="4"] .seat.s6{right:-18px!important;left:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
 #game .pokerTable[data-seat-count="4"] .seat.s2 .betTag{left:54px!important;right:auto!important;top:24px!important;transform:none!important}
 #game .pokerTable[data-seat-count="4"] .seat.s6 .betTag{right:54px!important;left:auto!important;top:24px!important;transform:none!important}
+</style>
+
+<style id="fourSeatExactSpacingFinal">
+/* ONE FIX ONLY: exact 4-player spacing around the table rim. */
+#game .pokerTable[data-seat-count="4"] .seat[data-seat-index="0"]{
+  left:50%!important;right:auto!important;bottom:-20px!important;top:auto!important;transform:translateX(-50%)!important;
+}
+#game .pokerTable[data-seat-count="4"] .seat[data-seat-index="1"]{
+  left:-24px!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+}
+#game .pokerTable[data-seat-count="4"] .seat[data-seat-index="2"]{
+  left:50%!important;right:auto!important;top:-20px!important;bottom:auto!important;transform:translateX(-50%)!important;
+}
+#game .pokerTable[data-seat-count="4"] .seat[data-seat-index="3"]{
+  right:-24px!important;left:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;
+}
+#game .pokerTable[data-seat-count="4"] .seat[data-seat-index="1"] .betTag{
+  left:55px!important;right:auto!important;top:24px!important;transform:none!important;
+}
+#game .pokerTable[data-seat-count="4"] .seat[data-seat-index="3"] .betTag{
+  right:55px!important;left:auto!important;top:24px!important;transform:none!important;
+}
 </style>
 </body></html>
