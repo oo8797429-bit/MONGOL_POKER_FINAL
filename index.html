@@ -106,11 +106,13 @@
 <style id="reference-home-match">
 #home{background:#0b1010!important;min-height:100vh}
 .refHome{min-height:100vh;padding-bottom:58px;background:radial-gradient(circle at 92% 52%,rgba(0,78,38,.26),transparent 32%),#0b1010;position:relative;color:#fff}
-.refTopMini{height:56px;background:#090d0d;border-bottom:1px solid #202626;display:grid;grid-template-columns:64px 1fr 150px;align-items:center;padding:0 8px;gap:5px}
-.refMiniLogo{width:44px;height:44px;border-radius:6px;background:linear-gradient(145deg,#4b1d15,#9b4b22);border:1px solid #8f6a2f;display:grid;place-items:center;position:relative;box-shadow:0 0 8px #000 inset}
-.refMiniLogo span{font-weight:900;color:#ffd66d;font-size:13px;line-height:1}.refMiniLogo small{position:absolute;bottom:4px;font-size:4px;line-height:4px;color:#ffd66d;text-align:center}
-.refMiniStats{font-size:8px;color:#a9b0ae;white-space:nowrap}
-.refMiniActions{display:flex;gap:6px;justify-content:flex-end}.refMiniActions button{border:0;border-radius:14px;padding:5px 11px;background:#555b63;color:#fff;font-size:9px}.refMiniActions .green{background:linear-gradient(#20cf75,#07944e)}
+.refTopMini{height:96px;background:#111317;border-bottom:1px solid #25282b;display:grid;grid-template-columns:64px 1fr;align-items:center;padding:7px 10px;gap:8px}
+.refMiniLogo{width:54px;height:66px;border-radius:3px;background:linear-gradient(145deg,#351c17,#8e3e2b);border:1px solid #9d7740;display:grid;place-items:center;position:relative;box-shadow:0 0 8px #000 inset,0 0 5px #b88a4233}
+.refMiniLogo span{font-weight:900;color:#ffd66d;font-size:16px;line-height:1}.refMiniLogo small{position:absolute;bottom:6px;font-size:4px;line-height:4px;color:#ffd66d;text-align:center}
+.refHeaderRight{min-width:0;display:grid;grid-template-rows:25px 1fr;align-self:stretch}
+.refMiniStats{display:flex;align-items:center;gap:10px;font-size:11px;color:#d7dcdb;white-space:nowrap;min-width:0}
+.refMiniStats .miniClock{font-weight:700;color:#e6e9e8}.refMiniStats .miniUsersBtn{border:0;background:transparent;color:#d7dcdb;padding:0;font-size:11px}.refMiniStats .miniLang{margin-left:auto;color:#eef0ef;font-size:11px;display:flex;align-items:center;gap:3px}.refMiniStats .miniWifi{font-size:14px;color:#19b76a}
+.refMiniActions{display:flex;align-items:center;justify-content:flex-end;min-width:0}.refMiniActions button{border:0;color:#fff}
 .refJackpot{height:40px;margin:0 12px;background:linear-gradient(90deg,#161616,#3f2b0e 55%,#151515);border-top:1px solid #2e2e2e;border-bottom:1px solid #2e2e2e;display:grid;grid-template-columns:1fr 1fr 1.3fr;align-items:center;padding:0 9px;color:#e5d2a2;box-shadow:inset 0 0 20px #0008;cursor:pointer}
 .refJackpot small{font-size:7px;text-align:right;padding-right:5px;color:#c4b98d}.refJackpot span{font-size:9px;color:#d7caa3}.refJackpot b{font-size:17px;font-weight:500;color:#d6a43b;text-align:center;text-shadow:0 0 8px #e8bd63aa}
 .refBanner{height:105px;margin:10px 14px 28px;position:relative;overflow:hidden;border:1px solid #174e3a;background:linear-gradient(135deg,rgba(6,115,72,.25),rgba(17,63,48,.25)),repeating-linear-gradient(25deg,#5d7f69 0 17px,#476c59 17px 34px,#7aa186 34px 51px);box-shadow:inset 0 0 35px #102a22,0 0 0 1px #0c261d}
@@ -120,13 +122,15 @@
 .refFloat{position:absolute;right:10px;top:350px;display:grid;gap:8px}.refFloat button{width:35px;height:35px;border:0;border-radius:3px;background:#303638;color:#dbe2df;font-size:18px;box-shadow:0 2px 5px #0007}
 #homeBanner>*{display:block!important}#homeBanner::before{content:'$  $  $  $  $  $  $'!important;width:auto!important;height:auto!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;animation:none!important;display:block!important;color:#dfe7d5!important;font:31px Arial!important;position:absolute!important;left:auto!important;top:auto!important;transform:rotate(-11deg)!important}
 #homeBanner::after{content:none!important}.bottom{background:#090c0d!important;height:54px}.bottom button{font-size:8px!important;color:#747b7d}.bottom .ico{font-size:17px!important}.bottom button:first-child{color:#16c86d!important;border-top:2px solid #16c86d}
-@media(max-width:360px){.refTopMini{grid-template-columns:52px 1fr 132px}.refMiniActions button{padding:5px 8px}.refBanner strong{font-size:21px}.refTiles{padding:0 28px}}
+@media(max-width:360px){.refBanner strong{font-size:21px}.refTiles{padding:0 28px}}
 
-/* Home header account: replaces the old Register button */
-.refMiniActions .accountPill{display:flex;align-items:center;gap:4px;min-width:84px;max-width:102px;padding:4px 6px!important;background:#171d1d!important;border:1px solid #3b4744!important;color:#eef3f1!important;border-radius:14px!important;overflow:hidden}
-.refMiniActions .accountPill .accWord{font-size:7px;color:#29d67d;font-weight:800;flex:0 0 auto}
-.refMiniActions .accountPill #homeAccText{font-size:8px;font-weight:700;max-width:50px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.refMiniActions .accountPill .accAvatarMini{font-size:12px;flex:0 0 auto}
+/* Ajna-style account strip above Jackpot */
+.refMiniActions .accountPill{height:42px;width:min(100%,245px);display:grid;grid-template-columns:minmax(0,1fr) 54px 22px 38px;align-items:center;gap:4px;padding:0 4px 0 13px!important;background:#292b30!important;border:1px solid #202226!important;color:#f4f4f4!important;border-radius:24px!important;box-shadow:inset 0 1px 0 #ffffff08;overflow:visible}
+.refMiniActions .accountPill #homeAccText{font-size:16px;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;color:#f5f5f5}
+.refMiniActions .accountPill #homeAccBal{font-size:16px;font-weight:400;color:#f5f5f5;text-align:center;white-space:nowrap}
+.refMiniActions .accountPill .accDrop{font-size:20px;line-height:1;color:#f5f5f5;text-align:center;transform:translateY(-1px)}
+.refMiniActions .accountPill .accAvatarMini{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#e7c395 0,#a97245 48%,#4e2f20 100%);border:1px solid #83705b;font-size:18px;box-shadow:0 0 0 2px #111317;flex:0 0 auto}
+@media(max-width:360px){.refTopMini{grid-template-columns:58px 1fr;padding-left:7px;padding-right:7px}.refMiniLogo{width:49px;height:62px}.refMiniStats{gap:7px;font-size:10px}.refMiniStats .miniLang{font-size:10px}.refMiniActions .accountPill{grid-template-columns:minmax(0,1fr) 46px 18px 34px;height:39px;padding-left:10px!important}.refMiniActions .accountPill #homeAccText,.refMiniActions .accountPill #homeAccBal{font-size:14px}.refMiniActions .accountPill .accAvatarMini{width:32px;height:32px;font-size:16px}}
 </style>
 
 <style id="showdownResultStyle">
@@ -371,8 +375,10 @@
 <section id="home" class="screen"><div class="refHome">
   <div class="refTopMini">
     <div class="refMiniLogo"><span>MP</span><small>MONGOL<br>POKER</small></div>
-    <div class="refMiniStats"><span class="miniClock" id="miniClock">--:--</span><button class="miniUsersBtn" id="miniUsersBtn" type="button" onclick="openRegisteredUsers()" title="Бүртгэлтэй хэрэглэгчид">👤 <b id="miniUserCount">0</b></button></div>
-    <div class="refMiniActions"><button onclick="logout()">Нэвтрэх</button><button class="accountPill" onclick="show('menu')" title="Аккаунт"><span class="accWord">ACC</span><span id="homeAccText">ACC</span><span class="accAvatarMini">👤</span></button></div>
+    <div class="refHeaderRight">
+      <div class="refMiniStats"><span class="miniClock" id="miniClock">--:--</span><button class="miniUsersBtn" id="miniUsersBtn" type="button" onclick="openRegisteredUsers()" title="Бүртгэлтэй хэрэглэгчид">♙ <b id="miniUserCount">0</b></button><span class="miniLang">◎ Монгол <span class="miniWifi">⌁</span></span></div>
+      <div class="refMiniActions"><button class="accountPill" onclick="show('menu')" title="Аккаунт"><span id="homeAccText">ACC</span><span id="homeAccBal">0</span><span class="accDrop">⌄</span><span class="accAvatarMini">👤</span></button></div>
+    </div>
   </div>
   <div class="refJackpot" onclick="openJackpot()"><small>Bad beat</small><span>ЖЕКПОТ</span><b id="uBal">0</b></div>
   <div class="refBanner" id="homeBanner" onclick="featureOpen('messages','messages')"><span class="plane">✈</span><strong>АДМИНТАЙ<br>ХОЛБОГДОХ</strong></div>
@@ -564,7 +570,7 @@ function renderRegisteredUsers(){
   list.innerHTML=users.length?users.slice().reverse().map((u,i)=>`<div class="registeredUserCard"><div class="registeredUserNo">${users.length-i}</div><div class="registeredUserBody"><b>${u.name||'-'}</b><span>🆔 ${u.id||'-'}</span><span>📱 ${phoneText(u)}</span><span>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</span><span>💰 ${fmt(u.chips||0)} chip</span>${u.registeredAt?`<span>🕒 ${u.registeredAt}</span>`:''}</div></div>`).join(''):'<div class="empty">Бүртгэлтэй хэрэглэгч алга</div>';
 }
 setInterval(updateMiniHeader,30000);
-function renderHome(){updateMiniHeader();if($('uName'))$('uName').textContent=currentUser?.name||'';if($('homeAccText'))$('homeAccText').textContent=currentUser?.id||currentUser?.name||'ACC';if($('uBal'))$('uBal').textContent=fmt(db.jackpot||0);if(jpAnimValue===null)jpAnimValue=Number(db.jackpot||0);if(!jpAnimTimer)startJackpotAnimation();if($('adminMenuItem'))$('adminMenuItem').classList.toggle('hidden',currentUser?.role!=='admin')}
+function renderHome(){updateMiniHeader();if($('uName'))$('uName').textContent=currentUser?.name||'';if($('homeAccText'))$('homeAccText').textContent=currentUser?.name||currentUser?.id||'ACC';if($('homeAccBal'))$('homeAccBal').textContent=fmt(currentUser?.chips||0);if($('uBal'))$('uBal').textContent=fmt(db.jackpot||0);if(jpAnimValue===null)jpAnimValue=Number(db.jackpot||0);if(!jpAnimTimer)startJackpotAnimation();if($('adminMenuItem'))$('adminMenuItem').classList.toggle('hidden',currentUser?.role!=='admin')}
 function renderTables(){let adminBotCount=Math.min(7,db.bots.filter(isAdminCreatedBot).length);$('tableCount').textContent=db.tables.length+' ШИРЭЭ';$('tableList').innerHTML=db.tables.map((t,i)=>`<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${t.name} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${adminBotCount}/10 &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)}</div></div><div class="join"><button ${t.open?'':'disabled'} onclick="join('${t.id}')">Орох дүн<br>${fmt(t.buy)}</button></div></div>`).join('')}
 const tours=[['FREEROLL - 100K','100,000','Үнэгүй'],['УЛААН 500,000₮ BUY IN','100,000','1,000'],['FREEROLL - 100K','100,000','Тоглож байна'],['ШАР 1,500,000₮ BUY IN','50,000','✓'],['FREEROLL - 100K','100,000','✓'],['УЛААН 500,000₮ BUY IN','50,000','✓']];
 function renderTours(){$('tourList').innerHTML=tours.map((t,i)=>`<div class="tourRow"><div class="clock">${i<3?'11:37':'✓'}</div><div class="tourMain"><div class="tourTitle">🏆 ${t[0]}</div><div class="tourMeta">💰 ${t[1]}<br>👥 ${12+i*9}</div></div><div class="tourAction"><button onclick="tourAction(${i})">${t[2]}</button></div></div>`).join('')}
