@@ -2057,4 +2057,93 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 #game .pokerTable[data-seat-count="8"] .seat.s2 .betTag{left:58px!important;right:auto!important;top:25px!important;transform:none!important}
 #game .pokerTable[data-seat-count="8"] .seat.s6 .betTag{right:58px!important;left:auto!important;top:25px!important;transform:none!important}
 </style>
+
+
+<style id="pokerReplayOnlyStyle">
+/* ONLY FEATURE: Kass > Tuuh hand replay. No existing game/admin/cash behavior is restyled. */
+#cashOtherText.replayHistoryHost{height:auto!important;display:block!important;text-align:left!important;color:#eef2f0!important;padding:0!important}
+.replayHead{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #303638;background:#1b1f21;font-size:13px;font-weight:800}
+.replayHead small{color:#8e969a;font-size:9px;font-weight:500}
+.replayEmpty{min-height:360px;display:grid;place-items:center;text-align:center;color:#7f888c;font-size:11px;padding:24px}
+.replayRow{display:grid;grid-template-columns:1fr auto;gap:10px;padding:13px 14px;border-bottom:1px solid #343a3d;background:#202326;align-items:center}
+.replayRow:active{background:#272c2e}
+.replayRow b{display:block;font-size:12px;color:#f3f3f3;margin-bottom:4px}.replayRow span{display:block;font-size:10px;color:#9da5a8;line-height:1.45}.replayRow strong{color:#20cf70;font-size:12px;white-space:nowrap}.replayRow .replayArrow{font-size:25px;color:#e8eceb}
+.replayOverlay{position:fixed;inset:0;z-index:999;background:#0d1112;display:flex;flex-direction:column;max-width:430px;margin:auto;color:#fff}
+.replayTop{height:48px;flex:0 0 48px;display:grid;grid-template-columns:48px 1fr 48px;align-items:center;background:linear-gradient(#0b7144,#075637);border-bottom:1px solid #164c3a}.replayTop button{height:48px;border:0;background:transparent;color:#fff;font-size:28px}.replayTop b{text-align:center;font-size:13px}.replayMeta{padding:7px 14px 4px;display:flex;justify-content:space-between;color:#b9c0c2;font-size:9px}
+.replayTable{height:min(51dvh,420px);margin:5px 13px 5px;border:6px solid #454c50;border-radius:48%/30%;position:relative;background:radial-gradient(ellipse at center,#14955b 0,#087342 56%,#101314 79%);box-shadow:inset 0 0 50px #000;overflow:visible}
+.replayBrand{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);font-weight:900;color:#e5c45a22;font-size:34px;letter-spacing:2px;white-space:nowrap}.replayPot{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);font-weight:900;font-size:13px;z-index:3}.replayBoard{position:absolute;left:50%;top:51%;transform:translate(-50%,-50%);display:flex;gap:3px;z-index:3}.replayCard{width:31px;height:43px;border-radius:4px;background:#fff;color:#111;display:grid;place-items:center;font-weight:900;font-size:13px;box-shadow:0 1px 3px #0008}.replayCard.red{color:#cf3441}.replaySeat{position:absolute;width:76px;text-align:center;font-size:8px;z-index:4}.replaySeat .rpPic{width:38px;height:38px;border-radius:50%;background:#f4f4f4;color:#222;border:2px solid #fff;margin:auto;display:grid;place-items:center;font-size:18px}.replaySeat .rpName{font-weight:800;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.replaySeat .rpStack{display:inline-block;background:#5c2a5d;border-radius:7px;padding:1px 5px}.replaySeat .rpState{margin-top:2px;color:#ffe079;font-weight:800}.replaySeat.folded{opacity:.45}.replaySeat.win .rpPic{box-shadow:0 0 0 3px #e3bc3f,0 0 14px #e3bc3f}.replaySeat .rpHole{display:flex;justify-content:center;gap:2px;margin-top:2px}.replaySeat .rpHole .replayCard{width:19px;height:27px;font-size:8px}.rp0{left:50%;bottom:-12px;transform:translateX(-50%)}.rp1{left:1%;bottom:19%}.rp2{left:-2%;top:21%}.rp3{left:50%;top:-12px;transform:translateX(-50%)}.rp4{right:-2%;top:21%}.rp5{right:1%;bottom:19%}.rp6{right:18%;top:-3px}.rp7{left:18%;top:-3px}
+.replayStatus{margin:4px 13px 5px;padding:8px 9px;min-height:34px;border:1px solid #394145;background:#202527;border-radius:5px;text-align:center;font-size:10px;font-weight:700}.replayControls{margin-top:auto;padding:10px 13px 18px;background:#111516;border-top:1px solid #293033}.replayProgress{width:100%;accent-color:#16c877}.replayCount{text-align:center;color:#9ea6a9;font-size:9px;margin:3px 0 7px}.replayBtns{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px}.replayBtns button{height:43px;border:0;border-radius:5px;background:#1f2927;color:#fff;font-size:21px}.replayBtns button:nth-child(2){background:#0ca15a}
+</style>
+<script id="pokerReplayOnlyScript">
+(function(){
+  /* Kass > Tuuh replay only. History is stored separately from the existing db. */
+  let rpCurrent=null,rpLastKey='',rpTimer=null,rpOpenHand=null,rpIndex=0;
+  const rpClone=v=>JSON.parse(JSON.stringify(v));
+  function rpUserKey(){return 'mp_hand_replays_v1_'+String(currentUser?.id||'guest')}
+  function rpLoad(){try{return JSON.parse(localStorage.getItem(rpUserKey())||'[]')}catch(e){return []}}
+  function rpSave(list){try{localStorage.setItem(rpUserKey(),JSON.stringify(list.slice(0,100)))}catch(e){console.warn('Replay save failed',e)}}
+  function rpCardText(c){if(!c)return '';let rr={14:'A',13:'K',12:'Q',11:'J',10:'10'};return (rr[c.r]||String(c.r||''))+(c.s||'')}
+  function rpSnapshot(){
+    if(!tableSession||!currentTable||!players?.length||!handNo)return null;
+    return {
+      t:Date.now(),handNo:Number(handNo)||0,street:Number(street)||0,pot:Number(potAmt)||0,
+      table:{id:currentTable.id||'',name:currentTable.name||'Ширээ',type:currentTable.type||'holdem',sb:Number(currentTable.sb)||0,bb:Number(currentTable.bb)||0},
+      players:players.map((p,i)=>({name:p?.name||'',emoji:p?.emoji||'🙂',chips:Number(p?.chips)||0,folded:!!folded?.[i],status:String(liveSeatStatus?.[i]||''),bet:Number(liveSeatBets?.[i]||0),hole:rpClone(holes?.[i]||[])})),
+      board:rpClone(boardCards||[]),dealer:Number(liveDealer),sbSeat:Number(liveSB),bbSeat:Number(liveBB),winner:Number(liveWinner),finished:!!finished,
+      status:String(document.getElementById('status')?.textContent||'')
+    };
+  }
+  function rpFrameKey(f){if(!f)return '';return JSON.stringify([f.handNo,f.street,f.pot,f.board,f.players.map(p=>[p.chips,p.folded,p.status,p.bet]),f.winner,f.finished,f.status])}
+  function rpBegin(){
+    if(!tableSession||!currentTable||!handNo)return;
+    rpCurrent={id:'hand_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),userId:String(currentUser?.id||''),handNo:Number(handNo)||0,startedAt:Date.now(),table:rpClone(currentTable),frames:[]};rpLastKey='';rpCapture();
+  }
+  function rpCapture(){
+    if(!rpCurrent)return;let f=rpSnapshot();if(!f||f.handNo!==rpCurrent.handNo)return;let k=rpFrameKey(f);if(k===rpLastKey)return;rpLastKey=k;rpCurrent.frames.push(f);
+  }
+  function rpFinish(force=false){
+    if(!rpCurrent||!rpCurrent.frames.length)return;
+    let last=rpCurrent.frames[rpCurrent.frames.length-1];if(!force&&!last.finished)return;
+    rpCurrent.endedAt=Date.now();rpCurrent.result=last.status||'';rpCurrent.finished=!!last.finished;
+    let list=rpLoad();list.unshift(rpCurrent);rpSave(list);rpCurrent=null;rpLastKey='';
+  }
+  const oldRenderGame=window.renderGame||renderGame;
+  renderGame=function(){let r=oldRenderGame.apply(this,arguments);try{if(!rpCurrent&&tableSession&&currentTable&&handNo)rpBegin();else rpCapture()}catch(e){}return r};
+  const oldNewHand=window.newHand||newHand;
+  newHand=function(){try{rpFinish(false)}catch(e){}let r=oldNewHand.apply(this,arguments);setTimeout(()=>{try{rpBegin()}catch(e){}},0);return r};
+  const oldLeave=window.leaveTable||leaveTable;
+  leaveTable=function(){try{rpCapture();rpFinish(false)}catch(e){}return oldLeave.apply(this,arguments)};
+
+  function rpDate(ts){try{return new Date(ts).toLocaleString('mn-MN',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch(e){return ''}}
+  window.renderPokerHistory=function(){
+    const host=document.getElementById('cashOtherText');if(!host)return;host.className='replayHistoryHost';
+    const list=rpLoad();
+    host.innerHTML='<div class="replayHead"><span>ТОГЛОЛТЫН ТҮҮХ</span><small>'+list.length+' гар</small></div>'+(list.length?list.map((h,i)=>{let last=h.frames?.[h.frames.length-1]||{},win=(last.status||h.result||'').replace(/</g,'&lt;');return '<div class="replayRow" onclick="openPokerReplay('+i+')"><div><b>'+(h.table?.name||last.table?.name||'Ширээ')+' • #'+(h.handNo||'-')+'</b><span>'+rpDate(h.startedAt)+'<br>'+(win||'Тоглолт')+'</span></div><div class="replayArrow">›</div></div>'}).join(''):'<div class="replayEmpty">Одоогоор хадгалагдсан тоглолтын түүх алга.<br><br>Энэ шинэ хувилбараас хойш тоглосон гарууд энд автоматаар хадгалагдана.</div>');
+  };
+  const oldCashTab=window.cashTab||cashTab;
+  cashTab=function(el,tab){let r=oldCashTab.apply(this,arguments);if(tab==='history')renderPokerHistory();return r};
+  function rpSeatClass(i,n){if(n<=6)return 'rp'+Math.min(i,5);let map=[0,1,2,7,3,6,4,5];return 'rp'+(map[i]??0)}
+  function rpRenderFrame(){
+    if(!rpOpenHand)return;let f=rpOpenHand.frames[rpIndex];if(!f)return;
+    document.getElementById('rpTitle').textContent=(f.table?.name||'Ширээ')+' • Replay';
+    document.getElementById('rpMeta').innerHTML='<span>#'+(f.handNo||'')+' • '+(f.table?.type==='omaha'?'OMAHA':'HOLDEM')+'</span><span>'+Number(f.table?.sb||0).toLocaleString()+'/'+Number(f.table?.bb||0).toLocaleString()+'</span>';
+    document.getElementById('rpPot').textContent='Pot: '+Number(f.pot||0).toLocaleString();
+    document.getElementById('rpBoard').innerHTML=(f.board||[]).map(c=>'<div class="replayCard '+((c.s==='♥'||c.s==='♦')?'red':'')+'">'+rpCardText(c)+'</div>').join('');
+    let n=f.players?.length||0;
+    document.getElementById('rpSeats').innerHTML=(f.players||[]).map((p,i)=>'<div class="replaySeat '+rpSeatClass(i,n)+(p.folded?' folded':'')+(i===f.winner?' win':'')+'"><div class="rpPic">'+(p.emoji||'🙂')+'</div><div class="rpName">'+(p.name||'')+'</div><div class="rpStack">'+Number(p.chips||0).toLocaleString()+'</div>'+(p.hole?.length?'<div class="rpHole">'+p.hole.map(c=>'<div class="replayCard '+((c.s==='♥'||c.s==='♦')?'red':'')+'">'+rpCardText(c)+'</div>').join('')+'</div>':'')+'<div class="rpState">'+(p.status||(p.bet?Number(p.bet).toLocaleString():''))+'</div></div>').join('');
+    document.getElementById('rpStatus').textContent=f.status||'';
+    let slider=document.getElementById('rpProgress');slider.max=Math.max(0,rpOpenHand.frames.length-1);slider.value=rpIndex;
+    document.getElementById('rpCount').textContent=(rpIndex+1)+' / '+rpOpenHand.frames.length;
+    document.getElementById('rpPlay').textContent=rpTimer?'⏸':'▶';
+  }
+  window.openPokerReplay=function(i){let list=rpLoad();rpOpenHand=list[i];if(!rpOpenHand?.frames?.length)return;rpIndex=0;clearInterval(rpTimer);rpTimer=null;
+    let o=document.createElement('div');o.id='pokerReplayOverlay';o.className='replayOverlay';o.innerHTML='<div class="replayTop"><button onclick="closePokerReplay()">‹</button><b id="rpTitle">Replay</b><button onclick="replayRestart()">↻</button></div><div id="rpMeta" class="replayMeta"></div><div class="replayTable"><div class="replayBrand">MP POKER</div><div id="rpPot" class="replayPot"></div><div id="rpBoard" class="replayBoard"></div><div id="rpSeats"></div></div><div id="rpStatus" class="replayStatus"></div><div class="replayControls"><input id="rpProgress" class="replayProgress" type="range" min="0" value="0" oninput="replaySeek(this.value)"><div id="rpCount" class="replayCount"></div><div class="replayBtns"><button onclick="replayStep(-1)">⏮</button><button id="rpPlay" onclick="replayToggle()">▶</button><button onclick="replayStep(1)">⏭</button><button onclick="replayRestart()">↻</button></div></div>';document.body.appendChild(o);rpRenderFrame()};
+  window.closePokerReplay=function(){clearInterval(rpTimer);rpTimer=null;rpOpenHand=null;document.getElementById('pokerReplayOverlay')?.remove()};
+  window.replaySeek=function(v){rpIndex=Math.max(0,Math.min((rpOpenHand?.frames?.length||1)-1,Number(v)||0));rpRenderFrame()};
+  window.replayStep=function(d){if(!rpOpenHand)return;rpIndex=Math.max(0,Math.min(rpOpenHand.frames.length-1,rpIndex+(Number(d)||0)));rpRenderFrame()};
+  window.replayRestart=function(){if(!rpOpenHand)return;rpIndex=0;rpRenderFrame()};
+  window.replayToggle=function(){if(!rpOpenHand)return;if(rpTimer){clearInterval(rpTimer);rpTimer=null;rpRenderFrame();return}rpTimer=setInterval(()=>{if(!rpOpenHand)return;if(rpIndex>=rpOpenHand.frames.length-1){clearInterval(rpTimer);rpTimer=null;rpRenderFrame();return}rpIndex++;rpRenderFrame()},900);rpRenderFrame()};
+})();
+</script>
+
 </body></html>
