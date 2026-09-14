@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <title>Mongol Poker</title>
-<meta name="mp-build" content="withdraw-standard-flow-v1">
+<meta name="mp-build" content="withdraw-bank-list-admin-paid-v1">
 <style>
 :root{--bg:#111416;--panel:#1d2225;--panel2:#272d30;--line:#353c3f;--green:#067943;--green2:#0caf63;--gold:#d7a42f;--text:#f4f4f4;--muted:#9ba3a7;--red:#a43f48;--blue:#2b75a7}
 *{box-sizing:border-box}html,body{margin:0;background:#090b0c;color:var(--text);font-family:Arial,Helvetica,sans-serif}button,input,select{font:inherit}.app{width:100%;max-width:430px;min-height:100vh;margin:auto;background:var(--bg);position:relative;overflow:hidden}.hidden{display:none!important}.screen{display:none;min-height:100vh}.screen.active{display:block}.top{height:48px;background:linear-gradient(#0c7a49,#075c39);display:grid;grid-template-columns:48px 1fr 48px;align-items:center;position:sticky;top:0;z-index:50}.top button{border:0;background:transparent;color:#fff;font-size:26px}.top .ttl{text-align:center;font-weight:700}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:56px;background:#0d1011;border-top:1px solid #252b2e;display:grid;grid-template-columns:repeat(5,1fr);z-index:60}.bottom button{border:0;background:transparent;color:#777f82;font-size:9px}.bottom .ico{display:block;font-size:18px;margin-bottom:3px}.bottom .on{color:#13cb76}.auth{min-height:100vh;background:#16191b;padding:0 14px 32px}.hero{height:265px;margin:0 -14px 14px;background:radial-gradient(circle at 68% 30%,#8f3e22 0,#4f2118 24%,#1e1614 47%,#101314 75%);position:relative;overflow:hidden}.hero:before{content:'♠ A  ♥ A  ♦ A  ♣ A';position:absolute;right:14px;bottom:35px;color:#fff;font-weight:800;font-size:22px;letter-spacing:3px}.hero:after{content:'MONGOL POKER';position:absolute;left:16px;top:26px;font-weight:900;color:#d8ad43;letter-spacing:1px}.authCard{background:#1c2022;border:1px solid #32383b;padding:14px}.authCard h2{font-size:15px;text-align:center;margin:0 0 12px}.field{margin:9px 0}.field label{display:block;font-size:10px;color:#a6adb0;margin-bottom:5px}.field input,.field select{width:100%;height:38px;background:#141719;border:1px solid #394044;color:#fff;padding:0 10px}.primary{width:100%;height:40px;border:0;background:linear-gradient(#17bd68,#078842);color:white;font-weight:700}.switch{text-align:center;font-size:11px;color:#36d88a;margin-top:12px}.home{padding:10px 10px 72px;background:linear-gradient(180deg,#061f18 0,#111516 36%);min-height:100vh}.userinfo{display:flex;align-items:center;gap:8px;font-size:10px}.avatar{width:32px;height:32px;border-radius:50%;background:#26362e;border:1px solid #50625a;display:grid;place-items:center}.bal{margin-left:auto;color:#f1ca69;font-size:12px;position:relative;overflow:hidden;padding:7px 10px;border-radius:16px;white-space:nowrap;text-shadow:0 0 6px rgba(255,196,70,.45)}
@@ -1027,23 +1027,35 @@ function cashTab(el,tab){
   if($('cashOtherPane'))$('cashOtherPane').classList.add('on');
   if($('cashOtherText')){
     if(tab==='withdraw'){
-      const wb=currentUser?.bank||'Банк бүртгэгдээгүй';
-      const wa=currentUser?.bankAccount||'Данс бүртгэгдээгүй';
       const max=Math.max(0,Math.floor(Number(currentUser?.chips)||0));
+      const savedBank=currentUser?.bank||'';
+      const savedAccount=currentUser?.bankAccount||'';
+      const banks=['ХААН БАНК','ГОЛОМТ БАНК','ХАС БАНК','ТӨРИЙН БАНК','ХУДАЛДАА ХӨГЖЛИЙН БАНК','БОГД БАНК','КАПИТРОН БАНК','ТРАНС БАНК','АРИГ БАНК','ЧИНГИС ХААН БАНК','М БАНК'];
       $('cashOtherText').classList.remove('empty');
       $('cashOtherText').innerHTML=`
         <div class="depositWrap" style="min-height:calc(100vh - 100px)">
           <div class="depositTitle">Мөнгө татах</div>
-          <div class="depositMeta">Татах дүнгээ оруулаад бүртгэлтэй банк / дансаа шалгана уу.</div>
+          <div class="depositMeta">Банкаа сонгоод, дансны дугаар болон татах дүнгээ оруулна уу.</div>
+
+          <div class="depositField">
+            <small>Банк сонгох</small>
+            <select id="withdrawBank" style="width:100%;box-sizing:border-box;background:#181d1f;border:0;outline:0;color:#fff;font-size:15px;font-weight:700;padding:8px 0">
+              <option value="">Банк сонгох</option>
+              ${banks.map(b=>`<option value="${b}" ${savedBank===b?'selected':''}>${b}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="depositField">
+            <small>Дансны дугаар</small>
+            <input id="withdrawAccount" type="text" inputmode="numeric" value="${savedAccount}" placeholder="Дансны дугаар"
+              style="width:100%;box-sizing:border-box;background:transparent;border:0;outline:0;color:#fff;font-size:17px;font-weight:700;padding:7px 0">
+          </div>
 
           <div class="depositField">
             <small>Татах дүн</small>
             <input id="withdrawAmount" type="number" inputmode="numeric" min="1" max="${max}" placeholder="0"
-              style="width:100%;box-sizing:border-box;background:transparent;border:0;outline:0;color:#fff;font-size:18px;font-weight:800;padding:6px 0">
+              style="width:100%;box-sizing:border-box;background:transparent;border:0;outline:0;color:#fff;font-size:18px;font-weight:800;padding:7px 0">
           </div>
-
-          <div class="depositField"><small>Банк</small><b>${wb}</b></div>
-          <div class="depositField"><small>Дансны дугаар</small><b>${wa}</b></div>
 
           <div class="depositMeta">Боломжит үлдэгдэл: <b style="color:#e8c25a">${fmt(max)} chip</b></div>
 
@@ -1052,7 +1064,7 @@ function cashTab(el,tab){
           </div>
 
           <div style="margin-top:12px;font-size:10px;line-height:1.55;color:#8e969a">
-            Хүсэлт админд очно. Админ шалгаад төлбөр хийсний дараа “Төлсөн” гэж тэмдэглэнэ.
+            Хүсэлт админд очно. Админ төлбөр хийсний дараа “Төлсөн” гэж тэмдэглэнэ.
           </div>
         </div>`;
     }else{
@@ -1080,25 +1092,31 @@ async function submitCashoutFromPage(){
   if(!adminAllows('cashout'))return;
   if(!currentUser)return toast('Эхлээд нэвтэрнэ үү');
 
+  const bank=String($('withdrawBank')?.value||'').trim();
+  const account=String($('withdrawAccount')?.value||'').trim();
   const input=$('withdrawAmount');
   const btn=$('withdrawSendBtn');
   const a=Math.floor(Number(input?.value)||0);
 
+  if(!bank)return toast('Банкаа сонгоно уу');
+  if(!account)return toast('Дансны дугаараа оруулна уу');
   if(!a||a<=0)return toast('Татах дүнгээ оруулна уу');
   if(a>Number(currentUser.chips||0))return toast('Үлдэгдэл хүрэхгүй байна');
-  if(!currentUser.bank||!currentUser.bankAccount)return toast('Банк / дансны мэдээллээ эхлээд бүртгүүлнэ үү');
 
   if(btn){btn.disabled=true;btn.textContent='Илгээж байна...'}
 
+  currentUser.bank=bank;
+  currentUser.bankAccount=account;
+
   const localMsg={
     type:'cashout',from:currentUser.id,name:currentUser.name||currentUser.id,
-    amount:a,status:'pending',bank:currentUser.bank,bankAccount:currentUser.bankAccount,
-    text:'МӨНГӨ ТАТАХ ХҮСЭЛТ: '+fmt(a)+' chip • '+currentUser.bank+' • '+currentUser.bankAccount,
+    amount:a,status:'pending',bank:bank,bankAccount:account,
+    text:'МӨНГӨ ТАТАХ ХҮСЭЛТ: '+fmt(a)+' chip • '+bank+' • '+account,
     time:new Date().toLocaleString('mn-MN')
   };
 
   try{
-    const remote=await mpWriteWithdrawal(currentUser,a);
+    const remote=await mpWriteWithdrawal({...currentUser,bank,bankAccount:account},a);
     localMsg._firebaseUid=remote.uid;
     localMsg._firebaseKey=remote.key;
     db.messages=db.messages||[];
