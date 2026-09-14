@@ -544,6 +544,22 @@
 }
 </style>
 
+
+<style id="deposit-note-long-only">
+#cash #depositNote{
+  margin-top:16px!important;
+  padding:13px 14px!important;
+  border:1px solid #3b4447!important;
+  border-radius:7px!important;
+  background:#171b1d!important;
+  color:#e1e5e6!important;
+  font-size:13px!important;
+  line-height:1.7!important;
+  white-space:normal!important;
+  word-break:normal!important;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -770,7 +786,10 @@ function renderCash(){
   if($('depositAccount'))$('depositAccount').textContent=b.account||'Данс оруулаагүй';
   if($('depositIban'))$('depositIban').textContent=b.iban||'IBAN оруулаагүй';
   if($('depositHolder'))$('depositHolder').textContent=b.holder?('Эзэмшигч: '+b.holder):'';
-  if($('depositNote'))$('depositNote').textContent=b.note||'';
+  if($('depositNote')){
+  const playerName=currentUser?.name||currentUser?.id||'';
+  $('depositNote').textContent='⚠ Гүйлгээ хийхдээ банкны гүйлгээний УТГА хэсэгт тоглогчийн нэрээ алдаагүй, зөв бүтнээр нь оруулна уу. Таны тоглогчийн нэр: '+playerName+'. Нэрээ буруу, дутуу эсвэл өөрөөр бичсэн тохиолдолд цэнэглэлтийг танихад саатал үүсэж болзошгүй тул тоглогчийн нэрээ яг бүртгэлтэй байгаа хэлбэрээр нь зөв бичиж оруулна уу.';
+}
 }
 function renderAdmin(){if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> — ${fmt(b.chips)}</span><button class="smallBtn red" onclick="deleteBot('${b.id}')">Устгах</button></div>`).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=db.settings.start||25000;if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankHolder'))$('adminBankHolder').value=bk.holder||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
 function saveBankSettings(){if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');db.settings.bank={name:$('adminBankName')?.value.trim()||'',account:$('adminBankAccount')?.value.trim()||'',iban:$('adminBankIban')?.value.trim()||'',holder:$('adminBankHolder')?.value.trim()||'',note:$('adminBankNote')?.value.trim()||''};save();renderContact();renderCash();toast('Дансны мэдээлэл хадгалагдлаа')}
