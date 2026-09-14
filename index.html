@@ -1395,3 +1395,14 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 })();
 </script>
 </body></html>
+/* FINAL seat-edge alignment only: place players on the table rim, not deep inside the felt */
+@media(max-width:430px){
+  #game .s0{bottom:-18px!important}
+  #game .s1{left:-18px!important;bottom:8px!important}
+  #game .s2{left:-22px!important;top:50%!important}
+  #game .s3{left:-18px!important;top:-6px!important}
+  #game .s4{top:-18px!important}
+  #game .s5{right:-18px!important;top:-6px!important}
+  #game .s6{right:-22px!important;top:50%!important}
+  #game .s7{right:-18px!important;bottom:8px!important}
+}
