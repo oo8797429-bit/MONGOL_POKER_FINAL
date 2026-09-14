@@ -1507,4 +1507,12 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   right:55px!important;left:auto!important;top:24px!important;transform:none!important;
 }
 </style>
+
+<style id="eightSeatMiddleRimOnly">
+/* ONLY FIX: on an 8-player table, move ONLY the middle-left and middle-right seats to the rail. */
+#game .pokerTable[data-seat-count="8"] .seat.s2{left:-18px!important;right:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .pokerTable[data-seat-count="8"] .seat.s6{right:-18px!important;left:auto!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .pokerTable[data-seat-count="8"] .seat.s2 .betTag{left:58px!important;right:auto!important;top:25px!important;transform:none!important}
+#game .pokerTable[data-seat-count="8"] .seat.s6 .betTag{right:58px!important;left:auto!important;top:25px!important;transform:none!important}
+</style>
 </body></html>
