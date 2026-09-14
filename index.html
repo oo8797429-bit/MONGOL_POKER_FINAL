@@ -583,6 +583,53 @@
 #depositHolder{display:none!important}
 </style>
 
+
+<style id="deposit-admin-inline-style">
+#cash .depositAdminInline{
+  margin:0 0 22px;
+  padding:14px;
+  border:1px solid #1e9d61;
+  border-radius:10px;
+  background:linear-gradient(180deg,#10251d,#151a1b);
+  box-shadow:0 0 16px #0bb96618;
+}
+#cash .depositAdminInline.hidden{display:none!important}
+#cash .depositAdminHead{
+  color:#48e696;
+  font-weight:900;
+  font-size:14px;
+  margin-bottom:12px;
+}
+#cash .depositAdminInline label{
+  display:block;
+  color:#aeb6b3;
+  font-size:11px;
+  margin:9px 0 5px;
+}
+#cash .depositAdminInline select,
+#cash .depositAdminInline input{
+  width:100%;
+  height:46px;
+  border:1px solid #3b4643;
+  border-radius:6px;
+  background:#111617;
+  color:#fff;
+  padding:0 12px;
+  font-size:15px;
+}
+#cash .depositAdminInline button{
+  width:100%;
+  height:46px;
+  margin-top:13px;
+  border:0;
+  border-radius:6px;
+  background:linear-gradient(#18c873,#07944d);
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -608,7 +655,30 @@
 <section id="jackpot" class="screen"><div class="jpHero"><button class="jpClose" onclick="show('home')">×</button><div class="jpTitle">Bad beat Jackpot</div><div class="jpBig" id="jpAmount">0</div></div><div class="jpTabs" id="jpTabs"><div class="on" onclick="jackpotTab(this,'payouts')">Payouts</div><div onclick="jackpotTab(this,'winners')">Winners</div><div onclick="jackpotTab(this,'conditions')">Conditions</div></div><div id="jpContent" class="jpBody"></div></section>
 <section id="tables" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Ширээнүүд</div><button onclick="searchTables()">⌕</button></header><div class="subtop"><span>↕</span><b id="tableCount">0 ШИРЭЭ</b><span>☷</span></div><div id="tableList"></div></section>
 <section id="tour" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Тэмцээнүүд</div><button onclick="searchTours()">⌕</button></header><div class="subtop"><span>↕</span><b>8 ТЭМЦЭЭНҮҮД</b><span>☷</span></div><div id="tourList"></div></section>
-<section id="cash" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Касс</div><button onclick="renderCash()">⟳</button></header><div class="cash"><div class="cashTabs" id="cashTabs"><div class="on" data-tab="status" onclick="cashTab(this,'status')">ⓘ Төлөв</div><div data-tab="deposit" onclick="cashTab(this,'deposit')">🏦 Цэнэглэлт</div><div data-tab="transfer" onclick="cashTab(this,'transfer')">◉</div><div data-tab="withdraw" onclick="cashTab(this,'withdraw')">▣ Таталт</div><div data-tab="history" onclick="cashTab(this,'history')">◴</div></div><div id="cashStatusPane" class="cashPane on"><div class="cashList"><div class="cashBox">CGP <span class="amount" id="cashBal">0</span></div><div class="cashBox">MNT <span class="amount" id="cashMnt">0</span></div></div></div><div id="cashDepositPane" class="cashPane"><div class="depositWrap"><div class="depositTitle">1. Төлбөрийн нөхцөлөө сонгоно уу</div><div class="depositBankPick">🏦</div><div id="depositBankName" class="depositBankName">Банк</div><div id="depositSectionTitle" class="depositSection">2. Банк</div><div class="depositField"><small>Банкны дансны дугаар</small><b id="depositAccount">-</b><button class="copyBtn" onclick="copyDeposit('depositAccount')">▣</button></div><div class="depositField"><small>IBAN</small><b id="depositIban">-</b><button class="copyBtn" onclick="copyDeposit('depositIban')">▣</button></div><div id="depositNote" class="depositMeta"></div><div class="depositRequest"><input id="depositAmount" type="number" min="1" inputmode="numeric" placeholder="Цэнэглэх дүн"><button onclick="requestDeposit()">Цэнэглэлтийн хүсэлт илгээх</button></div></div></div><div id="cashOtherPane" class="cashPane"><div id="cashOtherText" class="empty">Хэсэг</div></div></div></section>
+<section id="cash" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Касс</div><button onclick="renderCash()">⟳</button></header><div class="cash"><div class="cashTabs" id="cashTabs"><div class="on" data-tab="status" onclick="cashTab(this,'status')">ⓘ Төлөв</div><div data-tab="deposit" onclick="cashTab(this,'deposit')">🏦 Цэнэглэлт</div><div data-tab="transfer" onclick="cashTab(this,'transfer')">◉</div><div data-tab="withdraw" onclick="cashTab(this,'withdraw')">▣ Таталт</div><div data-tab="history" onclick="cashTab(this,'history')">◴</div></div><div id="cashStatusPane" class="cashPane on"><div class="cashList"><div class="cashBox">CGP <span class="amount" id="cashBal">0</span></div><div class="cashBox">MNT <span class="amount" id="cashMnt">0</span></div></div></div><div id="cashDepositPane" class="cashPane"><div class="depositWrap">
+<div id="depositAdminInline" class="depositAdminInline hidden">
+  <div class="depositAdminHead">🛠 АДМИН — БАНК / ДАНС СОЛИХ</div>
+  <label>Банк сонгох</label>
+  <select id="depositAdminBank">
+    <option value="ХААН БАНК">ХААН БАНК</option>
+    <option value="ГОЛОМТ БАНК">ГОЛОМТ БАНК</option>
+    <option value="ХУДАЛДАА ХӨГЖЛИЙН БАНК">ХУДАЛДАА ХӨГЖЛИЙН БАНК</option>
+    <option value="ТӨРИЙН БАНК">ТӨРИЙН БАНК</option>
+    <option value="ХАС БАНК">ХАС БАНК</option>
+    <option value="КАПИТРОН БАНК">КАПИТРОН БАНК</option>
+    <option value="БОГД БАНК">БОГД БАНК</option>
+    <option value="АРИГ БАНК">АРИГ БАНК</option>
+    <option value="ТРАНС БАНК">ТРАНС БАНК</option>
+    <option value="М БАНК">М БАНК</option>
+    <option value="БУСАД">БУСАД</option>
+  </select>
+  <label>Дансны дугаар</label>
+  <input id="depositAdminAccount" inputmode="numeric" placeholder="Дансны дугаар">
+  <label>IBAN</label>
+  <input id="depositAdminIban" placeholder="IBAN">
+  <button type="button" onclick="saveDepositBankInline()">ХАДГАЛАХ</button>
+</div>
+<div class="depositTitle">1. Төлбөрийн нөхцөлөө сонгоно уу</div><div class="depositBankPick">🏦</div><div id="depositBankName" class="depositBankName">Банк</div><div id="depositSectionTitle" class="depositSection">2. Банк</div><div class="depositField"><small>Банкны дансны дугаар</small><b id="depositAccount">-</b><button class="copyBtn" onclick="copyDeposit('depositAccount')">▣</button></div><div class="depositField"><small>IBAN</small><b id="depositIban">-</b><button class="copyBtn" onclick="copyDeposit('depositIban')">▣</button></div><div id="depositNote" class="depositMeta"></div><div class="depositRequest"><input id="depositAmount" type="number" min="1" inputmode="numeric" placeholder="Цэнэглэх дүн"><button onclick="requestDeposit()">Цэнэглэлтийн хүсэлт илгээх</button></div></div></div><div id="cashOtherPane" class="cashPane"><div id="cashOtherText" class="empty">Хэсэг</div></div></div></section>
 <section id="menu" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Цэс</div><button></button></header><div class="menu"><div class="menuItem adminOnly" id="adminMenuItem" onclick="show('admin')">🛠 Админ удирдлага</div><div class="menuItem" onclick="featureOpen('cash','cash')">💼 Касс</div><div class="menuItem" onclick="featureOpen('settings','settings')">⚙ Тохиргоо</div><div class="menuItem" onclick="featureOpen('help','help')">❔ Тусламж</div><div class="menuItem" onclick="logout()">↪ Гарах</div></div></section>
 <section id="admin" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Админ</div><button></button></header><div class="admin">
 <div class="adminCard"><h3>Ширээ нээх</h3><div class="field"><label>Төрөл</label><select id="newType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Нэр</label><input id="newName" placeholder="25K ШИРЭЭ"></div><div class="field"><label>SB / BB</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="newSB" type="number" value="500"><input id="newBB" type="number" value="1000"></div></div><div class="field"><label>Орох дүн</label><input id="newBuy" type="number" value="25000"></div><button class="primary" onclick="createTable()">Ширээ нээх</button></div>
@@ -821,6 +891,15 @@ function renderCash(){
   if($('cashBal'))$('cashBal').textContent=fmt(currentUser.cgp);
   if($('cashMnt'))$('cashMnt').textContent=fmt(currentUser.chips||0);
   let b=db.settings.bank||{};
+  if($('depositAdminInline')){
+    const isAdmin=currentUser?.role==='admin';
+    $('depositAdminInline').classList.toggle('hidden',!isAdmin);
+    if(isAdmin){
+      if($('depositAdminBank'))$('depositAdminBank').value=b.name||'ХААН БАНК';
+      if($('depositAdminAccount'))$('depositAdminAccount').value=b.account||'';
+      if($('depositAdminIban'))$('depositAdminIban').value=b.iban||'';
+    }
+  }
   if($('depositBankName'))$('depositBankName').textContent=b.name||'Банк';
   if($('depositSectionTitle'))$('depositSectionTitle').textContent='2. '+(b.name||'Банк');
   if($('depositAccount'))$('depositAccount').textContent=b.account||'Данс оруулаагүй';
@@ -910,6 +989,27 @@ function jackpotTab(el,tab){document.querySelectorAll('#jpTabs div').forEach(x=>
 function searchTables(){let q=prompt('Ширээ хайх');if(q===null)return;q=q.trim().toLowerCase();renderTables();if(!q)return;document.querySelectorAll('#tableList .tableRow').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'grid':'none')}
 function searchTours(){let q=prompt('Тэмцээн хайх');if(q===null)return;q=q.trim().toLowerCase();renderTours();if(!q)return;document.querySelectorAll('#tourList .tourRow').forEach(x=>x.style.display=x.textContent.toLowerCase().includes(q)?'grid':'none')}
 function tourAction(i){if(!adminAllows('tour'))return;toast((tours[i]?.[0]||'Тэмцээн')+' — сонгогдлоо')}
+function saveDepositBankInline(){
+  if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');
+  const name=$('depositAdminBank')?.value||'ХААН БАНК';
+  const account=String($('depositAdminAccount')?.value||'').trim();
+  const iban=String($('depositAdminIban')?.value||'').trim();
+  if(!account)return toast('Дансны дугаараа оруулна уу');
+  db.settings.bank=Object.assign({},db.settings.bank||{},{
+    name:name,
+    account:account,
+    iban:iban,
+    holder:'',
+    note:''
+  });
+  save();
+  renderCash();
+  renderContact();
+  if($('adminBankName'))$('adminBankName').value=name;
+  if($('adminBankAccount'))$('adminBankAccount').value=account;
+  if($('adminBankIban'))$('adminBankIban').value=iban;
+  toast('Банк / данс хадгалагдлаа');
+}
 function cashTab(el,tab){
   document.querySelectorAll('#cashTabs div').forEach(x=>x.classList.remove('on'));
   if(el)el.classList.add('on');
