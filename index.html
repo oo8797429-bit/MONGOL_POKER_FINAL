@@ -899,7 +899,7 @@ load();renderTours();show('auth');
 </script>
 
 <style id="wideAnimatedLoginLogo">
-/* Bigger, slightly lower, animated wide MONGOL POKER logo */
+/* Bigger, slightly lower, animated wide MONGOL POKER logo with visible title */
 #auth .hero:after{content:none!important;}
 #auth .heroLogo{
   position:absolute!important;
@@ -916,22 +916,24 @@ load();renderTours();show('auth');
 }
 #auth .heroLogo.logoImg{
   position:relative!important;
-  background-image:linear-gradient(105deg,#120a05 0%,#5b3910 16%,#c89428 34%,#ffe27f 50%,#f7d66a 56%,#b78320 70%,#4b2d0c 84%,#120a05 100%)!important;
-  background-size:230% 100%!important;
+  background-image:linear-gradient(105deg,#120a05 0%,#5b3910 14%,#c89428 32%,#ffe27f 50%,#f7d66a 58%,#b78320 72%,#4b2d0c 86%,#120a05 100%)!important;
+  background-size:240% 100%!important;
   background-position:0% 50%!important;
   border:3px solid #efc859!important;
   box-shadow:0 0 0 2px #3a290d,0 10px 26px #000b,0 0 24px #e9bd4466,inset 0 1px 0 #fff4!important;
   display:flex!important;
   align-items:center!important;
-  justify-content:center!important;
+  justify-content:flex-start!important;
+  padding:0 22px!important;
   gap:16px!important;
   color:#fff!important;
   text-shadow:0 2px 4px #000!important;
-  animation:mpWidePulse 2.8s ease-in-out infinite,mpWideShine 2.4s linear infinite!important;
+  animation:mpWidePulse 2.8s ease-in-out infinite,mpWideShine 3s linear infinite!important;
 }
 #auth .heroLogo.logoImg:before{
   content:'MP'!important;
   position:static!important;
+  flex:0 0 auto!important;
   font:900 44px/1 Arial,Helvetica,sans-serif!important;
   letter-spacing:-2px!important;
   color:#fff!important;
@@ -940,28 +942,15 @@ load();renderTours();show('auth');
 #auth .heroLogo.logoImg:after{
   content:'MONGOL POKER'!important;
   position:static!important;
+  display:block!important;
+  flex:1 1 auto!important;
   left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
   transform:none!important;
-  font:900 24px/1 Arial,Helvetica,sans-serif!important;
-  letter-spacing:2.6px!important;
+  font:900 22px/1 Arial,Helvetica,sans-serif!important;
+  letter-spacing:2.2px!important;
   color:#ffe8a8!important;
   white-space:nowrap!important;
   text-shadow:0 2px 6px #000!important;
-}
-#auth .heroLogo.logoImg::selection{background:transparent!important;}
-#auth .heroLogo.logoImg::marker{content:'';}
-#auth .heroLogo:after{
-  content:''!important;
-  position:absolute!important;
-  top:-18%!important;
-  left:-26%!important;
-  width:24%!important;
-  height:140%!important;
-  transform:skewX(-22deg)!important;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.12) 35%,rgba(255,255,255,.88) 50%,rgba(255,255,255,.14) 65%,transparent 100%)!important;
-  filter:blur(.3px)!important;
-  animation:mpSweep 2.2s linear infinite!important;
-  pointer-events:none!important;
 }
 @keyframes mpWideFloat{
   0%,100%{transform:translateX(-50%) translateY(0)}
@@ -973,16 +962,13 @@ load();renderTours();show('auth');
 }
 @keyframes mpWideShine{
   0%{background-position:0% 50%}
-  100%{background-position:230% 50%}
-}
-@keyframes mpSweep{
-  0%{left:-26%}
-  100%{left:112%}
+  100%{background-position:240% 50%}
 }
 @media(max-width:360px){
   #auth .heroLogo{top:40px!important;width:300px!important;height:82px!important;}
+  #auth .heroLogo.logoImg{padding:0 18px!important;gap:12px!important;}
   #auth .heroLogo.logoImg:before{font-size:38px!important;}
-  #auth .heroLogo.logoImg:after{font-size:20px!important;letter-spacing:2px!important;}
+  #auth .heroLogo.logoImg:after{font-size:18px!important;letter-spacing:1.6px!important;}
 }
 </style>
 
