@@ -368,6 +368,27 @@
 }
 </style>
 
+
+<style id="accEffectStyles">
+/* ACC click effect only */
+.accountPill.accTap{animation:accTapPulse .28s ease}
+@keyframes accTapPulse{0%{transform:scale(1)}45%{transform:scale(.96);box-shadow:0 0 0 2px #19c66c55,0 0 18px #19c66c55}100%{transform:scale(1)}}
+.accFxShade{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:310;opacity:0;pointer-events:none;transition:opacity .22s ease}
+.accFxShade.open{opacity:1;pointer-events:auto}
+.accFxPanel{position:fixed;z-index:311;left:50%;top:0;width:100%;max-width:430px;height:100dvh;background:#1b1e20;transform:translate(-50%,105%);transition:transform .30s cubic-bezier(.2,.8,.2,1);box-shadow:0 -12px 34px #0009;overflow:hidden;color:#f2f2f2}
+.accFxPanel.open{transform:translate(-50%,0)}
+.accFxHead{height:48px;display:grid;grid-template-columns:42px 1fr 42px;align-items:center;background:linear-gradient(90deg,#075b39,#0b8b51,#075b39);border-bottom:1px solid #1aae69}
+.accFxHead b{text-align:center;font-size:13px}.accFxHead button{height:100%;border:0;background:transparent;color:#fff;font-size:24px}
+.accFxUser{padding:14px 16px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #303638;background:#202426}
+.accFxCurrent{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:28px;background:#2d3335;border:2px solid #18bd6d;box-shadow:0 0 18px #16bd6b44}
+.accFxMeta{min-width:0}.accFxMeta b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.accFxMeta small{display:block;margin-top:4px;color:#d6b95c;font-size:12px}
+.accFxTabs{height:39px;display:grid;grid-template-columns:1fr 1fr;background:#222629;border-bottom:1px solid #303638}.accFxTabs span{display:grid;place-items:center;font-size:11px;color:#9ca5a8}.accFxTabs span.on{color:#1bd079;border-bottom:2px solid #1bd079}
+.accFxBody{height:calc(100dvh - 48px - 77px - 39px - 66px);overflow:auto;padding:15px 16px 22px;background:#1b1e20}
+.accFxGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 18px}
+.accFxAvatar{aspect-ratio:1;border-radius:6px;border:2px solid transparent;background:#2b3033;display:grid;place-items:center;font-size:42px;box-shadow:0 2px 8px #0005;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.accFxAvatar:active{transform:scale(.92)}.accFxAvatar.sel{border-color:#20d47c;box-shadow:0 0 0 2px #0d6e46,0 0 18px #19d07a55;transform:scale(1.04)}
+.accFxFoot{height:66px;padding:10px 15px;background:#202426;border-top:1px solid #303638}.accFxSave{width:100%;height:45px;border:0;border-radius:3px;background:linear-gradient(#16c96d,#079449);color:white;font-weight:800;font-size:13px;box-shadow:0 4px 12px #0005}
+</style>
 </head>
 <body>
 <div class="app">
@@ -377,7 +398,7 @@
     <div class="refMiniLogo"><span>MP</span><small>MONGOL<br>POKER</small></div>
     <div class="refHeaderRight">
       <div class="refMiniStats"><span class="miniClock" id="miniClock">--:--</span><button class="miniUsersBtn" id="miniUsersBtn" type="button" onclick="openRegisteredUsers()" title="Бүртгэлтэй хэрэглэгчид">♙ <b id="miniUserCount">0</b></button><span class="miniLang">◎ Монгол <span class="miniWifi">⌁</span></span></div>
-      <div class="refMiniActions"><button class="accountPill" onclick="show('menu')" title="Аккаунт"><span id="homeAccText">ACC</span><span id="homeAccBal">0</span><span class="accDrop">⌄</span><span class="accAvatarMini">👤</span></button></div>
+      <div class="refMiniActions"><button class="accountPill" onclick="openAccEffect(event)" title="Аккаунт"><span id="homeAccText">ACC</span><span id="homeAccBal">0</span><span class="accDrop">⌄</span><span id="homeAccAvatar" class="accAvatarMini">👤</span></button></div>
     </div>
   </div>
   <div class="refJackpot" onclick="openJackpot()"><small>Bad beat</small><span>ЖЕКПОТ</span><b id="uBal">0</b></div>
@@ -415,6 +436,14 @@
 <div id="sideShade" class="sideShade hidden" onclick="closeSide()"></div><div id="sideMenu" class="sideMenu hidden"><div class="sideTitle">↑ Суудлаас босох</div><div class="sideItem" onclick="leaveTable()"><span>🚪</span>Тоглоомыг орхих</div><div class="sideItem" onclick="openAddMoney()"><span>🎯</span>Ширээнд мөнгө нэмэх</div><div class="sideItem" onclick="spectate()"><span>◔</span>Тоглолт үзэх</div><div class="sideItem" onclick="closeSide();featureOpen('cash','cash')"><span>💼</span>Касс</div><div class="sideItem" onclick="openTableSettings()"><span>▭</span>Ширээний тохиргоо</div><div class="sideItem" onclick="closeSide();featureOpen('settings','settings')"><span>⚙</span>Тохиргоо ›</div><div class="sideItem" onclick="leaveTable()"><span>⌂</span>Лоббируу буцах</div><div class="sideItem" onclick="shareApp()"><span>⌯</span>Хуваалцах</div></div>
 <div id="moneySheet" class="sheet hidden"><h3>Ширээнд мөнгө нэмэх</h3><div class="sheetRow"><span>Ширээ</span><b id="sheetTable"></b></div><input id="moneyInput" type="number" value="5000" oninput="syncMoney()"><input id="moneyRange" class="range" type="range" min="1000" max="100000" step="1000" value="5000" oninput="syncMoney(true)"><div class="sheetBtns"><button onclick="setMoney(.5)">½ Buy-in</button><button onclick="setMoney(1)">1× Buy-in</button><button onclick="setMoney(2)">2× Buy-in</button></div><div class="sheetRow"><span>Одоогийн stack</span><b id="sheetStack"></b></div><button class="ok" onclick="addMoney()">Мөнгө нэмэх</button><button class="close" onclick="closeMoney()">Хаах</button></div>
 <div id="tableSettingsSheet" class="sheet hidden"><h3>Ширээний тохиргоо</h3><div class="sheetRow"><span>Ширээ</span><b id="tsName"></b></div><div class="field"><label>SB</label><input id="tsSB" type="number"></div><div class="field"><label>BB</label><input id="tsBB" type="number"></div><div class="field"><label>Орох дүн</label><input id="tsBuy" type="number"></div><button class="ok" onclick="saveTableSettings()">Хадгалах</button><button class="close" onclick="closeTableSettings()">Хаах</button></div><div id="toast" class="toast hidden"></div>
+<div id="accFxShade" class="accFxShade" onclick="closeAccEffect()"></div>
+<div id="accFxPanel" class="accFxPanel" aria-hidden="true">
+  <div class="accFxHead"><button onclick="closeAccEffect()">×</button><b>Аватараа өөрчлөх</b><button></button></div>
+  <div class="accFxUser"><div id="accFxCurrent" class="accFxCurrent">👤</div><div class="accFxMeta"><b id="accFxName">ACC</b><small><span id="accFxChip">0</span> chip</small></div></div>
+  <div class="accFxTabs"><span class="on">♙ Тоглогч</span><span>✨ Effect</span></div>
+  <div class="accFxBody"><div id="accFxGrid" class="accFxGrid"></div></div>
+  <div class="accFxFoot"><button class="accFxSave" onclick="saveAccEffect()">Хадгалах</button></div>
+</div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -1211,6 +1240,43 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   }
   document.addEventListener('fullscreenchange',sync);
   document.addEventListener('webkitfullscreenchange',sync);
+})();
+</script>
+
+<script id="accEffectScript">
+(function(){
+  const choices=['👤','🧑','👨','👩','🧔','👱','👨‍🦱','👩‍🦰','🧑‍🎤','🕶️','🥷','🤠','🧙','🦸','👑','🐯','🦁','🐺'];
+  let pendingAvatar='👤';
+  function paint(){
+    const g=document.getElementById('accFxGrid');if(!g)return;
+    g.innerHTML=choices.map(a=>'<button class="accFxAvatar'+(a===pendingAvatar?' sel':'')+'" type="button" data-a="'+a+'">'+a+'</button>').join('');
+    g.querySelectorAll('.accFxAvatar').forEach(b=>b.onclick=function(){pendingAvatar=this.dataset.a;document.getElementById('accFxCurrent').textContent=pendingAvatar;paint()});
+  }
+  window.openAccEffect=function(ev){
+    const pill=ev?.currentTarget||document.querySelector('.accountPill');
+    if(pill){pill.classList.remove('accTap');void pill.offsetWidth;pill.classList.add('accTap')}
+    pendingAvatar=(typeof currentUser!=='undefined'&&currentUser&&currentUser.avatar)||'👤';
+    const n=document.getElementById('accFxName'),c=document.getElementById('accFxChip'),cur=document.getElementById('accFxCurrent');
+    if(n)n.textContent=(typeof currentUser!=='undefined'&&currentUser&&(currentUser.name||currentUser.id))||'ACC';
+    if(c)c.textContent=typeof fmt==='function'?fmt((typeof currentUser!=='undefined'&&currentUser&&currentUser.chips)||0):String((typeof currentUser!=='undefined'&&currentUser&&currentUser.chips)||0);
+    if(cur)cur.textContent=pendingAvatar;
+    paint();
+    document.getElementById('accFxShade')?.classList.add('open');
+    const p=document.getElementById('accFxPanel');if(p){p.classList.add('open');p.setAttribute('aria-hidden','false')}
+  };
+  window.closeAccEffect=function(){
+    document.getElementById('accFxShade')?.classList.remove('open');
+    const p=document.getElementById('accFxPanel');if(p){p.classList.remove('open');p.setAttribute('aria-hidden','true')}
+  };
+  window.saveAccEffect=function(){
+    if(typeof currentUser!=='undefined'&&currentUser){currentUser.avatar=pendingAvatar;try{if(typeof syncUser==='function')syncUser();else if(typeof save==='function')save()}catch(e){}}
+    const a=document.getElementById('homeAccAvatar');if(a)a.textContent=pendingAvatar;
+    closeAccEffect();
+    try{if(typeof toast==='function')toast('Аватар хадгалагдлаа')}catch(e){}
+  };
+  // Keep the selected avatar visible whenever the home screen is rendered.
+  const oldRenderHome=window.renderHome;
+  if(typeof oldRenderHome==='function')window.renderHome=function(){oldRenderHome.apply(this,arguments);const a=document.getElementById('homeAccAvatar');if(a)a.textContent=(typeof currentUser!=='undefined'&&currentUser&&currentUser.avatar)||'👤'};
 })();
 </script>
 </body></html>
