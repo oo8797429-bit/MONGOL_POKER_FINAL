@@ -3764,13 +3764,13 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const target=pre?bb:0;
     for(const i of a){
       if(!still(id)||folded[i]||players[i].chips<=0)return;
-      acting=i;renderGame();await sleep(420+Math.floor(Math.random()*260));if(!still(id))return;
+      acting=i;renderGame();await sleep(900+Math.floor(Math.random()*300));if(!still(id))return;
       const now=alive();
       if(now.length>2&&Math.random()<0.12){folded[i]=true;setStatus(players[i].name+' • FOLD')}
       else if(target>0){const paid=put(i,Math.min(target,players[i].chips));setStatus(players[i].name+' • CALL '+fmt(paid))}
       else if(Math.random()<0.18&&players[i].chips>bb){const paid=put(i,Math.min(bb,players[i].chips));setStatus(players[i].name+' • BET '+fmt(paid))}
       else setStatus(players[i].name+' • CHECK');
-      renderGame();await sleep(330);
+      renderGame();await sleep(1200);
     }
     acting=-1;renderGame();
   }
@@ -3784,21 +3784,38 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     if(i==null||!players?.[i])return;let net=Number(potAmt)||0;
     try{const p=takeRakeFromPot();net=Math.max(0,Number(p?.net)||0)}catch(e){}
     players[i].chips=(Number(players[i].chips)||0)+net;potAmt=0;finished=true;acting=-1;
-    setStatus(players[i].name+' яллаа • +'+fmt(net));syncBots();renderGame();
+    try{liveWinner=i;if(Array.isArray(liveSeatStatus))liveSeatStatus[i]='ЯЛАГЧ'}catch(e){}
+    setStatus('WINNER • '+players[i].name+' • +'+fmt(net));
+    syncBots();renderGame();
+    try{
+      let old=document.querySelector('#game .showdownBanner');if(old)old.remove();
+      let b=document.createElement('div');b.className='showdownBanner';
+      b.innerHTML='<b>WINNER • '+players[i].name+'</b>Бусад тоглогч Fold';
+      $('pokerTable')?.appendChild(b);
+    }catch(e){}
   }
-  function randomShowdown(){const a=alive();if(!a.length)return;awardOne(a[Math.floor(Math.random()*a.length)])}
+  function randomShowdown(){
+    const a=alive();if(!a.length)return;
+    try{
+      showdown();
+      syncBots();
+    }catch(e){
+      console.warn('showdown fallback',e);
+      awardOne(a[Math.floor(Math.random()*a.length)]);
+    }
+  }
 
   window.mpBotPlayLoop=async function(){
     if(!tableSession||!spectator||!currentTable||(players||[]).some(p=>p&&p.user))return;
     if((players||[]).length<2){setStatus('Тоглуулахын тулд 2 bot хэрэгтэй');renderGame();return}
-    const id=++runId;freshHand();await sleep(450);if(!still(id))return;
+    const id=++runId;freshHand();await sleep(900);if(!still(id))return;
     await botRound(id,true);if(!still(id))return;if(alive().length<=1)awardOne(alive()[0]);
-    else{deal('flop');await sleep(420);await botRound(id,false);if(!still(id))return;if(alive().length<=1)awardOne(alive()[0]);
-      else{deal('turn');await sleep(420);await botRound(id,false);if(!still(id))return;if(alive().length<=1)awardOne(alive()[0]);
-        else{deal('river');await sleep(420);await botRound(id,false);if(!still(id))return;if(alive().length<=1)awardOne(alive()[0]);else randomShowdown();}
+    else{deal('flop');await sleep(1200);await botRound(id,false);if(!still(id))return;if(alive().length<=1)awardOne(alive()[0]);
+      else{deal('turn');await sleep(1200);await botRound(id,false);if(!still(id))return;if(alive().length<=1)awardOne(alive()[0]);
+        else{deal('river');await sleep(1200);await botRound(id,false);if(!still(id))return;if(alive().length<=1)awardOne(alive()[0]);else{randomShowdown();return;}}
       }
     }
-    const next=id;setTimeout(()=>{if(still(next))window.mpBotPlayLoop()},1400);
+    const next=id;setTimeout(()=>{if(still(next))window.mpBotPlayLoop()},4800);
   };
   window.autoSpectate=window.mpBotPlayLoop;try{autoSpectate=window.mpBotPlayLoop}catch(e){}
 
