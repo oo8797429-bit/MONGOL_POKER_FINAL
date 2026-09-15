@@ -1725,18 +1725,23 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     },1000);
   }
   function waitBotTurn(i){
-    /* Bots must never use the human 20-second clock.
-       Give them a short natural-looking pause, then always let them act. */
-    liveTurn=i;
-    turnLeft=1;
-    setStatus(players[i].name+'-ийн ээлж');
-    renderGame();
+    syncTableTurnSeconds();
+    liveTurn=i;turnLeft=TURN_SECONDS;
+    setStatus(players[i].name+'-ийн ээлж • '+TURN_SECONDS+' сек');
+    renderGame();paintTurnClock();
     return new Promise(resolve=>{
-      const actDelay=520+Math.floor(Math.random()*360);
-      setTimeout(()=>{
-        turnLeft=0;
-        resolve(false);
-      },actDelay);
+      let done=false,left=TURN_SECONDS;
+      const willTimeout=false;
+      const actDelay=550+Math.floor(Math.random()*350);
+      let actionTimer;
+      const finish=(timedOut)=>{
+        if(done)return;done=true;clearInterval(iv);clearTimeout(actionTimer);resolve(timedOut);
+      };
+      const iv=setInterval(()=>{
+        left--;turnLeft=left;paintTurnClock();
+        if(left<=0)finish(true);
+      },1000);
+      actionTimer=setTimeout(()=>finish(false),actDelay);
     });
   }
   function seatCount(){return Math.max(1,players.length)}
@@ -2901,7 +2906,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   };
 
   // Lobby now shows and enforces each table's own max players + rake.
-  window.mpSeatCount=function(t){defaults(t);return Math.min(t.maxPlayers,(db.bots||[]).filter(isAdminCreatedBot).length);};
+  window.mpSeatCount=function(t){defaults(t);return Math.min(Math.max(1,t.maxPlayers-1),(db.bots||[]).filter(isAdminCreatedBot).length);};
   window.renderTables=function(){
     (db.tables||[]).forEach(defaults);$('tableCount').textContent=db.tables.length+' ШИРЭЭ';
     $('tableList').innerHTML=db.tables.map((t,i)=>{const n=mpSeatCount(t),max=t.maxPlayers,full=n>=max,waiting=typeof mpIsWaiting==='function'?mpIsWaiting(t.id):false;return `<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${esc(t.name)} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE ${Number(t.rakePercent)}%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${n}/${max} &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)} &nbsp; ⏱ ${t.turnSeconds}с</div>${full&&typeof toggleTableWaiting==='function'?`<button class="mpWaitBtn ${waiting?'on':''}" onclick="toggleTableWaiting('${jsq(t.id)}')">${waiting?'✓ ХҮЛЭЭЛЭГТ БАЙНА':'⏳ ШИРЭЭНИЙ ХҮЛЭЭЛЭГ'}</button>`:''}</div><div class="join"><button ${t.open?'':'disabled'} onclick="join('${jsq(t.id)}')">${full?'ТОГЛОЛТ ҮЗЭХ':'Орох дүн<br>'+fmt(t.buy)}</button></div></div>`;}).join('')+`<div class="mpBehind"><div class="mpBehindInner"><div class="mpBehindCards">♠️ ♥️ ♣️ ♦️</div><div class="mpBehindTitle">ШИРЭЭНИЙ ЦААНА</div><div class="mpBehindSub">MONGOL POKER</div><span class="mpBehindChip"></span></div></div>`;
@@ -3667,7 +3672,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 })();
 </script>
 <style id="mpBotPlayAvatarOnlyFix">
-/* ONLY FIX: bot autoplay + fast bot turns + use the app's existing avatars. */
+/* ONLY FIX: bot autoplay + use the app's existing avatars. */
 #game.mpBotAutoOnly .turnClock{display:none!important}
 #game .seat .pic>img.mpRealBotAvatar{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;display:block!important}
 #game.mpBotAutoOnly .seat.mpBotActing .pic{border-color:#ffd42a!important;box-shadow:0 0 0 3px #b88a13,0 0 15px #ffd42a!important}
@@ -3689,14 +3694,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   }
   function assignAvatars(){
     let changed=false;
-    const used=new Set();
     adminBots().forEach((b,i)=>{
-      let av=APP_AVATARS.find(a=>a.id===b.avatarId);
-      if(!av || used.has(av.id)){
-        av=APP_AVATARS.find(a=>!used.has(a.id)) || APP_AVATARS[i%APP_AVATARS.length];
-        if(av && b.avatarId!==av.id){b.avatarId=av.id;changed=true}
-      }
-      if(b.avatarId)used.add(b.avatarId);
+      if(!APP_AVATARS.some(a=>a.id===b.avatarId)){b.avatarId=APP_AVATARS[i%APP_AVATARS.length].id;changed=true}
     });
     if(changed)try{save()}catch(e){}
   }
@@ -3814,6 +3813,72 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   if(typeof oldLeave==='function')window.leaveTable=function(){runId++;return oldLeave.apply(this,arguments)};
 
   assignAvatars();
+})();
+</script>
+
+
+<script id="mpTableEntryOnlyFix">
+(function(){
+  'use strict';
+
+  /* ONLY FIX: lobby "Орох дүн" must enter the table normally.
+     Do not force spectator/watch mode here. */
+  function enterTableNormally(id){
+    try{
+      if(!adminAllows('join')) return;
+      if(!currentUser) return toast('Эхлээд нэвтэрнэ үү');
+
+      const t=(db.tables||[]).find(x=>String(x.id)===String(id) && x.open);
+      if(!t) return toast('Ширээ хаалттай байна');
+
+      const buy=Math.max(0,Math.floor(Number(t.buy)||0));
+      if(Number(currentUser.chips||0)<buy) return toast('Орох дүн хүрэхгүй байна');
+
+      const max=Math.max(2,Math.min(10,Math.floor(Number(t.maxPlayers)||10)));
+      const bs=(db.bots||[]).filter(isAdminCreatedBot).slice(0,Math.max(0,max-1));
+
+      currentTable=t;
+      try{ liveDealer=-1; liveSB=-1; liveBB=-1; }catch(e){}
+      currentUser.chips=Math.max(0,Number(currentUser.chips)||0)-buy;
+      currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};
+      currentUser.stats.tables=(Number(currentUser.stats.tables)||0)+1;
+
+      tableSession=true;
+      handNo=0;
+      spectator=false;
+      window.mpChosenVisualSeat=null;
+
+      const emos=['😎','🤖','🧔','👩','🤠','🧑','👨','👩‍🦰','😺','🧑‍🦱'];
+      players=[
+        {name:currentUser.name,chips:buy,emoji:emos[0],user:true},
+        ...bs.map((b,i)=>({
+          name:b.name,
+          chips:Math.max(buy,Number(b.chips)||buy),
+          emoji:emos[i+1]||'🙂',
+          botId:b.id,
+          avatarId:b.avatarId
+        }))
+      ].slice(0,max);
+
+      save();
+      if($('gameName')) $('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');
+      if($('gameBlind')) $('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • '+max+' MAX';
+      show('game');
+      if($('baseActions')) $('baseActions').classList.remove('hidden');
+      if($('raisePanel')) $('raisePanel').classList.add('hidden');
+      newHand();
+    }catch(err){
+      console.error('TABLE ENTRY FIX',err);
+      try{toast('Ширээ рүү ороход алдаа гарлаа')}catch(e){}
+    }
+  }
+
+  /* Current lobby buttons call mpWatchAndChooseSeat(), so point BOTH names
+     to the same normal entry function. */
+  window.mpWatchAndChooseSeat=enterTableNormally;
+  window.join=enterTableNormally;
+  try{mpWatchAndChooseSeat=enterTableNormally}catch(e){}
+  try{join=enterTableNormally}catch(e){}
 })();
 </script>
 
