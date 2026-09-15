@@ -2582,6 +2582,87 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
  setTimeout(setup,0);
 })();
 </script>
+
+<script id="mpAnyRegisteredUserChipFixV2">
+(function(){
+  // Keep Firebase registration keys so admin can credit any registered account.
+  window.mpFlattenRegistrations=function(raw){
+    const out=[]; raw=raw||{};
+    Object.entries(raw).forEach(([uid,bucket])=>{
+      if(!bucket||typeof bucket!=='object')return;
+      const looksLikeRecord=('id' in bucket)||('name' in bucket)||('phone' in bucket);
+      const records=looksLikeRecord?[['__root__',bucket]]:Object.entries(bucket);
+      records.forEach(([key,r])=>{
+        if(r&&typeof r==='object'&&r._type!=='withdrawal'&&(r.id||r.name||r.phone))
+          out.push({...r,_firebaseUid:uid,_firebaseKey:key});
+      });
+    });
+    out.sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0));
+    return out;
+  };
+
+  function norm(v){return String(v||'').trim().toLocaleLowerCase();}
+
+  window.adminAddChips=async function(){
+    if(currentUser?.role!=='admin')return toast('Зөвхөн админ');
+    const typed=String(document.getElementById('chipUserId')?.value||'').trim();
+    const amount=Math.floor(Number(document.getElementById('chipAmount')?.value||0));
+    if(!typed)return toast('Бүртгэлтэй хэрэглэгчийн нэрээ бичнэ үү');
+    if(!Number.isFinite(amount)||amount<=0)return toast('Chip дүнгээ шалгана уу');
+    const k=norm(typed);
+    const users=typeof mpMergedRegisteredUsers==='function'?mpMergedRegisteredUsers():(db.users||[]);
+    const matches=users.filter(u=>u&&u.role!=='admin'&&(norm(u.name)===k||norm(u.id)===k));
+    if(!matches.length)return toast('Бүртгэлтэй хэрэглэгч олдсонгүй');
+    if(matches.length>1)return toast('Ижил нэртэй хэрэглэгч байна — хэрэглэгчийн нэр (ID)-г бичнэ үү');
+    const u=matches[0];
+    const next=Math.max(0,Math.floor(Number(u.chips)||0))+amount;
+    try{
+      if(u._firebaseUid&&u._firebaseKey&&u._firebaseKey!=='__root__'){
+        if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)
+          return toast('Online admin холболт шаардлагатай');
+        await mpRtdb.ref('registrations/'+u._firebaseUid+'/'+u._firebaseKey).update({chips:next,chipUpdatedAt:firebase.database.ServerValue.TIMESTAMP});
+        u.chips=next;
+        const local=(db.users||[]).find(x=>norm(x.id)===norm(u.id));
+        if(local)local.chips=next;
+      }else{
+        const local=(db.users||[]).find(x=>x===u||norm(x.id)===norm(u.id)||norm(x.name)===norm(u.name));
+        if(!local)return toast('Бүртгэлтэй хэрэглэгч олдсонгүй');
+        local.chips=next; u.chips=next;
+      }
+      save(); renderAdmin(); renderHome();
+      toast((u.name||u.id||typed)+' +'+fmt(amount)+' chip');
+    }catch(e){console.warn(e);toast('Chip нэмэхэд холболтын алдаа гарлаа');}
+  };
+
+  // On every user's own device, receive admin chip changes from that user's registration record.
+  let chipSyncRef=null;
+  async function startChipSync(){
+    if(!mpRtdb||!currentUser||currentUser.role==='admin')return;
+    try{
+      const fb=await mpEnsureWriter();
+      if(chipSyncRef){try{chipSyncRef.off()}catch(e){}}
+      chipSyncRef=mpRtdb.ref('registrations/'+fb.uid);
+      chipSyncRef.on('value',snap=>{
+        const bucket=snap.val()||{}; let best=null;
+        Object.values(bucket).forEach(r=>{
+          if(!r||typeof r!=='object'||r._type==='withdrawal')return;
+          if(norm(r.id)===norm(currentUser.id)){
+            if(!best||Number(r.chipUpdatedAt||r.createdAt||0)>=Number(best.chipUpdatedAt||best.createdAt||0))best=r;
+          }
+        });
+        if(best&&Number.isFinite(Number(best.chips))){
+          const local=(db.users||[]).find(x=>String(x.id)===String(currentUser.id));
+          if(local){local.chips=Math.max(0,Math.floor(Number(best.chips)));currentUser=local;save();}
+          try{renderHome();if(document.getElementById('cash')?.classList.contains('active'))renderCash();}catch(e){}
+        }
+      });
+    }catch(e){console.warn('Chip sync failed',e)}
+  }
+  const oldShow=window.show;
+  window.show=function(id){const r=oldShow.apply(this,arguments); if(currentUser&&currentUser.role!=='admin')startChipSync(); return r;};
+  setTimeout(()=>{try{if(currentUser&&currentUser.role!=='admin')startChipSync();}catch(e){}},800);
+})();
+</script>
 </body></html>
 <style id="pokerman-final-table-only">
 /* FINAL: PokerMan-style GAME TABLE ONLY. Other screens/functions untouched. */
