@@ -1782,7 +1782,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       let seatStatus=liveSeatStatus[i]||(folded[i]?'FOLD':'');
       let statusClass=/БҮГДИЙГ НЬ|ALL IN/i.test(seatStatus)?' allin':/RAISE|BET/i.test(seatStatus)?' raise':/FOLD/i.test(seatStatus)?' fold':'';
       const seatClass='s'+String(seatMap[i]??i);
-      return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
+      return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}</div>`
     }).join('');
     const emptySeats=Array.from({length:10},(_,i)=>i).filter(i=>!occupied.has(i)).map(i=>`<button class="emptySeat s${i}" onclick="inviteToPokerTable()" aria-label="Тоглогч дуудах">+</button>`).join('');
     $('seats').innerHTML=playerSeats+emptySeats;
@@ -2442,4 +2442,27 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 #game .s7 .betTag{right:58px!important;left:auto!important;top:22px!important;bottom:auto!important;transform:none!important}
 #game .s8 .betTag{right:58px!important;left:auto!important;top:14px!important;bottom:auto!important;transform:none!important}
 #game .s9 .betTag{right:54px!important;left:auto!important;top:-12px!important;bottom:auto!important;transform:none!important}
+</style>
+<style id="BET-ON-AVATAR-ABSOLUTE-LAST">
+/* LAST override: bet amount overlays the player's emoji/avatar. */
+#game .seat .pic{position:relative!important;overflow:visible!important}
+#game .seat .betTag,
+#game .s0 .betTag,#game .s1 .betTag,#game .s2 .betTag,#game .s3 .betTag,#game .s4 .betTag,
+#game .s5 .betTag,#game .s6 .betTag,#game .s7 .betTag,#game .s8 .betTag,#game .s9 .betTag{
+  position:absolute!important;
+  left:50%!important;right:auto!important;
+  top:8px!important;bottom:auto!important;
+  transform:translateX(-50%)!important;
+  z-index:30!important;
+  min-width:38px!important;
+  padding:2px 5px!important;
+  margin:0!important;
+  white-space:nowrap!important;
+  pointer-events:none!important;
+}
+</style>
+
+<style id="BET-INSIDE-AVATAR-FINAL">
+#game .seat .pic{position:relative!important;overflow:visible!important}
+#game .seat .pic>.betTag{position:absolute!important;left:50%!important;right:auto!important;top:-12px!important;bottom:auto!important;transform:translateX(-50%)!important;z-index:40!important;min-width:40px!important;margin:0!important;white-space:nowrap!important;pointer-events:none!important}
 </style>
