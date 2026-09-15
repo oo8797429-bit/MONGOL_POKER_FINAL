@@ -2465,7 +2465,52 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 .mpBehind:after{display:none!important}
 .mpBehindInner{display:none!important}
 </style>
-\n<script id="mpSeatCountAndJoinFixV1">\n(function(){\n  // Lobby count = players actually occupying seats (admin-created bots).\n  // The browsing/current user is NOT counted until they successfully sit.\n  window.mpSeatCount=function(t){\n    return Math.min(10,(db.bots||[]).filter(isAdminCreatedBot).length);\n  };\n\n  window.join=function(id){\n    if(!adminAllows('join'))return;\n    const t=db.tables.find(x=>x.id===id&&x.open);\n    if(!t)return;\n    const seated=mpSeatCount(t);\n    const full=seated>=10;\n    const poor=Number(currentUser?.chips||0)<Number(t.buy||0);\n    if(full||poor){ mpEnterSpectator(t); return; }\n\n    currentTable=t; liveDealer=-1; liveSB=-1; liveBB=-1;\n    currentUser.chips-=t.buy;\n    currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};\n    currentUser.stats.tables++; tableSession=true; handNo=0; spectator=false;\n\n    const emos=['😎','🤖','🧔','👩','🤠','🧑','👨','👩‍🦰','😺','🧑‍🦱'];\n    const room=Math.max(0,9);\n    const bs=(db.bots||[]).filter(isAdminCreatedBot).slice(0,room);\n    players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},\n      ...bs.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))\n    ].slice(0,10);\n    save();\n    $('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');\n    $('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);\n    show('game'); newHand();\n  };\n\n  // Refresh lobby immediately when this patch loads.\n  try{ if(document.getElementById('tables')?.classList.contains('active')) renderTables(); }catch(e){}\n})();\n</script>\n</body></html>
+\n<script id="mpSeatCountAndJoinFixV1">\n(function(){\n  // Lobby count = players actually occupying seats (admin-created bots).\n  // The browsing/current user is NOT counted until they successfully sit.\n  window.mpSeatCount=function(t){\n    return Math.min(10,(db.bots||[]).filter(isAdminCreatedBot).length);\n  };\n\n  window.join=function(id){\n    if(!adminAllows('join'))return;\n    const t=db.tables.find(x=>x.id===id&&x.open);\n    if(!t)return;\n    const seated=mpSeatCount(t);\n    const full=seated>=10;\n    const poor=Number(currentUser?.chips||0)<Number(t.buy||0);\n    if(full||poor){ mpEnterSpectator(t); return; }\n\n    currentTable=t; liveDealer=-1; liveSB=-1; liveBB=-1;\n    currentUser.chips-=t.buy;\n    currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};\n    currentUser.stats.tables++; tableSession=true; handNo=0; spectator=false;\n\n    const emos=['😎','🤖','🧔','👩','🤠','🧑','👨','👩‍🦰','😺','🧑‍🦱'];\n    const room=Math.max(0,9);\n    const bs=(db.bots||[]).filter(isAdminCreatedBot).slice(0,room);\n    players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},\n      ...bs.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))\n    ].slice(0,10);\n    save();\n    $('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');\n    $('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);\n    show('game'); newHand();\n  };\n\n  // Refresh lobby immediately when this patch loads.\n  try{ if(document.getElementById('tables')?.classList.contains('active')) renderTables(); }catch(e){}\n})();\n</script>\n
+<style id="mpAdminChipPickerStyle">
+#adminUsers .mpChipUserPick{display:block;width:100%;text-align:left;background:#171b1d;border:1px solid #343a3d;border-radius:8px;color:#fff;padding:10px;margin:7px 0;cursor:pointer}
+#adminUsers .mpChipUserPick.selected{border-color:#18c979;box-shadow:0 0 0 1px #18c979 inset;background:#10241b}
+#adminUsers .mpChipUserPick b{font-size:12px}#adminUsers .mpChipUserPick span{display:block;color:#aeb6b9;font-size:10px;margin-top:3px}
+#chipUserId{background:#101415!important;border-color:#465055!important}
+</style>
+<script id="mpAdminChipPickerFixV1">
+(function(){
+  let selectedChipUserId='';
+  function esc(v){return String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}
+  window.mpSelectChipUser=function(id){
+    selectedChipUserId=String(id||'');
+    const inp=document.getElementById('chipUserId'); if(inp) inp.value=selectedChipUserId;
+    document.querySelectorAll('#adminUsers .mpChipUserPick').forEach(x=>x.classList.toggle('selected',x.dataset.uid===selectedChipUserId));
+    const amount=document.getElementById('chipAmount'); if(amount){amount.focus();amount.select?.()}
+  };
+  const oldRender=window.renderAdmin;
+  window.renderAdmin=function(){
+    oldRender?.apply(this,arguments);
+    if(currentUser?.role!=='admin')return;
+    const host=document.getElementById('adminUsers'); if(!host)return;
+    const users=(db.users||[]).filter(u=>u.role!=='admin');
+    host.innerHTML=users.length?users.map(u=>`<button type="button" class="mpChipUserPick${String(u.id)===selectedChipUserId?' selected':''}" data-uid="${esc(u.id)}" onclick="mpSelectChipUser('${String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><b>👤 ${esc(u.name||u.id)}</b><span>🆔 ${esc(u.id)} &nbsp; • &nbsp; 💰 ${fmt(u.chips||0)} chip</span><span>📱 ${esc(u.phone||'-')} &nbsp; 🏦 ${esc(u.bank||'-')}</span></button>`).join(''):'<div class="empty">Бүртгэлтэй тоглогч алга</div>';
+    const inp=document.getElementById('chipUserId');
+    if(inp){inp.placeholder='Доорх тоглогчоос сонгоно уу';inp.readOnly=true;if(selectedChipUserId)inp.value=selectedChipUserId;}
+  };
+  window.adminAddChips=function(){
+    if(currentUser?.role!=='admin')return toast('Зөвхөн админ');
+    const id=selectedChipUserId||String(document.getElementById('chipUserId')?.value||'').trim();
+    const a=Math.floor(Number(document.getElementById('chipAmount')?.value||0));
+    if(!id)return toast('Эхлээд тоглогчоо сонгоно уу');
+    if(!Number.isFinite(a)||a<=0)return toast('Chip дүнгээ шалгана уу');
+    const u=(db.users||[]).find(x=>String(x.id)===id&&x.role!=='admin');
+    if(!u)return toast('Тоглогч олдсонгүй');
+    u.chips=Math.max(0,Math.floor(Number(u.chips)||0))+a;
+    save();
+    const nm=u.name||u.id;
+    selectedChipUserId='';
+    const inp=document.getElementById('chipUserId');if(inp)inp.value='';
+    renderAdmin();renderHome();
+    toast(nm+' +'+fmt(a)+' chip');
+  };
+})();
+</script>
+</body></html>
 <style id="pokerman-final-table-only">
 /* FINAL: PokerMan-style GAME TABLE ONLY. Other screens/functions untouched. */
 #game.game{background:#090b0d!important}
