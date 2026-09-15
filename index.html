@@ -3203,3 +3203,182 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 </script>
 
 
+
+<script id="mpChooseOwnSeatOnlyV1">
+(function(){
+  /* ONLY CHANGE: table entry opens as spectator; the user chooses an empty + seat to sit. */
+  window.mpChosenVisualSeat = null;
+
+  function currentUserIsSeated(){
+    return Array.isArray(players) && players.some(p=>p&&p.user);
+  }
+  function tableMaxPlayers(){
+    return Math.max(2,Math.min(10,Math.floor(Number(currentTable?.maxPlayers)||10)));
+  }
+  function getSeatNo(el){
+    const m=String(el?.className||'').match(/\bs(\d+)\b/);
+    return m?Number(m[1]):-1;
+  }
+  function setSeatNo(el,n){
+    if(!el||n<0)return;
+    el.className=String(el.className||'').replace(/\bs\d+\b/g,'').replace(/\s+/g,' ').trim()+' s'+n;
+  }
+
+  function applyChosenSeatVisual(){
+    if(!currentUserIsSeated()||mpChosenVisualSeat==null)return;
+    const userSeat=document.querySelector('#game .seat[data-seat-index="0"]');
+    if(!userSeat)return;
+    const chosen=Number(mpChosenVisualSeat), old=getSeatNo(userSeat);
+    if(chosen<0||chosen>9||old===chosen)return;
+    const other=[...document.querySelectorAll('#game .seat')].find(el=>el!==userSeat&&getSeatNo(el)===chosen);
+    if(other){
+      setSeatNo(other,old);
+      setSeatNo(userSeat,chosen);
+    }else{
+      const chosenEmpty=[...document.querySelectorAll('#game .emptySeat')].find(el=>getSeatNo(el)===chosen);
+      if(chosenEmpty)setSeatNo(chosenEmpty,old);
+      setSeatNo(userSeat,chosen);
+    }
+  }
+
+  function wireEmptySeatButtons(){
+    const selecting=!!currentTable && !!spectator && !currentUserIsSeated();
+    document.querySelectorAll('#game .emptySeat').forEach(btn=>{
+      const seatNo=getSeatNo(btn);
+      btn.removeAttribute('onclick');
+      btn.onclick=function(ev){
+        ev.preventDefault();ev.stopPropagation();
+        if(selecting) return window.mpChoosePokerSeat(seatNo);
+        if(typeof inviteToPokerTable==='function') return inviteToPokerTable();
+      };
+      btn.title=selecting?'Энэ суудалд суух':'Тоглогч дуудах';
+      btn.setAttribute('aria-label',selecting?'Суудал сонгох':'Тоглогч дуудах');
+    });
+  }
+
+  window.mpChoosePokerSeat=function(seatNo){
+    if(!currentUser||!currentTable||!tableSession)return toast('Ширээ сонгоогүй байна');
+    if(currentUserIsSeated())return toast('Та аль хэдийн суусан байна');
+    if(!spectator)return;
+    seatNo=Math.max(0,Math.min(9,Math.floor(Number(seatNo))));
+    const max=tableMaxPlayers();
+    if((players||[]).length>=max)return toast('Ширээ дүүрсэн байна');
+    const buy=Math.max(0,Math.floor(Number(currentTable.buy)||0));
+    if(Number(currentUser.chips||0)<buy)return toast('Орох дүн хүрэхгүй байна');
+
+    currentUser.chips=Math.max(0,Number(currentUser.chips)||0)-buy;
+    currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};
+    currentUser.stats.tables=(Number(currentUser.stats.tables)||0)+1;
+    window.mpChosenVisualSeat=seatNo;
+
+    const me={name:currentUser.name,chips:buy,emoji:'😎',user:true};
+    players=[me,...(players||[]).filter(p=>p&&!p.user)].slice(0,max);
+    spectator=false;
+    try{document.querySelector('.mpSpectatorBadge')?.remove()}catch(e){}
+    save();
+    if($('baseActions'))$('baseActions').classList.remove('hidden');
+    if($('raisePanel'))$('raisePanel').classList.add('hidden');
+    setStatus('Суудал сонгогдлоо • Шинэ гар эхэлнэ');
+    newHand();
+    toast('Суудал '+(seatNo+1)+' • '+fmt(buy)+' chip');
+  };
+
+  /* Always ENTER first as a spectator. No chip deduction happens here. */
+  window.join=function(id){
+    if(!adminAllows('join'))return;
+    const t=(db.tables||[]).find(x=>String(x.id)===String(id)&&x.open);
+    if(!t)return;
+    window.mpChosenVisualSeat=null;
+    if(typeof mpEnterSpectator==='function'){
+      mpEnterSpectator(t);
+      setStatus('Тоглолт үзэж байна • Хоосон + суудлаас сонгож сууна уу');
+      renderGame();
+      return;
+    }
+  };
+
+  /* Keep the chosen visual chair after every game redraw. */
+  const prevRenderGame=window.renderGame;
+  window.renderGame=function(){
+    const r=prevRenderGame?.apply(this,arguments);
+    try{applyChosenSeatVisual();wireEmptySeatButtons();}catch(e){console.warn('Seat chooser render',e)}
+    return r;
+  };
+
+  /* Leaving while only watching must never refund another player's/bot's stack. */
+  window.leaveTable=function(){
+    try{
+      const me=(players||[]).find(p=>p&&p.user);
+      if(me&&currentUser)currentUser.chips=Math.max(0,Number(currentUser.chips)||0)+Math.max(0,Number(me.chips)||0);
+      syncUser();
+    }catch(e){}
+    players=[];tableSession=false;spectator=false;window.mpChosenVisualSeat=null;save();currentTable=null;closeSide();show('tables');
+  };
+
+  /* Add-money remains unchanged after sitting; block it while only watching. */
+  const prevOpenAddMoney=window.openAddMoney;
+  window.openAddMoney=function(){
+    if(spectator&&!currentUserIsSeated())return toast('Эхлээд + суудлаас сонгож сууна уу');
+    return prevOpenAddMoney?.apply(this,arguments);
+  };
+})();
+</script>
+
+<script id="mpWatchThenChooseSeatHardFixV2">
+(function(){
+  /* ONLY FIX: lobby entry always opens the table in watch mode first.
+     The user buys in only after tapping an empty + chair. */
+  function mpWatchAndChooseSeat(id){
+    if(!adminAllows('join'))return;
+    const t=(db.tables||[]).find(x=>String(x.id)===String(id)&&x.open);
+    if(!t)return;
+    window.mpChosenVisualSeat=null;
+    if(typeof mpEnterSpectator!=='function')return toast('Тоглолт үзэх горим бэлэн биш байна');
+    mpEnterSpectator(t);
+    spectator=true;
+    if($('baseActions'))$('baseActions').classList.add('hidden');
+    if($('raisePanel'))$('raisePanel').classList.add('hidden');
+    setStatus('Тоглолт үзэж байна • Хоосон + суудлаас сонгож сууна уу');
+    try{renderGame()}catch(e){}
+  }
+  window.mpWatchAndChooseSeat=mpWatchAndChooseSeat;
+
+  /* Important: reassign BOTH the global binding and window property.
+     Some existing inline onclick handlers resolve the original global binding. */
+  try{join=mpWatchAndChooseSeat}catch(e){}
+  window.join=mpWatchAndChooseSeat;
+
+  /* Preserve the current lobby design/settings; change only the entry action. */
+  window.renderTables=function(){
+    (db.tables||[]).forEach(t=>{if(typeof defaults==='function')try{defaults(t)}catch(e){}});
+    $('tableCount').textContent=(db.tables||[]).length+' ШИРЭЭ';
+    $('tableList').innerHTML=(db.tables||[]).map((t,i)=>{
+      const max=Math.max(2,Math.min(10,Math.floor(Number(t.maxPlayers)||10)));
+      const n=typeof mpSeatCount==='function'?mpSeatCount(t):Math.min(max,(db.bots||[]).filter(isAdminCreatedBot).length);
+      const full=n>=max;
+      const waiting=typeof mpIsWaiting==='function'?mpIsWaiting(t.id):false;
+      const safeId=String(t.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      const safeName=typeof esc==='function'?esc(t.name):String(t.name||'');
+      const rake=Number(t.rakePercent ?? db.rake?.percent ?? 1);
+      const secs=Math.max(5,Math.floor(Number(t.turnSeconds)||20));
+      return `<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${safeName} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE ${rake}%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${n}/${max} &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)} &nbsp; ⏱ ${secs}с</div>${full&&typeof toggleTableWaiting==='function'?`<button class="mpWaitBtn ${waiting?'on':''}" onclick="event.stopPropagation();toggleTableWaiting('${safeId}')">${waiting?'✓ ХҮЛЭЭЛЭГТ БАЙНА':'⏳ ШИРЭЭНИЙ ХҮЛЭЭЛЭГ'}</button>`:''}</div><div class="join"><button ${t.open?'':'disabled'} onclick="mpWatchAndChooseSeat('${safeId}')">${full?'ТОГЛОЛТ ҮЗЭХ':'Орох дүн<br>'+fmt(t.buy)}</button></div></div>`;
+    }).join('')+`<div class="mpBehind"><div class="mpBehindInner"><div class="mpBehindCards">♠️ ♥️ ♣️ ♦️</div><div class="mpBehindTitle">ШИРЭЭНИЙ ЦААНА</div><div class="mpBehindSub">MONGOL POKER</div><span class="mpBehindChip"></span></div></div>`;
+  };
+
+  /* Belt-and-suspenders: while watching, every empty + is a seat chooser,
+     never the old invite/share action. */
+  document.addEventListener('click',function(ev){
+    const btn=ev.target&&ev.target.closest?ev.target.closest('#game .emptySeat'):null;
+    if(!btn||!spectator)return;
+    const seated=Array.isArray(players)&&players.some(p=>p&&p.user);
+    if(seated)return;
+    const m=String(btn.className||'').match(/\\bs(\\d+)\\b/);
+    if(!m)return;
+    ev.preventDefault();ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    if(typeof mpChoosePokerSeat==='function')mpChoosePokerSeat(Number(m[1]));
+  },true);
+
+  try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}
+})();
+</script>
