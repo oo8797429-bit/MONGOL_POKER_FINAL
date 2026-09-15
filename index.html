@@ -2397,6 +2397,62 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   min-width:42px!important;white-space:nowrap!important;pointer-events:none!important;
 }
 </style>
+
+<style id="mpWaitingSpectatorVisualV1">
+/* Lobby waiting/spectator additions only */
+#tableList .tableRow{position:relative}
+.mpWaitBtn{margin-top:6px!important;width:100%!important;background:#20282b!important;border:1px solid #4b5b60!important;color:#e9f0ee!important;border-radius:5px!important;padding:7px 5px!important;font-weight:800!important;font-size:10px!important}
+.mpWaitBtn.on{border-color:#19c879!important;color:#70efad!important;background:#103126!important}
+.mpBehind{height:clamp(250px,52vh,560px);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border-top:1px solid #273035;background:radial-gradient(ellipse at center,#142326 0%,#0c1214 58%,#090d0f 100%)}
+.mpBehind:before,.mpBehind:after{content:'';position:absolute;border:1px solid #1fcf7a44;border-radius:50%;width:210px;height:210px;animation:mpRing 4s ease-in-out infinite}
+.mpBehind:after{width:290px;height:290px;animation-delay:-2s}
+@keyframes mpRing{0%,100%{transform:scale(.82);opacity:.12}50%{transform:scale(1.08);opacity:.42}}
+.mpBehindInner{position:relative;text-align:center;z-index:2;animation:mpBehindFloat 2.8s ease-in-out infinite}
+.mpBehindCards{font-size:34px;letter-spacing:7px;filter:drop-shadow(0 4px 8px #000);margin-bottom:10px}
+.mpBehindTitle{font:900 27px/1 Arial,sans-serif;letter-spacing:3px;color:#e8f4ef;text-shadow:0 0 18px #1ed57c55}
+.mpBehindSub{margin-top:9px;font:800 11px Arial;color:#18c878;letter-spacing:2px}
+.mpBehindChip{display:inline-block;width:28px;height:28px;border-radius:50%;margin-top:15px;border:4px dashed #d9b33c;background:#70540d;box-shadow:0 0 14px #d9b33c55;animation:mpChipSpin 5s linear infinite}
+@keyframes mpChipSpin{to{transform:rotate(360deg)}}
+@keyframes mpBehindFloat{50%{transform:translateY(-8px)}}
+.mpSpectatorBadge{position:fixed;left:50%;top:72px;transform:translateX(-50%);z-index:999;background:#0d2b20e8;border:1px solid #20cc7b;color:#8cf2bb;padding:7px 13px;border-radius:18px;font:800 11px Arial;box-shadow:0 4px 14px #0008}
+</style>
+<script id="mpWaitingSpectatorLogicV1">
+(function(){
+  function waitKey(id){return 'mp_wait_'+String(id)}
+  window.mpSeatCount=function(t){return Math.min(10,1+(db.bots||[]).filter(isAdminCreatedBot).length)};
+  window.mpIsWaiting=function(id){try{return localStorage.getItem(waitKey(id))==='1'}catch(e){return false}};
+  window.toggleTableWaiting=function(id){
+    if(!currentUser)return toast('Эхлээд нэвтэрнэ үү');
+    const on=!mpIsWaiting(id);try{localStorage.setItem(waitKey(id),on?'1':'0')}catch(e){}
+    toast(on?'Ширээний хүлээлэгт орлоо':'Хүлээлгээс гарлаа');renderTables();
+  };
+  window.renderTables=function(){
+    $('tableCount').textContent=db.tables.length+' ШИРЭЭ';
+    $('tableList').innerHTML=db.tables.map((t,i)=>{
+      const n=mpSeatCount(t), full=n>=10, waiting=mpIsWaiting(t.id);
+      return `<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${t.name} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${n}/10 &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)}</div>${full?`<button class="mpWaitBtn ${waiting?'on':''}" onclick="toggleTableWaiting('${t.id}')">${waiting?'✓ ХҮЛЭЭЛЭГТ БАЙНА':'⏳ ШИРЭЭНИЙ ХҮЛЭЭЛЭГ'}</button>`:''}</div><div class="join"><button ${t.open?'':'disabled'} onclick="join('${t.id}')">${full?'ТОГЛОЛТ ҮЗЭХ':'Орох дүн<br>'+fmt(t.buy)}</button></div></div>`;
+    }).join('')+`<div class="mpBehind"><div class="mpBehindInner"><div class="mpBehindCards">♠️ ♥️ ♣️ ♦️</div><div class="mpBehindTitle">ШИРЭЭНИЙ ЦААНА</div><div class="mpBehindSub">MONGOL POKER</div><span class="mpBehindChip"></span></div></div>`;
+  };
+  window.mpEnterSpectator=function(t){
+    currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;tableSession=true;handNo=0;spectator=true;
+    const emos=['😎','🤖','🧔','👩','🤠','🧑','👨','👩‍🦰','😺','🧑‍🦱'];
+    const bs=(db.bots||[]).filter(isAdminCreatedBot).slice(0,9);
+    players=bs.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}));
+    if(!players.length)players=[{name:'Ширээ',chips:t.buy,emoji:'😎'}];
+    deck=makeDeck();boardCards=[];street=0;potAmt=0;finished=false;holes=players.map(()=>t.type==='omaha'?[deck.pop(),deck.pop(),deck.pop(),deck.pop()]:[deck.pop(),deck.pop()]);folded=players.map(()=>false);
+    $('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');
+    $('baseActions').classList.add('hidden');$('raisePanel').classList.add('hidden');setStatus('Тоглолт үзэх горим');renderGame();
+    let old=document.querySelector('.mpSpectatorBadge');if(old)old.remove();let b=document.createElement('div');b.className='mpSpectatorBadge';b.textContent='👁 ТОГЛОЛТ ҮЗЭЖ БАЙНА';document.body.appendChild(b);setTimeout(()=>b.remove(),2600);autoSpectate();
+  };
+  window.join=function(id){
+    if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;
+    const full=mpSeatCount(t)>=10, poor=Number(currentUser?.chips||0)<Number(t.buy||0);
+    if(full||poor){mpEnterSpectator(t);return}
+    currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;
+    let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=db.bots.filter(isAdminCreatedBot).slice(0,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand();
+  };
+})();
+</script>
 </body></html>
 <style id="pokerman-final-table-only">
 /* FINAL: PokerMan-style GAME TABLE ONLY. Other screens/functions untouched. */
