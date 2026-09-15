@@ -1116,7 +1116,7 @@ function renderRegisteredUsers(){
 }
 setInterval(updateMiniHeader,30000);
 function renderHome(){updateMiniHeader();if($('uName'))$('uName').textContent=currentUser?.name||'';if($('homeAccText'))$('homeAccText').textContent=currentUser?.name||currentUser?.id||'ACC';if($('homeAccBal'))$('homeAccBal').textContent=fmt(currentUser?.chips||0);if($('homeAccStars')){let total=7,filled=Math.max(0,Math.min(total,Number(currentUser?.stars)||0));$('homeAccStars').innerHTML='';for(let i=0;i<total;i++){let s=document.createElement('span');s.textContent='★';s.style.color=i<filled?'#f2d34f':'#586067';$('homeAccStars').appendChild(s)}}if($('uBal'))$('uBal').textContent=fmt(db.jackpot||0);if(jpAnimValue===null)jpAnimValue=Number(db.jackpot||0);if(!jpAnimTimer)startJackpotAnimation();if($('adminMenuItem'))$('adminMenuItem').classList.toggle('hidden',currentUser?.role!=='admin')}
-function renderTables(){let adminBotCount=Math.min(7,db.bots.filter(isAdminCreatedBot).length);$('tableCount').textContent=db.tables.length+' ШИРЭЭ';$('tableList').innerHTML=db.tables.map((t,i)=>`<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${t.name} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${adminBotCount}/10 &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)}</div></div><div class="join"><button ${t.open?'':'disabled'} onclick="join('${t.id}')">Орох дүн<br>${fmt(t.buy)}</button></div></div>`).join('')}
+function renderTables(){let seatedCount=Math.min(10,1+db.bots.filter(isAdminCreatedBot).length);$('tableCount').textContent=db.tables.length+' ШИРЭЭ';$('tableList').innerHTML=db.tables.map((t,i)=>`<div class="tableRow"><div class="stripe ${t.color==='blue'?'blue':t.color==='green'?'green':''}"></div><div class="tableMain"><div class="tableName ${t.color==='blue'?'blue':t.color==='green'?'green':''}">${t.name} ${t.type==='omaha'?'♦ OMAHA':'♠ HOLDEM'} 🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta">Дундаж бооцоо: ${fmt(t.bb*(20+i*7))}<br>👥 ${seatedCount}/10 &nbsp; 🪙 ${fmt(t.sb)}/${fmt(t.bb)}</div></div><div class="join"><button ${t.open?'':'disabled'} onclick="join('${t.id}')">Орох дүн<br>${fmt(t.buy)}</button></div></div>`).join('')}
 const tours=[['FREEROLL - 100K','100,000','Үнэгүй'],['УЛААН 500,000₮ BUY IN','100,000','1,000'],['FREEROLL - 100K','100,000','Тоглож байна'],['ШАР 1,500,000₮ BUY IN','50,000','✓'],['FREEROLL - 100K','100,000','✓'],['УЛААН 500,000₮ BUY IN','50,000','✓']];
 function renderTours(){$('tourList').innerHTML=tours.map((t,i)=>`<div class="tourRow"><div class="clock">${i<3?'11:37':'✓'}</div><div class="tourMain"><div class="tourTitle">🏆 ${t[0]}</div><div class="tourMeta">💰 ${t[1]}<br>👥 ${12+i*9}</div></div><div class="tourAction"><button onclick="tourAction(${i})">${t[2]}</button></div></div>`).join('')}
 function renderCash(){
@@ -1712,9 +1712,18 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   function showdownSeatLabel(i){let x=showdownInfo[i];return finished&&x&&!folded[i]?`<div class="handLabel">${x.name}</div>`:''}
 
   join=function(id){
-    if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');
-    currentTable=t;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;
-    db.bots=db.bots.filter(isAdminCreatedBot);save();let emos=['😎','🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','👨‍🦱','🐱'],bots9=db.bots.filter(isAdminCreatedBot).slice(0,9);
+    if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;
+    currentTable=t;tableSession=true;handNo=0;db.bots=db.bots.filter(isAdminCreatedBot);
+    let emos=['😎','🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','👨‍🦱','🐱'],bots9=db.bots.filter(isAdminCreatedBot).slice(0,9);
+    const watchOnly=Number(currentUser.chips)<Number(t.buy);
+    if(watchOnly){
+      /* Not enough chips: enter the table as a spectator. No buy-in is deducted and no seat/action is given. */
+      players=bots9.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}));
+      dealSessionToken++;burnedCards=[];if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand=''};
+      save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 10 MAX';show('game');newHand();
+      spectator=true;$('baseActions').classList.add('hidden');$('raisePanel').classList.add('hidden');setStatus('Тоглолт үзэх горим • Chip шаардахгүй');renderGame();autoSpectate();return;
+    }
+    currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;
     /* Only bots explicitly created from the Admin panel may occupy seats. No automatic/filler players. */
     players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots9.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))];
     dealSessionToken++;burnedCards=[];if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand=''};
