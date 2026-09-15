@@ -2378,6 +2378,16 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
  #game .s1{left:9%!important} #game .s7{right:9%!important}
 }
 </style>
+
+<style id="bet-on-avatar-final">
+/* Bet amount sits on each player's avatar; seat coordinates stay untouched. */
+#game .seat .pic{position:relative!important}
+#game .betTag{
+  left:50%!important;right:auto!important;top:-10px!important;bottom:auto!important;
+  transform:translate(-50%,-100%)!important;z-index:12!important;
+  min-width:42px!important;white-space:nowrap!important;pointer-events:none!important;
+}
+</style>
 </body></html>
 <style id="pokerman-final-table-only">
 /* FINAL: PokerMan-style GAME TABLE ONLY. Other screens/functions untouched. */
