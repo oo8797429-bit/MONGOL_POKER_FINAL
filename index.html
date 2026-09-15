@@ -2932,6 +2932,98 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   setTimeout(()=>{if(currentUser)mpStartTableConfigSync()},900);
 })();
 </script>
+
+<script id="mpShowdownExplainV1">
+(function(){
+  function rk(v){return typeof rank==='function'?rank(v):String(v||'');}
+  function explainHandFromScore(score){
+    if(!score||!score.length)return '-';
+    const c=score[0];
+    if(c===8) return score[1]===14 ? 'Royal Flush' : 'Straight Flush • '+rk(score[1])+' high';
+    if(c===7) return 'Four of a Kind • '+rk(score[1]);
+    if(c===6) return 'Full House • '+rk(score[1])+' over '+rk(score[2]);
+    if(c===5) return 'Flush • '+rk(score[1])+' high';
+    if(c===4) return 'Straight • '+rk(score[1])+' high';
+    if(c===3) return 'Three of a Kind • '+rk(score[1])+' • kicker '+[score[2],score[3]].filter(Boolean).map(rk).join('-');
+    if(c===2) return 'Two Pair • '+rk(score[1])+' & '+rk(score[2])+' • kicker '+rk(score[3]);
+    if(c===1) return 'Pair • '+rk(score[1])+' • kicker '+[score[2],score[3],score[4]].filter(Boolean).map(rk).join('-');
+    return 'High Card • '+[score[1],score[2],score[3],score[4],score[5]].filter(Boolean).map(rk).join('-');
+  }
+  function compactExplain(h){return explainHandFromScore(h?.score||[])}
+  function winnerExplainLines(){
+    if(!(finished&&showdownWinners&&showdownWinners.length&&showdownInfo&&showdownInfo.length)) return [];
+    const alive=(players||[]).map((_,i)=>i).filter(i=>!folded[i]);
+    const primaryWinner=showdownWinners[0];
+    const winHand=showdownInfo[primaryWinner];
+    const lines=[];
+    lines.push((showdownWinners.map(i=>players[i]?.name).join(', '))+' яллаа — '+compactExplain(winHand));
+    const others=alive.filter(i=>!showdownWinners.includes(i)).slice(0,3);
+    others.forEach(i=>{
+      lines.push((players[i]?.name||'')+' — '+compactExplain(showdownInfo[i]));
+    });
+    return lines;
+  }
+
+  const _bestHandFor = typeof bestHandFor==='function' ? bestHandFor : null;
+  if(_bestHandFor){
+    bestHandFor=function(i){
+      const out=_bestHandFor(i);
+      if(out){ out.explain=compactExplain(out); }
+      return out;
+    };
+  }
+
+  showdownSeatLabel=function(i){
+    let x=showdownInfo[i];
+    return finished&&x&&!folded[i]?`<div class="handLabel" title="${x.cardsText||''}">${x.explain||compactExplain(x)}</div>`:'';
+  };
+
+  const _renderGame = typeof renderGame==='function' ? renderGame : null;
+  if(_renderGame){
+    renderGame=function(){
+      _renderGame();
+      let oldBanner=document.querySelector('#game .showdownBanner');
+      if(oldBanner) oldBanner.remove();
+      if(finished&&showdownWinners.length&&showdownInfo.length){
+        const primary=showdownInfo[showdownWinners[0]];
+        const b=document.createElement('div');
+        b.className='showdownBanner';
+        b.innerHTML=`<b>${showdownWinners.map(i=>players[i]?.name).join(', ')} яллаа</b>${primary?.explain||compactExplain(primary)}<br><span style="font-size:8px;color:#d4ddd7">${primary?.cardsText||''}</span>`;
+        $('pokerTable')?.appendChild(b);
+      }
+      const foot=$('tableFootInfo');
+      if(foot){
+        if(finished&&showdownWinners.length&&showdownInfo.length){
+          const lines=winnerExplainLines();
+          foot.innerHTML = lines.map((x,idx)=> idx===0?('<b>'+x+'</b>'):x).join('<br>');
+        }
+      }
+    }
+  }
+
+  showdown=function(){
+    stopUserTurnClock();
+    completeBoardToRiver();
+    let alive=players.map((_,i)=>i).filter(i=>!folded[i]);
+    showdownInfo=players.map((_,i)=>alive.includes(i)?bestHandFor(i):null);
+    let best=null;for(let i of alive){if(!best||cmpScore(showdownInfo[i].score,best.score)>0)best=showdownInfo[i]}
+    showdownWinners=alive.filter(i=>cmpScore(showdownInfo[i].score,best.score)===0);
+    let p=takeRakeFromPot(),share=Math.floor(p.net/showdownWinners.length),rem=p.net-share*showdownWinners.length;
+    showdownWinners.forEach((i,k)=>players[i].chips+=share+(k===0?rem:0));
+    if(showdownWinners.includes(0)&&currentUser){
+      currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};
+      currentUser.stats.wins++;
+      currentUser.cgp=Math.max(0,Number(currentUser.cgp)||0)+4;
+      currentUser.stars=Math.floor(currentUser.cgp/100);
+    }
+    potAmt=0;finished=true;liveWinner=showdownWinners[0]??-1;
+    let winNames=showdownWinners.map(i=>players[i].name).join(', '),explain=compactExplain(best);
+    setStatus(winNames+' яллаа — '+explain+' • +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');
+    renderGame();syncUser();scheduleNextHand(4200)
+  };
+})();
+</script>
+
 </body></html>
 <style id="pokerman-final-table-only">
 /* FINAL: PokerMan-style GAME TABLE ONLY. Other screens/functions untouched. */
