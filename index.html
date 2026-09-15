@@ -2510,6 +2510,41 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   };
 })();
 </script>
+
+<style id="mpChipPlayerSelectOnlyStyle">
+#chipUserId{width:100%;height:44px;background:#101415;color:#fff;border:1px solid #465055;border-radius:4px;padding:0 12px;font-size:14px}
+</style>
+<script id="mpChipPlayerSelectOnlyFix">
+(function(){
+  function fillChipPlayerSelect(){
+    if(currentUser?.role!=='admin') return;
+    let el=document.getElementById('chipUserId'); if(!el)return;
+    if(el.tagName!=='SELECT'){
+      const sel=document.createElement('select'); sel.id='chipUserId'; sel.setAttribute('aria-label','Chip нэмэх тоглогч');
+      el.replaceWith(sel); el=sel;
+    }
+    const keep=el.value;
+    const users=(db.users||[]).filter(u=>u.role!=='admin');
+    el.innerHTML='<option value="">Тоглогчоо сонгоно уу</option>'+users.map(u=>'<option value="'+String(u.id).replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'">'+String(u.name||u.id)+' — '+fmt(u.chips||0)+' chip</option>').join('');
+    if(users.some(u=>String(u.id)===keep)) el.value=keep;
+  }
+  const prev=window.renderAdmin;
+  window.renderAdmin=function(){ if(prev) prev.apply(this,arguments); fillChipPlayerSelect(); };
+  window.mpSelectChipUser=function(id){ const el=document.getElementById('chipUserId'); if(el){el.value=String(id||''); el.dispatchEvent(new Event('change',{bubbles:true}));} };
+  window.adminAddChips=function(){
+    if(currentUser?.role!=='admin')return toast('Зөвхөн админ');
+    const id=String(document.getElementById('chipUserId')?.value||'').trim();
+    const a=Math.floor(Number(document.getElementById('chipAmount')?.value||0));
+    if(!id)return toast('Эхлээд тоглогчоо сонгоно уу');
+    if(!Number.isFinite(a)||a<=0)return toast('Chip дүнгээ шалгана уу');
+    const u=(db.users||[]).find(x=>String(x.id)===id&&x.role!=='admin');
+    if(!u)return toast('Тоглогч олдсонгүй');
+    u.chips=Math.max(0,Math.floor(Number(u.chips)||0))+a; save();
+    const nm=u.name||u.id; renderAdmin(); renderHome(); toast(nm+' +'+fmt(a)+' chip');
+  };
+  setTimeout(fillChipPlayerSelect,0);
+})();
+</script>
 </body></html>
 <style id="pokerman-final-table-only">
 /* FINAL: PokerMan-style GAME TABLE ONLY. Other screens/functions untouched. */
