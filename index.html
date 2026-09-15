@@ -3881,4 +3881,119 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 })();
 </script>
 
+
+<script id="mpAdminChipCloudSyncV1">
+(function(){
+  let adminChipRef=null;
+  let adminChipStarted=false;
+  let applyingRemote=false;
+  let lastRemoteChip=null;
+
+  function localAdmin(){
+    if(typeof db==='undefined'||!db?.users)return null;
+    return db.users.find(u=>u&&u.role==='admin') || db.users.find(u=>u&&u.id==='admin') || null;
+  }
+
+  function currentAdminChip(){
+    const u=localAdmin();
+    return Math.max(0,Math.floor(Number((currentUser?.role==='admin'?currentUser?.chips:u?.chips)||0)));
+  }
+
+  function applyAdminChip(v){
+    const chips=Math.max(0,Math.floor(Number(v)||0));
+    const u=localAdmin();
+    applyingRemote=true;
+    try{
+      if(u)u.chips=chips;
+      if(currentUser?.role==='admin'){
+        currentUser=u||currentUser;
+        currentUser.chips=chips;
+      }
+      lastRemoteChip=chips;
+      localStorage.setItem(KEY,JSON.stringify(db));
+      try{renderHome()}catch(e){}
+      try{if(document.getElementById('cash')?.classList.contains('active'))renderCash()}catch(e){}
+      try{if(document.getElementById('admin')?.classList.contains('active'))renderAdmin()}catch(e){}
+    }finally{
+      applyingRemote=false;
+    }
+  }
+
+  async function pushAdminChip(){
+    if(applyingRemote||!adminChipStarted||!adminChipRef)return;
+    if(currentUser?.role!=='admin'||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)return;
+    const chips=currentAdminChip();
+    if(chips===lastRemoteChip)return;
+    lastRemoteChip=chips;
+    try{
+      await adminChipRef.update({
+        chips:chips,
+        updatedAt:firebase.database.ServerValue.TIMESTAMP
+      });
+    }catch(e){
+      console.warn('Admin chip sync write failed',e);
+    }
+  }
+
+  async function startAdminChipSync(){
+    if(adminChipStarted)return;
+    if(currentUser?.role!=='admin'||!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)return;
+
+    adminChipStarted=true;
+    adminChipRef=mpRtdb.ref('registrations/'+MP_ADMIN_UID+'/__adminBalance__');
+
+    try{
+      const snap=await adminChipRef.once('value');
+      const remote=snap.val();
+
+      /* First bootstrap only: the FIRST browser opened after this update
+         becomes the initial source of truth. Open Chrome admin first. */
+      if(!remote || !Number.isFinite(Number(remote.chips))){
+        const chips=currentAdminChip();
+        await adminChipRef.set({
+          chips:chips,
+          updatedAt:firebase.database.ServerValue.TIMESTAMP
+        });
+        lastRemoteChip=chips;
+      }
+
+      adminChipRef.on('value',s=>{
+        const v=s.val();
+        if(v&&Number.isFinite(Number(v.chips)))applyAdminChip(v.chips);
+      },err=>{
+        console.warn('Admin chip sync read failed',err);
+        adminChipStarted=false;
+      });
+    }catch(e){
+      console.warn('Admin chip sync start failed',e);
+      adminChipStarted=false;
+    }
+  }
+
+  const oldSave=save;
+  save=function(){
+    const r=oldSave.apply(this,arguments);
+    if(currentUser?.role==='admin')setTimeout(pushAdminChip,0);
+    return r;
+  };
+
+  const oldShow=window.show;
+  window.show=function(id){
+    const r=oldShow.apply(this,arguments);
+    if(currentUser?.role==='admin')setTimeout(startAdminChipSync,30);
+    return r;
+  };
+
+  if(mpAuth?.onAuthStateChanged){
+    mpAuth.onAuthStateChanged(()=>{
+      if(currentUser?.role==='admin')setTimeout(startAdminChipSync,80);
+    });
+  }
+
+  setTimeout(()=>{
+    if(currentUser?.role==='admin')startAdminChipSync();
+  },900);
+})();
+</script>
+
 </body></html>
