@@ -2350,6 +2350,34 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
  #game .baseActions button{height:36px!important}
 }
 </style>
+
+<style id="ten-seat-clean-layout">
+/* GAME TABLE ONLY — clean 10-seat rail, no overlaps */
+#game .pokerTable{overflow:visible!important}
+#game .seat{width:70px!important;z-index:8!important}
+#game .seat .nm{max-width:70px!important}
+/* top arc: 3 seats */
+#game .s3{left:8%!important;right:auto!important;top:18px!important;bottom:auto!important;transform:none!important}
+#game .s4{left:50%!important;right:auto!important;top:-10px!important;bottom:auto!important;transform:translateX(-50%)!important}
+#game .s5{right:8%!important;left:auto!important;top:18px!important;bottom:auto!important;transform:none!important}
+/* side seats */
+#game .s2{left:-3%!important;right:auto!important;top:51%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s6{right:-3%!important;left:auto!important;top:51%!important;bottom:auto!important;transform:translateY(-50%)!important}
+/* lower arc: 3 seats */
+#game .s1{left:12%!important;right:auto!important;bottom:30px!important;top:auto!important;transform:none!important}
+#game .s0{left:50%!important;right:auto!important;bottom:-7px!important;top:auto!important;transform:translateX(-50%)!important}
+#game .s7{right:12%!important;left:auto!important;bottom:30px!important;top:auto!important;transform:none!important}
+/* any extra 10-max seat classes, if present */
+#game .s8{right:-1%!important;left:auto!important;top:70%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s9{left:-1%!important;right:auto!important;top:70%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .center{z-index:3!important}
+#game .betChip,#game .actionTag{z-index:6!important}
+@media(max-width:380px){
+ #game .seat{width:64px!important}
+ #game .s3{left:6%!important} #game .s5{right:6%!important}
+ #game .s1{left:9%!important} #game .s7{right:9%!important}
+}
+</style>
 </body></html>
 <style id="pokerman-final-table-only">
 /* FINAL: PokerMan-style GAME TABLE ONLY. Other screens/functions untouched. */
@@ -2375,12 +2403,4 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 #game .raisePanel{grid-template-columns:1fr!important}.game .vwrap{height:28px!important;order:-1!important}.game .vslider{transform:none!important;width:94%!important;height:7px!important}.game .raiseLeft{width:100%!important}.game .raiseAmount{height:30px!important;margin-bottom:3px!important;font-size:14px!important}.game .quick button{height:28px!important;font-size:8px!important}.game .confirmRaise{height:32px!important;margin-top:3px!important;font-size:9px!important}
 @media(max-height:740px) and (max-width:430px){#game .pokerTable,#game.tableExpanded .pokerTable{height:55dvh!important}#game .mycards{height:48px!important}.game .mycards .card{width:34px!important;height:47px!important}#game .baseActions button{height:34px!important}}
 </style>
-<style id="seat-spacing-only-fix">
-/* ONLY CHANGE: spread the top 3 and bottom 3 seats. */
-#game .s3{left:1%!important;right:auto!important;top:34px!important}
-#game .s4{left:50%!important;right:auto!important;top:-5px!important;transform:translateX(-50%)!important}
-#game .s5{right:1%!important;left:auto!important;top:34px!important}
-#game .s1{left:1%!important;right:auto!important;bottom:38px!important;top:auto!important}
-#game .s0{left:50%!important;right:auto!important;bottom:-3px!important;top:auto!important;transform:translateX(-50%)!important}
-#game .s7{right:1%!important;left:auto!important;bottom:38px!important;top:auto!important}
-</style>
+
