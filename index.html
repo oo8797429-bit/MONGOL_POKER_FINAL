@@ -3019,3 +3019,125 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   setTimeout(setup,300);
 })();
 </script>
+
+<script id="mpPersistentTablesV1">
+(function(){
+  // Persist the shared table list in Firebase so admin delete/open/close/create survives reopening the app.
+  const PATH='uniqueIndex/appTables/current';
+  let ref=null, listening=false, remoteSeen=false, syncing=false;
+
+  function cleanTables(list){
+    if(!Array.isArray(list))return [];
+    return list.map(t=>({
+      id:String(t?.id||''),
+      name:String(t?.name||''),
+      type:t?.type==='omaha'?'omaha':'holdem',
+      sb:Math.max(0,Math.floor(Number(t?.sb)||0)),
+      bb:Math.max(0,Math.floor(Number(t?.bb)||0)),
+      buy:Math.max(0,Math.floor(Number(t?.buy)||0)),
+      color:['blue','green','gold'].includes(t?.color)?t.color:'gold',
+      open:t?.open!==false
+    })).filter(t=>t.id&&t.name&&t.sb>0&&t.bb>0&&t.buy>0);
+  }
+
+  function refreshTableUI(){
+    try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}
+    try{if(document.getElementById('admin')?.classList.contains('active'))renderAdmin()}catch(e){}
+  }
+
+  function applyRemote(payload){
+    if(!payload||!Array.isArray(payload.tables))return false;
+    db.tables=cleanTables(payload.tables);
+    db._sharedTablesLoaded=true;
+    save();
+    refreshTableUI();
+    return true;
+  }
+
+  async function ensureListener(){
+    if(!mpRtdb||!mpAuth)return;
+    try{await mpEnsureWriter()}catch(e){console.warn('Shared tables auth failed',e);return}
+    if(!ref)ref=mpRtdb.ref(PATH);
+    if(!listening){
+      listening=true;
+      ref.on('value',snap=>{
+        remoteSeen=true;
+        const val=snap.val();
+        if(val&&Array.isArray(val.tables))applyRemote(val);
+        else maybeSeedRemote();
+      },err=>console.warn('Shared tables listener failed',err));
+    }
+  }
+
+  async function maybeSeedRemote(){
+    if(syncing||!remoteSeen)return;
+    if(currentUser?.role!=='admin'||mpAuth?.currentUser?.uid!==MP_ADMIN_UID)return;
+    try{
+      syncing=true;
+      if(!ref)ref=mpRtdb.ref(PATH);
+      const snap=await ref.once('value');
+      if(!snap.exists()){
+        await ref.set({uid:MP_ADMIN_UID,tables:cleanTables(db.tables),updatedAt:firebase.database.ServerValue.TIMESTAMP});
+      }
+    }catch(e){console.warn('Shared tables seed failed',e)}
+    finally{syncing=false}
+  }
+
+  async function pushTables(){
+    if(currentUser?.role!=='admin')throw new Error('admin required');
+    if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)throw new Error('Firebase admin required');
+    if(!ref)ref=mpRtdb.ref(PATH);
+    await ref.set({uid:MP_ADMIN_UID,tables:cleanTables(db.tables),updatedAt:firebase.database.ServerValue.TIMESTAMP});
+  }
+
+  function localSaveAndPaint(){save();refreshTableUI()}
+
+  window.deleteTable=async function(id){
+    if(currentUser?.role!=='admin')return toast('Зөвхөн админ');
+    const before=(db.tables||[]).map(t=>({...t}));
+    db.tables=(db.tables||[]).filter(t=>String(t.id)!==String(id));
+    localSaveAndPaint();
+    try{await pushTables();toast('Ширээ устгагдлаа')}
+    catch(e){
+      console.warn('Table delete sync failed',e);
+      db.tables=before;localSaveAndPaint();
+      toast('Ширээ устгах online холболт амжилтгүй');
+    }
+  };
+
+  const oldCreate=window.createTable;
+  window.createTable=function(){
+    const before=JSON.stringify(db.tables||[]);
+    if(oldCreate)oldCreate.apply(this,arguments);
+    if(currentUser?.role==='admin'&&JSON.stringify(db.tables||[])!==before){
+      pushTables().catch(e=>{console.warn('Table create sync failed',e);toast('Ширээ online хадгалж чадсангүй')});
+    }
+  };
+
+  const oldToggle=window.toggleTable;
+  window.toggleTable=function(){
+    const before=JSON.stringify(db.tables||[]);
+    if(oldToggle)oldToggle.apply(this,arguments);
+    if(currentUser?.role==='admin'&&JSON.stringify(db.tables||[])!==before){
+      pushTables().catch(e=>{console.warn('Table toggle sync failed',e);toast('Ширээний төлөв online хадгалж чадсангүй')});
+    }
+  };
+
+  const oldSaveSettings=window.saveTableSettings;
+  window.saveTableSettings=function(){
+    const before=JSON.stringify(db.tables||[]);
+    if(oldSaveSettings)oldSaveSettings.apply(this,arguments);
+    if(currentUser?.role==='admin'&&JSON.stringify(db.tables||[])!==before){
+      pushTables().catch(e=>{console.warn('Table settings sync failed',e);toast('Ширээний тохиргоо online хадгалж чадсангүй')});
+    }
+  };
+
+  const oldRenderTables=window.renderTables;
+  window.renderTables=function(){ensureListener();return oldRenderTables&&oldRenderTables.apply(this,arguments)};
+  const oldRenderAdmin=window.renderAdmin;
+  window.renderAdmin=function(){ensureListener().then(maybeSeedRemote);return oldRenderAdmin&&oldRenderAdmin.apply(this,arguments)};
+
+  window.mpStartSharedTableSync=ensureListener;
+  setTimeout(ensureListener,250);
+})();
+</script>
