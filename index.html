@@ -1991,6 +1991,10 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     renderGame();
     await botRound(targetBet);
     toCall=0;
+    const aliveNow=aliveSeats();
+    if(aliveNow.length<=1){finishSingleWinner(aliveNow[0]);return}
+    /* River has all 5 community cards: after everyone acts, end the hand now. */
+    if((boardCards||[]).length>=5 || street>=3){setTimeout(()=>{if(!finished)showdown()},250);return}
     setTimeout(nextStreet,450);
   };
   confirmRaise=async function(){
@@ -2006,10 +2010,16 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     renderGame();
     await botRound(raiseTo);
     toCall=0;
+    const aliveNow=aliveSeats();
+    if(aliveNow.length<=1){finishSingleWinner(aliveNow[0]);return}
+    /* A completed river betting round must go straight to showdown. */
+    if((boardCards||[]).length>=5 || street>=3){setTimeout(()=>{if(!finished)showdown()},250);return}
     setTimeout(nextStreet,450);
   };
 
   nextStreet=function(){
+    /* Safety guard: never start another CHECK round after the river is already complete. */
+    if((boardCards||[]).length>=5 || street>=3){return showdown()}
     liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');liveTurn=0;
     if(street===0){burnOne();boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop — Таны ээлж')}
     else if(street===1){burnOne();boardCards.push(deck.pop());street=2;setStatus('Turn — Таны ээлж')}
