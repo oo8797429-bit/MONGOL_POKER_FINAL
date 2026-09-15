@@ -1725,23 +1725,12 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     },1000);
   }
   function waitBotTurn(i){
-    syncTableTurnSeconds();
-    liveTurn=i;turnLeft=TURN_SECONDS;
-    setStatus(players[i].name+'-ийн ээлж • '+TURN_SECONDS+' сек');
-    renderGame();paintTurnClock();
+    liveTurn=i;
+    turnLeft=0;
+    setStatus(players[i].name+'-ийн ээлж');
+    renderGame();
     return new Promise(resolve=>{
-      let done=false,left=TURN_SECONDS;
-      const willTimeout=false;
-      const actDelay=2500+Math.floor(Math.random()*700);
-      let actionTimer;
-      const finish=(timedOut)=>{
-        if(done)return;done=true;clearInterval(iv);clearTimeout(actionTimer);resolve(timedOut);
-      };
-      const iv=setInterval(()=>{
-        left--;turnLeft=left;paintTurnClock();
-        if(left<=0)finish(true);
-      },1000);
-      actionTimer=setTimeout(()=>finish(false),actDelay);
+      setTimeout(()=>resolve(false),900+Math.floor(Math.random()*300));
     });
   }
   function seatCount(){return Math.max(1,players.length)}
