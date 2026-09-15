@@ -2466,3 +2466,27 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 #game .seat .pic{position:relative!important;overflow:visible!important}
 #game .seat .pic>.betTag{position:absolute!important;left:50%!important;right:auto!important;top:-12px!important;bottom:auto!important;transform:translateX(-50%)!important;z-index:40!important;min-width:40px!important;margin:0!important;white-space:nowrap!important;pointer-events:none!important}
 </style>
+
+<style id="CENTER-BRAND-AND-HOLDEM-FINAL">
+/* ONLY requested change: center MP MONGOL POKER, move it upward,
+   and place the table HOLDEM/blinds info directly underneath it. */
+#game .tableBrandMP{
+  left:50%!important;right:auto!important;
+  top:48%!important;bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  width:max-content!important;text-align:center!important;
+  z-index:1!important;
+}
+#game .tableBrandMP b{font-size:46px!important}
+#game .tableBrandMP small{font-size:9px!important;letter-spacing:1.7px!important}
+#game .tableFootInfo{
+  left:50%!important;right:auto!important;
+  top:54%!important;bottom:auto!important;
+  transform:translateX(-50%)!important;
+  width:max-content!important;
+  font-size:10px!important;line-height:1.25!important;
+  color:#dce4e1b8!important;text-align:center!important;
+  z-index:8!important;
+}
+#game .tableFootInfo b{font-size:10px!important;color:#f2c94c!important}
+</style>
