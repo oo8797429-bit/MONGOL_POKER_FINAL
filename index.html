@@ -2280,7 +2280,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       if(folded[i]||(Number(players[i]?.chips)||0)<=0)continue;
       liveTurn=i;turnLeft=TURN_SECONDS;
       setStatus(players[i].name+'-ийн ээлж');renderGame();
-      await wait(650+Math.floor(Math.random()*650));
+      await wait(1500+Math.floor(Math.random()*1000));
       if(!spectatorModeActive())return false;
       /* Never let the final two live players both disappear pre-flop.
          This keeps a real hand progressing to the board instead of constantly
@@ -2306,7 +2306,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
         }
       }
       renderGame();
-      await wait(350);
+      await wait(650);
       if(spectatorAliveSeats().length<=1)return true;
     }
     return true;
@@ -2353,26 +2353,26 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
         if(!spectatorModeActive())break;
         await spectatorBotActRound(currentTable.bb);
         if(!spectatorModeActive())break;
-        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(1400);continue}
+        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(4500);continue}
         liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');
         burnOne();boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop');
-        renderGame();await wait(650);
+        renderGame();await wait(1000);
         await spectatorBotActRound(0);
         if(!spectatorModeActive())break;
-        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(1400);continue}
+        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(4500);continue}
         liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');
         burnOne();boardCards.push(deck.pop());street=2;setStatus('Turn');
-        renderGame();await wait(650);
+        renderGame();await wait(1000);
         await spectatorBotActRound(0);
         if(!spectatorModeActive())break;
-        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(1400);continue}
+        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(4500);continue}
         liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');
         burnOne();boardCards.push(deck.pop());street=3;setStatus('River');
-        renderGame();await wait(650);
+        renderGame();await wait(1000);
         await spectatorBotActRound(0);
         if(!spectatorModeActive())break;
         await spectatorBotFinishHand();
-        await wait(1600);
+        await wait(5000);
       }
     }finally{
       spectatorBotLoopRunning=false;
@@ -2447,7 +2447,16 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
     }).join('')+emptySeats;
     let oldBanner=document.querySelector('#game .showdownBanner');if(oldBanner)oldBanner.remove();
-    if(finished&&showdownWinners.length&&showdownInfo.length){let names=showdownWinners.map(i=>players[i]?.name).join(', '),hi=showdownInfo[showdownWinners[0]];let b=document.createElement('div');b.className='showdownBanner';b.innerHTML=`<b>${names} яллаа — ${hi?.name||''}</b>${hi?.cardsText||''}`;$('pokerTable')?.appendChild(b)}
+    if(finished&&showdownWinners.length&&showdownInfo.length){
+      let names=showdownWinners.map(i=>players[i]?.name).join(', '),hi=showdownInfo[showdownWinners[0]];
+      let detail=players.map((p,i)=>({p,i})).filter(x=>!folded[x.i]&&showdownInfo[x.i]).map(x=>{
+        let hole=(holes[x.i]||[]).map(c=>rank(c.r)+c.s).join(' ');
+        return `<div class="showdownDetail${showdownWinners.includes(x.i)?' win':''}"><span>${x.p.name}: ${hole}</span><b>${showdownInfo[x.i]?.name||''}</b></div>`;
+      }).join('');
+      let b=document.createElement('div');b.className='showdownBanner';
+      b.innerHTML=`<b>${names} яллаа — ${hi?.name||''}</b>${detail}`;
+      $('pokerTable')?.appendChild(b)
+    }
     /* Keep the player's hole cards mounted for the whole hand.
        Replacing innerHTML on every CALL/CHECK/FOLD restarted the deal animation
        and made the cards briefly disappear. Only redraw on a new hand or spectate. */
@@ -3944,6 +3953,52 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   try{const baseRenderMessages=renderMessages;renderMessages=function(){const r=baseRenderMessages.apply(this,arguments);mpRenderAnnouncementHistory();return r};const baseRenderAdmin=renderAdmin;renderAdmin=function(){const r=baseRenderAdmin.apply(this,arguments);mpRenderAdminAnnouncements();return r}}catch(e){console.warn(e)}
 })();
 </script>
+
+<style id="mp-bot-speed-result-bet-fix">
+/* Requested: bot action and wager amount must stay visible. */
+#game .seatStatus{
+  display:inline-block!important;
+  position:relative!important;
+  z-index:18!important;
+}
+#game .betTag{
+  display:flex!important;
+  z-index:19!important;
+  font-size:9px!important;
+  min-width:42px!important;
+  padding:3px 7px!important;
+  background:#0b110ff2!important;
+  border:1px solid #d1a63b!important;
+  color:#ffe271!important;
+  box-shadow:0 2px 8px #000c,0 0 7px #d5aa3c55!important;
+}
+#game .showdownBanner{
+  width:min(92%,360px)!important;
+  padding:9px 11px!important;
+}
+#game .showdownDetail{
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:4px;
+  padding-top:4px;
+  border-top:1px solid rgba(255,255,255,.10);
+  color:#d9dfdc;
+  font-size:8px;
+  line-height:1.35;
+}
+#game .showdownDetail b{
+  display:inline!important;
+  margin:0!important;
+  font-size:8px!important;
+  color:#cbd2cf!important;
+}
+#game .showdownDetail.win,
+#game .showdownDetail.win b{
+  color:#ffe070!important;
+}
+</style>
+
 </body></html>
 
 <style id="mp-plus-seat-visibility-fix">
