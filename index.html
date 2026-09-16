@@ -4018,3 +4018,41 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   bottom:10px!important;
 }
 </style>
+
+<style id="mp-showdown-card-visibility-fix">
+/* Only fix: revealed opponent hole cards must be fully visible beside side seats. */
+#game .showCards{
+  position:absolute!important;
+  top:5px!important;
+  z-index:55!important;
+  margin:0!important;
+  min-height:25px!important;
+  gap:2px!important;
+  pointer-events:none!important;
+}
+#game .showCards .miniCard{
+  width:18px!important;
+  height:25px!important;
+  font-size:8px!important;
+  flex:0 0 18px!important;
+}
+/* Left-side players: cards open toward the table center. */
+#game .s1 .showCards,#game .s2 .showCards,#game .s3 .showCards,#game .s4 .showCards{
+  left:46px!important;
+  right:auto!important;
+  transform:none!important;
+}
+/* Right-side players: cards open toward the table center. */
+#game .s5 .showCards,#game .s6 .showCards,#game .s7 .showCards,#game .s8 .showCards{
+  right:46px!important;
+  left:auto!important;
+  transform:none!important;
+}
+/* Bottom-center player stays centered. */
+#game .s0 .showCards{
+  left:50%!important;
+  right:auto!important;
+  top:-29px!important;
+  transform:translateX(-50%)!important;
+}
+</style>
