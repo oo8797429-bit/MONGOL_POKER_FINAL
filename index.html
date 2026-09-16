@@ -1753,7 +1753,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     /* Only bots explicitly created from the Admin panel may occupy seats. No automatic/filler players. */
     players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots7.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1]||'🙂',botId:b.id}))];
     dealSessionToken++;burnedCards=[];if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand=''};
-    save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 8 MAX';show('game');newHand();
+    save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 9 MAX';show('game');newHand();
   };
 
   newHand=function(){
@@ -1788,32 +1788,38 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   };
 
   function visualSeatMap(){
-    const n=Math.max(1,players.length);
+    const n=Math.max(1,Math.min(9,players.length));
     const maps={
       1:[0],
-      2:[0,4],
-      3:[0,2,6],
-      4:[0,2,4,6],
-      5:[0,1,3,5,7],
-      6:[0,1,2,4,6,7],
-      7:[0,1,2,3,5,6,7],
-      8:[0,1,2,3,4,5,6,7]
+      2:[0,5],
+      3:[0,3,6],
+      4:[0,2,5,7],
+      5:[0,2,4,5,7],
+      6:[0,1,3,5,6,8],
+      7:[0,1,2,4,5,7,8],
+      8:[0,1,2,3,5,6,7,8],
+      9:[0,1,2,3,4,5,6,7,8]
     };
-    return maps[Math.min(8,n)]||maps[8];
+    return maps[n]||maps[9];
   }
 
   renderGame=function(){
     ensureChrome();
-    const _pt=document.querySelector('#game .pokerTable');if(_pt)_pt.setAttribute('data-seat-count',String(players.length));
+    const _pt=document.querySelector('#game .pokerTable');if(_pt)_pt.setAttribute('data-seat-count','9');
     $('pot').textContent='Pot: '+fmt(potAmt);$('board').innerHTML=[0,1,2,3,4].map(i=>card(boardCards[i]||null)).join('');
     const seatMap=visualSeatMap();
+    const usedSlots=new Set(seatMap.slice(0,players.length));
+    const emptySeats=Array.from({length:9},(_,slot)=>slot)
+      .filter(slot=>!usedSlots.has(slot))
+      .map(slot=>`<div class="seat s${slot} emptySeat"><div class="pic">＋</div><div class="nm"><span>СУЛ</span></div><div class="stack">—</div></div>`)
+      .join('');
     $('seats').innerHTML=players.map((p,i)=>{
       let blind=renderBlindTag(i),bet=liveSeatBets[i]||0,active=i===liveTurn&&!finished;
       let seatStatus=liveSeatStatus[i]||(folded[i]?'FOLD':'');
       let statusClass=/БҮГДИЙГ НЬ|ALL IN/i.test(seatStatus)?' allin':/RAISE|BET/i.test(seatStatus)?' raise':/FOLD/i.test(seatStatus)?' fold':'';
       const seatClass='s'+String(seatMap[i]??i);
       return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
-    }).join('');
+    }).join('')+emptySeats;
     let oldBanner=document.querySelector('#game .showdownBanner');if(oldBanner)oldBanner.remove();
     if(finished&&showdownWinners.length&&showdownInfo.length){let names=showdownWinners.map(i=>players[i]?.name).join(', '),hi=showdownInfo[showdownWinners[0]];let b=document.createElement('div');b.className='showdownBanner';b.innerHTML=`<b>${names} яллаа — ${hi?.name||''}</b>${hi?.cardsText||''}`;$('pokerTable')?.appendChild(b)}
     /* Keep the player's hole cards mounted for the whole hand.
@@ -2438,5 +2444,47 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   }catch(e){}
 })();
 </script>
+
+
+<style id="ONLY_9_SEATS_FINAL">
+/* ONLY CHANGE: 9-seat visual layout */
+#game .s0{left:50%!important;right:auto!important;bottom:-18px!important;top:auto!important;transform:translateX(-50%)!important}
+
+#game .s1{left:7%!important;right:auto!important;bottom:24px!important;top:auto!important;transform:none!important}
+#game .s2{left:-18px!important;right:auto!important;bottom:118px!important;top:auto!important;transform:none!important}
+#game .s3{left:-18px!important;right:auto!important;top:34%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s4{left:8%!important;right:auto!important;top:26px!important;bottom:auto!important;transform:none!important}
+
+#game .s5{right:8%!important;left:auto!important;top:26px!important;bottom:auto!important;transform:none!important}
+#game .s6{right:-18px!important;left:auto!important;top:34%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s7{right:-18px!important;left:auto!important;bottom:118px!important;top:auto!important;transform:none!important}
+#game .s8{right:7%!important;left:auto!important;bottom:24px!important;top:auto!important;transform:none!important}
+
+#game .emptySeat{
+  opacity:.42!important;
+  pointer-events:none!important;
+}
+#game .emptySeat .pic{
+  background:#18201d!important;
+  border:1px dashed #788b83!important;
+  color:#93a39d!important;
+  box-shadow:inset 0 0 10px #0008!important;
+}
+#game .emptySeat .nm{
+  background:#111816cc!important;
+  color:#8b9c95!important;
+}
+#game .emptySeat .stack{
+  background:#202725cc!important;
+  color:#78847f!important;
+}
+
+@media(max-width:430px){
+  #game .seat{width:60px!important}
+  #game .seat .pic{width:37px!important;height:37px!important;font-size:18px!important}
+  #game .seat .nm{max-width:60px!important;font-size:7px!important}
+  #game .seat .stack{font-size:7px!important}
+}
+</style>
 
 </body></html>
