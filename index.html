@@ -1186,6 +1186,13 @@
 <section id="game" class="screen game"><div class="gameHead"><button onclick="leaveTable()">‹</button><b>Тоглолт</b><div class="gameTopActions" aria-label="Тоглоомын дээд цэс"><button type="button" class="gameSitBtn" onclick="sitAtGameTable()" aria-label="Ширээнд суух">СУУХ</button><button type="button" class="gameTopIcon" onclick="openGameGift()" aria-label="Бэлэг, бонус"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v9H4v-9M2.5 7.5h19v4.5h-19zM12 7.5V21M7.2 7.5C5.4 7.5 4 6.5 4 5.2 4 4 5 3 6.2 3 8.2 3 10.2 5.2 12 7.5M16.8 7.5c1.8 0 3.2-1 3.2-2.3C20 4 19 3 17.8 3 15.8 3 13.8 5.2 12 7.5"/></svg></button><button type="button" class="gameTopIcon" onclick="openGameBell()" aria-label="Мэдэгдэл, мессеж"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notifyDot" aria-hidden="true"></span></button><button type="button" class="gameTopIcon" onclick="openGameSettings()" aria-label="Тохиргоо"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4.2 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H2.4v-4h.1A1.7 1.7 0 0 0 4.2 8.6a1.7 1.7 0 0 0-.34-1.88L3.8 6.66 6.66 3.8l.06.06A1.7 1.7 0 0 0 8.6 4.2a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2.4h4v.1a1.7 1.7 0 0 0 1 1.7 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06A1.7 1.7 0 0 0 19.4 8.6a1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4h.1v4h-.1a1.7 1.7 0 0 0-1.7 1z"/></svg></button></div></div><button id="tableSizeBtn" class="tableSizeBtn" onclick="toggleTableSize()" aria-label="Ширээ том/жижиг болгох">⛶</button><div class="gameMeta"><b id="gameName">Ширээ</b><span id="gameBlind">0/0</span></div><div class="pokerTable"><div class="tableBrandMP" aria-hidden="true"><b>MP</b><small>MONGOL POKER</small></div><div id="seats"></div><div class="center"><div class="pot" id="pot">Pot: 0</div><div class="board" id="board"></div></div></div><div class="status" id="status">Ачаалж байна...</div><div class="mycards" id="mycards"></div><div class="actionBar"><div id="baseActions" class="baseActions"><button class="fold" onclick="fold()">FOLD</button><button class="check" id="checkBtn" onclick="checkCall()">CHECK</button><button class="call" id="callBtn" onclick="checkCall()">CALL</button><button class="raise" onclick="showRaise()">RAISE</button></div><div id="raisePanel" class="raisePanel hidden"><div class="raiseLeft"><div class="raiseAmount" id="raiseAmount">0</div><div class="quick"><button onclick="preset(.33)">1/3</button><button onclick="preset(.5)">1/2</button><button onclick="preset(.66)">2/3</button><button onclick="preset(1)">POT</button></div><button class="confirmRaise" onclick="confirmRaise()">BET / RAISE</button></div><div class="vwrap"><input id="raiseSlider" class="vslider" type="range" oninput="updateRaise()"></div></div></div></section>
 <nav id="bottom" class="bottom hidden"><button onclick="show('home')"><span class="ico">⌂</span>Үндсэн</button><button onclick="featureOpen('cash','cash')"><span class="ico">▣</span>Касс</button><button id="bottomMyTablesBtn" onclick="mpShowMyTablesPage()"><span class="ico">♠</span>Миний ширээ</button><button onclick="featureOpen('stats','stats')"><span class="ico">▥</span>Статистик</button><button onclick="show('menu')"><span class="ico">☰</span>Цэс</button></nav>
 <div id="sideShade" class="sideShade hidden" onclick="closeSide()"></div><div id="sideMenu" class="sideMenu hidden"><div class="sideTitle">↑ Суудлаас босох</div><div class="sideItem" onclick="leaveTable()"><span>🚪</span>Тоглоомыг орхих</div><div class="sideItem" onclick="openAddMoney()"><span>🎯</span>Ширээнд мөнгө нэмэх</div><div class="sideItem" onclick="spectate()"><span>◔</span>Тоглолт үзэх</div><div class="sideItem" onclick="closeSide();featureOpen('cash','cash')"><span>💼</span>Касс</div><div class="sideItem" onclick="openTableSettings()"><span>▭</span>Ширээний тохиргоо</div><div class="sideItem" onclick="closeSide();featureOpen('settings','settings')"><span>⚙</span>Тохиргоо ›</div><div class="sideItem" onclick="leaveTable()"><span>⌂</span>Лоббируу буцах</div><div class="sideItem" onclick="shareApp()"><span>⌯</span>Хуваалцах</div></div>
+<div id="joinBlindSheet" class="sheet hidden mpJoinBlindSheet">
+<h3>Ширээнд яаж орох вэ?</h3>
+<div class="sheetRow"><span>Ширээ</span><b id="joinBlindTable">-</b></div>
+<div class="sheetRow"><span>Blind</span><b id="joinBlindValue">-</b></div>
+<button class="mpJoinModeBtn post" onclick="mpChooseJoinMode('post')"><b>ШУУД ТОГЛОХ</b><small>Big Blind-ийг шууд тавиад дараагийн гар дээр орно</small></button>
+<button class="mpJoinModeBtn wait" onclick="mpChooseJoinMode('wait')"><b>BB ХҮРТЭЛ ХҮЛЭЭХ</b><small>Таны Big Blind ээлж ирэх хүртэл гар алгасана</small></button>
+</div>
 <div id="moneySheet" class="sheet hidden"><h3>Ширээнд мөнгө нэмэх</h3><div class="sheetRow"><span>Ширээ</span><b id="sheetTable"></b></div><input id="moneyInput" type="number" value="5000" oninput="syncMoney()"><input id="moneyRange" class="range" type="range" min="1000" max="100000" step="1000" value="5000" oninput="syncMoney(true)"><div class="sheetBtns"><button onclick="setMoney(.5)">½ Buy-in</button><button onclick="setMoney(1)">1× Buy-in</button><button onclick="setMoney(2)">2× Buy-in</button></div><div class="sheetRow"><span>Одоогийн stack</span><b id="sheetStack"></b></div><button class="ok" onclick="addMoney()">Мөнгө нэмэх</button><button class="close" onclick="closeMoney()">Хаах</button></div>
 <div id="tableSettingsSheet" class="sheet hidden"><h3>Ширээний тохиргоо</h3><div class="sheetRow"><span>Ширээ</span><b id="tsName"></b></div><div class="field"><label>SB</label><input id="tsSB" type="number"></div><div class="field"><label>BB</label><input id="tsBB" type="number"></div><div class="field"><label>Орох дүн</label><input id="tsBuy" type="number"></div><button class="ok" onclick="saveTableSettings()">Хадгалах</button><button class="close" onclick="closeTableSettings()">Хаах</button></div><div id="mpNoticeShade" class="mpNoticeShade hidden"></div>
 <div id="mpNoticeModal" class="mpNoticeModal hidden" role="dialog" aria-modal="true" aria-labelledby="mpNoticeTitle">
@@ -1483,7 +1490,7 @@ function mpInitAfterAppLoad(){
 const KEY='mongolPokerAjnaiLikeV1';
 let db={users:[],tables:[],bots:[],messages:[],settings:{start:0,banner:'АДМИНТАЙ ХОЛБОГДОХ',sound:true,vibe:true}},currentUser=null,currentTable=null;
 let deck=[],holes=[],boardCards=[],players=[],folded=[],street=0,potAmt=0,toCall=0,finished=false,spectator=false;
-let userSeatedAtTable=false,userSeatSlot=null,lobbyCompact=false;
+let userSeatedAtTable=false,userSeatSlot=null,lobbyCompact=false,mpJoinBlindMode='',mpWaitingForBB=false,mpWaitingThisHand=false,mpJustEnteredFromWait=false;
 const $=id=>document.getElementById(id),fmt=n=>Number(n||0).toLocaleString('en-US');
 function isAutoFillerBot(b){
   const n=String(b?.name||'').trim();
@@ -1690,7 +1697,7 @@ function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.fil
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
 function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=db.bots.filter(isAdminCreatedBot).slice(0,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
-function leaveTable(){let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
+function leaveTable(){$('joinBlindSheet')?.classList.add('hidden');mpJoinBlindMode='';mpWaitingForBB=false;mpWaitingThisHand=false;mpJustEnteredFromWait=false;let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
 function makeDeck(){
   const s=['♠','♥','♦','♣'],r=[2,3,4,5,6,7,8,9,10,11,12,13,14],d=[];
   for(const a of s)for(const b of r)d.push({s:a,r:b});
@@ -1737,9 +1744,35 @@ function chooseSeat(slot){
   const emos=['🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','🧑‍🦱'];
   const botPlayers=db.bots.filter(isAdminCreatedBot).slice(0,8).map((b,i)=>({name:b.name,chips:Math.max(currentTable.buy,Number(b.chips)||currentTable.buy),emoji:emos[i]||'🙂',botId:b.id}));
   players=[{name:currentUser.name,chips:currentTable.buy,emoji:'😎',user:true},...botPlayers];
-  userSeatedAtTable=true;userSeatSlot=slot;spectator=false;handNo=0;
+  userSeatedAtTable=true;userSeatSlot=slot;spectator=false;handNo=0;liveDealer=-1;liveSB=-1;liveBB=-1;
+  mpJoinBlindMode='';mpWaitingForBB=false;mpWaitingThisHand=false;mpJustEnteredFromWait=false;
   if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand='';}
-  save();setStatus('Суудал сонгогдлоо • Тоглолт эхэлж байна');newHand();
+  save();renderGame();
+  if($('joinBlindTable'))$('joinBlindTable').textContent=currentTable.name||'Ширээ';
+  if($('joinBlindValue'))$('joinBlindValue').textContent=fmt(currentTable.sb||0)+' / '+fmt(currentTable.bb||0);
+  $('joinBlindSheet')?.classList.remove('hidden');
+  setStatus('Суудал сонгогдлоо • Шууд тоглох уу, BB хүртэл хүлээх үү?');
+}
+function mpPrepareUserAsNextBB(){
+  const n=Math.max(2,players.length);
+  if(n===2){liveDealer=0;return}
+  liveDealer=(n-3+n)%n;
+}
+function mpChooseJoinMode(mode){
+  if(!userSeatedAtTable||!currentTable)return;
+  $('joinBlindSheet')?.classList.add('hidden');
+  mpJoinBlindMode=mode==='wait'?'wait':'post';
+  mpWaitingForBB=mpJoinBlindMode==='wait';
+  mpWaitingThisHand=false;mpJustEnteredFromWait=false;
+  if(mpJoinBlindMode==='post'){
+    mpPrepareUserAsNextBB();
+    setStatus('Шууд тоглох • Big Blind тавиад орж байна');
+  }else{
+    /* Heads-up үед дараагийн гар дээр шууд BB болох нь жам ёсны ээлж. */
+    liveDealer=players.length===2?0:-1;
+    setStatus('BB хүртэл хүлээж байна • Ээлж ирэхэд автоматаар орно');
+  }
+  newHand();
 }
 
 function openSide(){$('sideShade').classList.remove('hidden');$('sideMenu').classList.remove('hidden')}
@@ -2213,7 +2246,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     for(let round=0;round<cardCount;round++){
       for(let step=0;step<n;step++){
         const i=(first+step)%n;
-        if((Number(players[i]?.chips)||0)>0 && deck.length) holes[i].push(deck.pop());
+        if((Number(players[i]?.chips)||0)>0 && !(mpWaitingThisHand&&i===0) && deck.length) holes[i].push(deck.pop());
       }
     }
   }
@@ -2382,29 +2415,46 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   }
 
   newHand=function(){
-    if(!currentTable||!tableSession)return;deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];handNo=(Number(handNo)||0)+1;
-    if(currentUser){
-  currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};
-  currentUser.stats.hands++;
-  currentUser.cgp=Math.max(0,Number(currentUser.cgp)||0)+1;
-  currentUser.stars=Math.max(0,Math.min(5,Math.floor(currentUser.cgp/100)));
-  save();
-}
+    if(!currentTable||!tableSession)return;
+    deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];handNo=(Number(handNo)||0)+1;
+    mpWaitingThisHand=false;mpJustEnteredFromWait=false;
     folded=players.map(p=>(Number(p?.chips)||0)<=0);liveSeatBets=players.map(()=>0);liveSeatStatus=players.map(()=>'');
     if(!setupStandardButtonAndBlinds()){setStatus('Тоглохын тулд дор хаяж 2 тоглогч хэрэгтэй');renderGame();return}
-    liveTurn=0;
+
+    if(mpWaitingForBB){
+      if(liveBB===0){
+        mpWaitingForBB=false;mpWaitingThisHand=false;mpJustEnteredFromWait=true;
+      }else{
+        mpWaitingThisHand=true;folded[0]=true;liveSeatStatus[0]='BB ХҮЛЭЭЖ БАЙНА';
+      }
+    }
+
+    if(currentUser&&!mpWaitingThisHand){
+      currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};
+      currentUser.stats.hands++;
+      currentUser.cgp=Math.max(0,Number(currentUser.cgp)||0)+1;
+      currentUser.stars=Math.max(0,Math.min(5,Math.floor(currentUser.cgp/100)));
+      save();
+    }
+
+    liveTurn=mpWaitingThisHand?-1:0;
     // Standard deal: fresh shuffled 52-card deck, one card at a time clockwise.
     dealRoundRobin(currentTable.type==='omaha'?4:2);
-    const sbPaid=liveSB>=0&&players[liveSB].chips>0?pay(liveSB,currentTable.sb):0,
+    const sbPaid=liveSB>=0&&players[liveSB].chips>0&&!(mpWaitingThisHand&&liveSB===0)?pay(liveSB,currentTable.sb):0,
           bbPaid=liveBB>=0&&players[liveBB].chips>0?pay(liveBB,currentTable.bb):0;
     if(handHasDuplicateCards()){
-      // Safety-only redeal; normal shuffled decks can never contain duplicate physical cards.
       deck=makeDeck();burnedCards=[];boardCards=[];holes=players.map(()=>[]);dealRoundRobin(currentTable.type==='omaha'?4:2);
     }
-    toCall=(liveSB===0?Math.max(0,currentTable.bb-currentTable.sb):liveBB===0?0:currentTable.bb);
-    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Шинэ гар эхэллээ');$('game')?.classList.add('dealAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('dealAnim'),650);
-    setTimeout(()=>{animateChip(liveSB,sbPaid);animateChip(liveBB,bbPaid)},180);
-    setTimeout(startUserTurn,650);
+    toCall=mpWaitingThisHand?0:(liveSB===0?Math.max(0,currentTable.bb-currentTable.sb):liveBB===0?0:currentTable.bb);
+    $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');
+    if(mpWaitingThisHand)setStatus('BB хүртэл хүлээж байна • Энэ гарыг алгасаж байна');
+    else if(mpJustEnteredFromWait)setStatus('Таны BB ээлж ирлээ • Big Blind тавиад тоглолтод орлоо');
+    else if(mpJoinBlindMode==='post'&&liveBB===0)setStatus('Big Blind тавилаа • Тоглолтод шууд орлоо');
+    else setStatus('Шинэ гар эхэллээ');
+    $('game')?.classList.add('dealAnim');renderGame();setTimeout(()=>$('game')?.classList.remove('dealAnim'),650);
+    setTimeout(()=>{if(sbPaid)animateChip(liveSB,sbPaid);if(bbPaid)animateChip(liveBB,bbPaid)},180);
+    if(mpWaitingThisHand)setTimeout(()=>continueAfterUserFold('waitbb'),650);
+    else setTimeout(startUserTurn,650);
   };
 
   pay=function(i,n){
@@ -2442,7 +2492,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     $('seats').innerHTML=players.map((p,i)=>{
       let blind=renderBlindTag(i),bet=liveSeatBets[i]||0,active=i===liveTurn&&!finished;
       let seatStatus=liveSeatStatus[i]||(folded[i]?'FOLD':'');
-      let statusClass=/БҮГДИЙГ НЬ|ALL IN/i.test(seatStatus)?' allin':/RAISE|BET/i.test(seatStatus)?' raise':/FOLD/i.test(seatStatus)?' fold':'';
+      let statusClass=/BB ХҮЛЭЭЖ/i.test(seatStatus)?' waitbb':/БҮГДИЙГ НЬ|ALL IN/i.test(seatStatus)?' allin':/RAISE|BET/i.test(seatStatus)?' raise':/FOLD/i.test(seatStatus)?' fold':'';
       const seatClass='s'+String(seatMap[i]??i);
       return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${!finished&&seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${!finished&&blind?`<div class="blindTag">${blind}</div>`:''}${!finished&&bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
     }).join('')+emptySeats;
@@ -2577,8 +2627,9 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   }
   async function continueAfterUserFold(auto=false){
     stopUserTurnClock();
-    folded[0]=true;liveSeatStatus[0]='FOLD';spectator=true;liveRoundBusy=true;
-    setStatus(auto?'20 секунд дууслаа — Auto Fold • Бусад тоглогчид үргэлжлүүлж байна':'Та Fold хийлээ • Бусад тоглогчид үргэлжлүүлж байна');
+    const waitingBB=auto==='waitbb';
+    folded[0]=true;liveSeatStatus[0]=waitingBB?'BB ХҮЛЭЭЖ БАЙНА':'FOLD';spectator=true;liveRoundBusy=true;
+    setStatus(waitingBB?'BB хүртэл хүлээж байна • Бусад тоглогчид энэ гарыг тоглож байна':(auto?'20 секунд дууслаа — Auto Fold • Бусад тоглогчид үргэлжлүүлж байна':'Та Fold хийлээ • Бусад тоглогчид үргэлжлүүлж байна'));
     renderGame();await wait(500);
     while(tableSession&&!finished){
       let alive=aliveSeats();
@@ -2708,7 +2759,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   window.mpCapturePokerSession=function(){
     const cp=v=>{try{return structuredClone(v)}catch(e){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}};
     return {
-      currentTable:cp(currentTable),tableSession,userSeatedAtTable,userSeatSlot,spectator,
+      currentTable:cp(currentTable),tableSession,userSeatedAtTable,userSeatSlot,spectator,mpJoinBlindMode,mpWaitingForBB,mpWaitingThisHand,
       deck:cp(deck),holes:cp(holes),boardCards:cp(boardCards),players:cp(players),folded:cp(folded),
       street,potAmt,toCall,finished,handNo,
       liveDealer,liveSB,liveBB,liveTurn,liveWinner,liveSeatBets:cp(liveSeatBets),liveSeatStatus:cp(liveSeatStatus),
@@ -2720,7 +2771,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   window.mpRestorePokerSession=function(s){
     if(!s||!s.currentTable)return false;stopUserTurnClock();
     const cp=v=>{try{return structuredClone(v)}catch(e){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}};
-    currentTable=cp(s.currentTable);tableSession=true;userSeatedAtTable=!!s.userSeatedAtTable;userSeatSlot=s.userSeatSlot??null;spectator=!!s.spectator;
+    currentTable=cp(s.currentTable);tableSession=true;userSeatedAtTable=!!s.userSeatedAtTable;userSeatSlot=s.userSeatSlot??null;spectator=!!s.spectator;mpJoinBlindMode=String(s.mpJoinBlindMode||'');mpWaitingForBB=!!s.mpWaitingForBB;mpWaitingThisHand=!!s.mpWaitingThisHand;
     deck=cp(s.deck||[]);holes=cp(s.holes||[]);boardCards=cp(s.boardCards||[]);players=cp(s.players||[]);folded=cp(s.folded||[]);
     street=Number(s.street)||0;potAmt=Number(s.potAmt)||0;toCall=Number(s.toCall)||0;finished=!!s.finished;handNo=Number(s.handNo)||0;
     liveDealer=Number.isFinite(Number(s.liveDealer))?Number(s.liveDealer):-1;liveSB=Number.isFinite(Number(s.liveSB))?Number(s.liveSB):-1;liveBB=Number.isFinite(Number(s.liveBB))?Number(s.liveBB):-1;
@@ -3843,7 +3894,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     list.innerHTML=vis.map(x=>{const r=Number(x.result||0),cls=r>0?'pos':r<0?'neg':'zero',arrow=r>0?'▲':r<0?'▼':'•',type=String(x.gameType||'holdem')==='omaha'?'ПОТ ЛИМИТ ОМАХА':'ХЯЗГААРГҮЙ ХОЛДЕМ';return `<div class="mpStatRow"><div class="mpStatCheck"></div><div class="mpStatCard"><div class="mpStatTop"><span class="mpStatType">${type}</span><span class="mpStatDate">${esc(dateText(x.endAt||x.startAt))}</span></div><div class="mpStatMain"><div class="mpStatName">${esc(x.tableName||'Ширээ')} • RAKE ${Number(x.rake??1)}%</div><div class="mpStatResult ${cls}">${r>0?'+':''}${fnum(r)} ${arrow}</div></div><div class="mpStatMeta"><span>Гарууд: ${fnum(x.hands||0)}</span><span>◉ ${fnum(x.sb||0)}/${fnum(x.bb||0)}</span></div></div></div>`}).join('');
     if(empty)empty.classList.toggle('hidden',rows.length>0);if(more){more.classList.toggle('hidden',rows.length===0);more.textContent=rows.length>8?(showAll?'Цөөнөөр харуулах':'Гарнуудыг харуулах'):'Гарнуудыг харуулах';more.disabled=rows.length<=8;more.style.opacity=rows.length<=8?'.65':'1'}
   };
-  const _newHandStats=newHand;newHand=function(){const r=_newHandStats.apply(this,arguments);if(currentTable&&userSeatedAtTable&&!spectator)noteNewHand();return r};
+  const _newHandStats=newHand;newHand=function(){const r=_newHandStats.apply(this,arguments);if(currentTable&&userSeatedAtTable&&!spectator&&!mpWaitingThisHand)noteNewHand();return r};
   const _addMoneyStats=addMoney;addMoney=function(){const before=Number((players||[]).find(p=>p&&p.user)?.chips||0);const r=_addMoneyStats.apply(this,arguments);const after=Number((players||[]).find(p=>p&&p.user)?.chips||0);if(after>before)noteAddMoney(after-before);return r};
   const _leaveTableStats=leaveTable;leaveTable=function(){try{finalizeCurrent()}catch(e){console.warn('stats finalize',e)}return _leaveTableStats.apply(this,arguments)};
   const _logoutStats=logout;logout=async function(){try{finalizeCurrent()}catch(e){}return _logoutStats.apply(this,arguments)};
@@ -4055,6 +4106,18 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 /* When winner cards open, only the winner result remains; action/bet badges are removed by render logic. */
 #game .showCards{z-index:70!important}
 #game .handLabel{z-index:71!important}
+</style>
+
+
+<style id="mp-blind-join-rule-style">
+.mpJoinBlindSheet{z-index:180!important;border:1px solid #9b742e!important;background:linear-gradient(180deg,#21170b,#111)!important}
+.mpJoinBlindSheet h3{color:#f1c95a!important;text-align:center;font-size:15px!important}
+.mpJoinModeBtn{width:100%;border:1px solid #745725;border-radius:10px;padding:12px 10px;margin-top:10px;text-align:left;color:#fff;background:#17130e}
+.mpJoinModeBtn b{display:block;font-size:13px;color:#f4d06c;margin-bottom:4px}
+.mpJoinModeBtn small{display:block;font-size:9px;color:#aeb4b1;line-height:1.45}
+.mpJoinModeBtn.post{background:linear-gradient(180deg,#3b2a0d,#18120a);border-color:#c49332}
+.mpJoinModeBtn.wait{background:linear-gradient(180deg,#18221e,#101513);border-color:#41685b}
+#game .seatStatus.waitbb{background:#183027ee!important;border-color:#6cae90!important;color:#d4f4e7!important}
 </style>
 
 </body></html>
