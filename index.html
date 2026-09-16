@@ -2444,7 +2444,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       let seatStatus=liveSeatStatus[i]||(folded[i]?'FOLD':'');
       let statusClass=/БҮГДИЙГ НЬ|ALL IN/i.test(seatStatus)?' allin':/RAISE|BET/i.test(seatStatus)?' raise':/FOLD/i.test(seatStatus)?' fold':'';
       const seatClass='s'+String(seatMap[i]??i);
-      return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
+      return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${!finished&&seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${!finished&&blind?`<div class="blindTag">${blind}</div>`:''}${!finished&&bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
     }).join('')+emptySeats;
     let oldBanner=document.querySelector('#game .showdownBanner');if(oldBanner)oldBanner.remove();
     if(finished&&showdownWinners.length&&showdownInfo.length){
@@ -3993,6 +3993,68 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 #game .showdownDetail.win b{
   color:#ffe070!important;
 }
+</style>
+
+
+<style id="mp-no-overlap-seat-info-fix">
+/* Keep CALL/CHECK/RAISE and wager amount beside the seat, never below the next player. */
+#game .seatStatus{
+  position:absolute!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  margin:0!important;
+  top:46px!important;
+  min-width:38px!important;
+  height:18px!important;
+  padding:1px 5px!important;
+  z-index:58!important;
+  pointer-events:none!important;
+}
+#game .betTag{
+  position:absolute!important;
+  display:flex!important;
+  top:25px!important;
+  min-width:40px!important;
+  height:20px!important;
+  padding:2px 5px!important;
+  z-index:57!important;
+  pointer-events:none!important;
+}
+#game .blindTag{
+  position:absolute!important;
+  top:67px!important;
+  margin:0!important;
+  z-index:56!important;
+  pointer-events:none!important;
+}
+
+/* Left-side seats: all little badges open toward table center. */
+#game .s1 .seatStatus,#game .s2 .seatStatus,#game .s3 .seatStatus,#game .s4 .seatStatus,
+#game .s1 .blindTag,#game .s2 .blindTag,#game .s3 .blindTag,#game .s4 .blindTag{
+  left:47px!important;right:auto!important;transform:none!important;
+}
+#game .s1 .betTag,#game .s2 .betTag,#game .s3 .betTag,#game .s4 .betTag{
+  left:47px!important;right:auto!important;transform:none!important;
+}
+
+/* Right-side seats: open toward table center. */
+#game .s5 .seatStatus,#game .s6 .seatStatus,#game .s7 .seatStatus,#game .s8 .seatStatus,
+#game .s5 .blindTag,#game .s6 .blindTag,#game .s7 .blindTag,#game .s8 .blindTag{
+  right:47px!important;left:auto!important;transform:none!important;
+}
+#game .s5 .betTag,#game .s6 .betTag,#game .s7 .betTag,#game .s8 .betTag{
+  right:47px!important;left:auto!important;transform:none!important;
+}
+
+/* Bottom player's info stays above the player, not over the action buttons. */
+#game .s0 .seatStatus{left:50%!important;right:auto!important;top:-19px!important;transform:translateX(-50%)!important}
+#game .s0 .betTag{left:50%!important;right:auto!important;top:-41px!important;transform:translateX(-50%)!important}
+#game .s0 .blindTag{left:50%!important;right:auto!important;top:-62px!important;transform:translateX(-50%)!important}
+
+/* When winner cards open, only the winner result remains; action/bet badges are removed by render logic. */
+#game .showCards{z-index:70!important}
+#game .handLabel{z-index:71!important}
 </style>
 
 </body></html>
