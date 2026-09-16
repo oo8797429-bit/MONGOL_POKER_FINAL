@@ -2395,6 +2395,70 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   const _spectate20=spectate;
   spectate=function(){stopUserTurnClock();return _spectate20()};
 
+  /* Unified table controls support: keep the core game logic intact, but expose
+     safe helpers for seat switching and multi-table session snapshots. */
+  let mpSeatSwitchMode=false;
+  function mpPaintSeatSwitchChoices(){
+    if(!mpSeatSwitchMode||!userSeatedAtTable)return;
+    document.querySelectorAll('#game .emptySeat').forEach(el=>{
+      const m=(el.className||'').match(/\bs(\d)\b/);if(!m)return;
+      const slot=Number(m[1]);
+      el.classList.add('chooseable','mpSeatSwitchChoice');
+      el.setAttribute('role','button');
+      el.onclick=()=>window.mpSwitchSeatTo(slot);
+      const nm=el.querySelector('.nm span');if(nm)nm.textContent='СОЛИХ';
+    });
+  }
+  const _renderGameTableControls=renderGame;
+  renderGame=function(){
+    const out=_renderGameTableControls.apply(this,arguments);
+    mpPaintSeatSwitchChoices();
+    return out;
+  };
+  window.mpStartSeatSwitch=function(){
+    if(!userSeatedAtTable)return toast('Эхлээд ширээнд сууна уу');
+    if(liveRoundBusy)return toast('Энэ үйлдэл дууссаны дараа суудлаа солино уу');
+    mpSeatSwitchMode=true;renderGame();
+    setStatus('Сул суудлын “СОЛИХ” дээр дарна уу');
+    return true;
+  };
+  window.mpSwitchSeatTo=function(slot){
+    if(!mpSeatSwitchMode||!userSeatedAtTable)return;
+    slot=Math.max(0,Math.min(8,Number(slot)||0));
+    const el=document.querySelector('#game .emptySeat.s'+slot);if(!el)return toast('Энэ суудал сул биш байна');
+    userSeatSlot=slot;mpSeatSwitchMode=false;renderGame();toast('Суудал солигдлоо');
+  };
+  window.mpCancelSeatSwitch=function(){mpSeatSwitchMode=false;renderGame()};
+  window.mpTurnState=function(){return {turnLeft,liveTurn,finished,spectator,liveRoundBusy}};
+  window.mpCapturePokerSession=function(){
+    const cp=v=>{try{return structuredClone(v)}catch(e){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}};
+    return {
+      currentTable:cp(currentTable),tableSession,userSeatedAtTable,userSeatSlot,spectator,
+      deck:cp(deck),holes:cp(holes),boardCards:cp(boardCards),players:cp(players),folded:cp(folded),
+      street,potAmt,toCall,finished,handNo,
+      liveDealer,liveSB,liveBB,liveTurn,liveWinner,liveSeatBets:cp(liveSeatBets),liveSeatStatus:cp(liveSeatStatus),
+      liveRoundBusy:false,turnLeft,burnedCards:cp(burnedCards),showdownInfo:cp(showdownInfo),showdownWinners:cp(showdownWinners),dealSessionToken,
+      statusText:$('status')?.textContent||''
+    };
+  };
+  window.mpSuspendPokerSession=function(){stopUserTurnClock();tableSession=false;liveRoundBusy=false;liveTurn=-1};
+  window.mpRestorePokerSession=function(s){
+    if(!s||!s.currentTable)return false;stopUserTurnClock();
+    const cp=v=>{try{return structuredClone(v)}catch(e){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}};
+    currentTable=cp(s.currentTable);tableSession=true;userSeatedAtTable=!!s.userSeatedAtTable;userSeatSlot=s.userSeatSlot??null;spectator=!!s.spectator;
+    deck=cp(s.deck||[]);holes=cp(s.holes||[]);boardCards=cp(s.boardCards||[]);players=cp(s.players||[]);folded=cp(s.folded||[]);
+    street=Number(s.street)||0;potAmt=Number(s.potAmt)||0;toCall=Number(s.toCall)||0;finished=!!s.finished;handNo=Number(s.handNo)||0;
+    liveDealer=Number.isFinite(Number(s.liveDealer))?Number(s.liveDealer):-1;liveSB=Number.isFinite(Number(s.liveSB))?Number(s.liveSB):-1;liveBB=Number.isFinite(Number(s.liveBB))?Number(s.liveBB):-1;
+    liveTurn=userSeatedAtTable&&!finished?0:(Number.isFinite(Number(s.liveTurn))?Number(s.liveTurn):-1);liveWinner=Number.isFinite(Number(s.liveWinner))?Number(s.liveWinner):-1;
+    liveSeatBets=cp(s.liveSeatBets||players.map(()=>0));liveSeatStatus=cp(s.liveSeatStatus||players.map(()=>''));liveRoundBusy=false;turnLeft=TURN_SECONDS;
+    burnedCards=cp(s.burnedCards||[]);showdownInfo=cp(s.showdownInfo||[]);showdownWinners=cp(s.showdownWinners||[]);dealSessionToken=(Number(s.dealSessionToken)||0)+1;
+    if($('gameName'))$('gameName').textContent=currentTable.name+' • '+(currentTable.type==='omaha'?'OMAHA':'HOLDEM');
+    if($('gameBlind'))$('gameBlind').textContent=fmt(currentTable.sb)+'/'+fmt(currentTable.bb)+' • 9 MAX';
+    show('game');if(s.statusText)setStatus(s.statusText);renderGame();
+    if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
+    return true;
+  };
+
 })();
 </script>
 
@@ -3179,6 +3243,152 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     mountPlayerCardsInsideTable();
   }
   setTimeout(mountPlayerCardsInsideTable,100);
+})();
+</script>
+
+
+<style id="mp-unified-table-controls-style">
+#game .gameTopActions,#game #tableSizeBtn{display:none!important}
+#game .tableHud .hudGroup{display:none!important}
+#game .gameHead{position:sticky!important}
+#game .mpTableMenuLauncher{
+  position:absolute;right:10px;top:9px;z-index:70;width:auto;min-width:86px;height:40px;padding:0 12px;
+  border:1px solid #d5ab52!important;border-radius:12px!important;background:linear-gradient(180deg,#302513,#15110b)!important;
+  color:#f3d688!important;font-size:10px!important;font-weight:900!important;letter-spacing:.4px;box-shadow:0 4px 12px #0009,inset 0 0 0 1px #5d4520;
+}
+#game .mpTableMenuLauncher:active{transform:scale(.97)}
+.mpCtlShade{position:fixed;inset:0;background:#000a;z-index:410;backdrop-filter:blur(2px)}
+.mpCtlPanel{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:420;width:min(100%,430px);max-height:78dvh;overflow:auto;
+  background:linear-gradient(180deg,#1d1a15,#0f1111 32%);border:1px solid #725729;border-bottom:0;border-radius:22px 22px 0 0;
+  box-shadow:0 -14px 44px #000c;padding:14px 14px 22px;color:#fff}
+.mpCtlHandle{width:46px;height:4px;border-radius:99px;background:#786742;margin:0 auto 10px}
+.mpCtlHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.mpCtlHead b{font-size:14px;color:#f0d081;letter-spacing:.6px}.mpCtlHead button{width:34px;height:34px;border:1px solid #66522d;border-radius:10px;background:#171713;color:#e8cf91;font-size:18px}
+.mpCtlInfo{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:9px 11px;margin-bottom:11px;border:1px solid #3e3525;border-radius:12px;background:#0d0f0f;font-size:9px;color:#b9b3a4}
+.mpCtlInfo b{color:#f4d77c;font-size:10px}.mpCtlGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mpCtlBtn{min-height:56px;border:1px solid #4c402b;border-radius:12px;background:linear-gradient(180deg,#23231f,#151716);color:#fff;display:flex;align-items:center;gap:9px;padding:9px 10px;text-align:left;font-size:10px;font-weight:800;box-shadow:inset 0 0 0 1px #ffffff05}
+.mpCtlBtn .ico{width:29px;height:29px;border-radius:9px;display:grid;place-items:center;background:#2f281a;color:#f2cf76;font-size:17px;flex:0 0 auto}.mpCtlBtn small{display:block;color:#8f918d;font-size:7px;font-weight:600;margin-top:2px}
+.mpCtlBtn.gold{border-color:#8c6a2d;background:linear-gradient(180deg,#332715,#1a150d)}.mpCtlBtn.red{border-color:#69362f;background:linear-gradient(180deg,#321b18,#19100f)}
+.mpCtlSection{grid-column:1/-1;margin:5px 2px 0;color:#8f8266;font-size:8px;font-weight:900;letter-spacing:.8px}
+.mpSeatSwitchChoice .pic{border-color:#f5ca5d!important;box-shadow:0 0 0 3px #f5ca5d33,0 0 18px #f5ca5daa!important}.mpSeatSwitchChoice .nm{color:#f5ca5d!important}
+.mpMiniSheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:450;width:min(100%,430px);background:#171918;border:1px solid #65502a;border-bottom:0;border-radius:20px 20px 0 0;padding:16px;box-shadow:0 -12px 36px #000c;color:#fff}
+.mpMiniSheet h3{margin:0 0 12px;color:#efd07d;font-size:14px}.mpStickerGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.mpStickerGrid button{height:52px;border:1px solid #4c412d;border-radius:12px;background:#22231f;color:#fff;font-size:25px}.mpMiniSheet .wide{width:100%;height:42px;margin-top:10px;border:1px solid #725729;border-radius:10px;background:#2c2416;color:#f3d17b;font-weight:800}
+.mpSessionsList{display:grid;gap:8px;max-height:55dvh;overflow:auto}.mpSessionRow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:1px solid #3d382c;border-radius:12px;padding:10px;background:#101212}.mpSessionRow b{font-size:11px}.mpSessionRow small{display:block;color:#95978f;font-size:8px;margin-top:3px}.mpSessionRow button{height:36px;border:1px solid #8b6b31;border-radius:9px;background:#2d2416;color:#f0d07a;font-size:9px;font-weight:900}
+.mpHistoryItem{padding:9px 0;border-bottom:1px solid #30322e;font-size:9px;line-height:1.5}.mpHistoryItem b{color:#f0d17c}
+.mpStickerBubble{position:absolute;left:50%;top:-34px;transform:translateX(-50%);z-index:90;min-width:42px;padding:5px 7px;border:1px solid #d6b45e;border-radius:12px;background:#111e;color:#fff;font-size:22px;box-shadow:0 5px 14px #000b;animation:mpStickerPop .22s ease-out}
+@keyframes mpStickerPop{from{transform:translateX(-50%) scale(.5);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+@media(max-width:360px){.mpCtlBtn{min-height:52px;padding:7px 8px}.mpCtlBtn .ico{width:26px;height:26px;font-size:15px}.mpCtlPanel{padding-left:10px;padding-right:10px}}
+</style>
+<div id="mpCtlShade" class="mpCtlShade hidden" onclick="mpCloseTableControls()"></div>
+<div id="mpCtlPanel" class="mpCtlPanel hidden" role="dialog" aria-label="Ширээний удирдлага">
+  <div class="mpCtlHandle"></div>
+  <div class="mpCtlHead"><b>☰ ШИРЭЭНИЙ УДИРДЛАГА</b><button onclick="mpCloseTableControls()">×</button></div>
+  <div id="mpCtlInfo" class="mpCtlInfo"></div>
+  <div class="mpCtlGrid">
+    <div class="mpCtlSection">СУУДАЛ & ТОГЛОЛТ</div>
+    <button class="mpCtlBtn gold" onclick="mpCtlSit()"><span class="ico">＋</span><span>СУУХ<small>Сул суудлаа сонгоно</small></span></button>
+    <button class="mpCtlBtn" onclick="mpCtlWatch()"><span class="ico">◉</span><span>ҮЗЭХ<small>Тоглолт ажиглана</small></span></button>
+    <button class="mpCtlBtn" onclick="mpCtlSeatSwitch()"><span class="ico">↔</span><span>СУУДАЛ СОЛИХ<small>Сул суудал руу</small></span></button>
+    <button class="mpCtlBtn" onclick="mpCtlAddMoney()"><span class="ico">＋</span><span>CHIP НЭМЭХ<small>Stack нэмэгдүүлнэ</small></span></button>
+    <button class="mpCtlBtn gold" onclick="mpCtlDoubleSit()"><span class="ico">▦</span><span>ДАВХАР СУУХ<small>Одоогийн ширээг хадгална</small></span></button>
+    <button class="mpCtlBtn" onclick="mpOpenMyTables()"><span class="ico">♠</span><span>МИНИЙ ШИРЭЭНҮҮД<small>Суусан ширээнүүд</small></span></button>
+    <div class="mpCtlSection">ШИРЭЭ & ХАРАГДАЦ</div>
+    <button class="mpCtlBtn" onclick="mpCtlInfoToast()"><span class="ico">ⓘ</span><span>МЭДЭЭЛЭЛ<small>Blind, buy-in, rake</small></span></button>
+    <button class="mpCtlBtn" onclick="mpCtlToggleSize()"><span class="ico">⛶</span><span>ТОМ / ЖИЖИГ<small>Дэлгэцэнд тааруулна</small></span></button>
+    <button id="mpSoundBtn" class="mpCtlBtn" onclick="mpToggleSound()"><span class="ico">🔊</span><span>ДУУ / EFFECT<small>Асаах / унтраах</small></span></button>
+    <button class="mpCtlBtn" onclick="mpOpenHandHistory()"><span class="ico">↶</span><span>ӨМНӨХ ГАР<small>Сүүлийн үр дүн</small></span></button>
+    <div class="mpCtlSection">ХАРИЛЦАА & БУСАД</div>
+    <button class="mpCtlBtn" onclick="mpOpenStickerSheet()"><span class="ico">☺</span><span>MESSAGE / STICKER<small>Мессеж, sticker</small></span></button>
+    <button class="mpCtlBtn" onclick="mpCtlBonus()"><span class="ico">🎁</span><span>БЭЛЭГ / БОНУС<small>Бонус шалгах</small></span></button>
+    <button class="mpCtlBtn" onclick="mpCtlNotifications()"><span class="ico">🔔</span><span>МЭДЭГДЭЛ<small>Мессежүүд</small></span></button>
+    <button class="mpCtlBtn" onclick="mpCtlSettings()"><span class="ico">⚙</span><span>ТОХИРГОО<small>App тохиргоо</small></span></button>
+    <button class="mpCtlBtn red" style="grid-column:1/-1" onclick="mpCtlLeave()"><span class="ico">↩</span><span>ШИРЭЭНЭЭС ГАРАХ<small>Lobby руу буцна</small></span></button>
+  </div>
+</div>
+<div id="mpMiniShade" class="mpCtlShade hidden" onclick="mpCloseMiniSheet()"></div>
+<div id="mpStickerSheet" class="mpMiniSheet hidden"><h3>☺ Sticker / Мессеж</h3><div class="mpStickerGrid"><button onclick="mpSendSticker('👍')">👍</button><button onclick="mpSendSticker('🔥')">🔥</button><button onclick="mpSendSticker('😎')">😎</button><button onclick="mpSendSticker('😂')">😂</button><button onclick="mpSendSticker('👏')">👏</button><button onclick="mpSendSticker('🤝')">🤝</button><button onclick="mpSendSticker('😮')">😮</button><button onclick="mpSendSticker('💪')">💪</button></div><button class="wide" onclick="mpCloseMiniSheet();mpCtlNotifications()">✉ Мессеж бичих</button></div>
+<div id="mpMyTablesSheet" class="mpMiniSheet hidden"><h3>♠ Миний ширээнүүд</h3><div id="mpSessionsList" class="mpSessionsList"></div><button class="wide" onclick="mpCloseMiniSheet()">Хаах</button></div>
+<div id="mpHandHistorySheet" class="mpMiniSheet hidden"><h3>↶ Өмнөх гарууд</h3><div id="mpHandHistoryList" class="mpSessionsList"></div><button class="wide" onclick="mpCloseMiniSheet()">Хаах</button></div>
+<script id="mp-unified-table-controls-script">
+(function(){
+  const $id=id=>document.getElementById(id);
+  let audioCtx=null,lastTimerBeep=null,lastRecordedHand='';
+  const sessionKey='MP_MULTI_TABLE_SESSIONS_V1',historyKey='MP_HAND_HISTORY_V1';
+  let sessions={};try{sessions=JSON.parse(localStorage.getItem(sessionKey)||'{}')||{}}catch(e){sessions={}}
+  let handHistory=[];try{handHistory=JSON.parse(localStorage.getItem(historyKey)||'[]')||[]}catch(e){handHistory=[]}
+  function safeSaveSessions(){try{localStorage.setItem(sessionKey,JSON.stringify(sessions))}catch(e){}}
+  function safeSaveHistory(){try{localStorage.setItem(historyKey,JSON.stringify(handHistory.slice(0,20)))}catch(e){}}
+  function soundOn(){return !db?.settings||db.settings.sound!==false}
+  function unlockAudio(){if(!soundOn())return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}catch(e){}}
+  document.addEventListener('pointerdown',unlockAudio,{passive:true});
+  window.mpSfx=function(type){
+    if(!soundOn())return;unlockAudio();if(!audioCtx)return;
+    const now=audioCtx.currentTime;
+    const tone=(freq,dur,vol=.045,kind='sine',delay=0)=>{try{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=kind;o.frequency.setValueAtTime(freq,now+delay);g.gain.setValueAtTime(0.0001,now+delay);g.gain.exponentialRampToValueAtTime(vol,now+delay+.008);g.gain.exponentialRampToValueAtTime(.0001,now+delay+dur);o.connect(g).connect(audioCtx.destination);o.start(now+delay);o.stop(now+delay+dur+.02)}catch(e){}};
+    if(type==='deal'){tone(520,.08,.035,'triangle');tone(680,.07,.025,'triangle',.07)}
+    else if(type==='chip'){tone(980,.055,.025,'square');tone(760,.07,.018,'square',.035)}
+    else if(type==='fold'){tone(210,.12,.035,'sine')}
+    else if(type==='check'){tone(460,.07,.027,'triangle')}
+    else if(type==='call'){tone(620,.08,.03,'triangle');tone(760,.06,.02,'triangle',.05)}
+    else if(type==='raise'){tone(510,.07,.035,'square');tone(760,.08,.028,'square',.06);tone(980,.09,.02,'square',.12)}
+    else if(type==='timer'){tone(880,.07,.035,'square')}
+    else if(type==='win'){tone(523,.11,.04,'triangle');tone(659,.11,.04,'triangle',.11);tone(784,.18,.05,'triangle',.22)}
+  };
+  function vibrate(ms=20){if(db?.settings?.vibe!==false&&navigator.vibrate)try{navigator.vibrate(ms)}catch(e){}}
+  function updateSoundButton(){const b=$id('mpSoundBtn');if(!b)return;const on=soundOn();b.querySelector('.ico').textContent=on?'🔊':'🔇';const s=b.querySelector('span:last-child');if(s)s.childNodes[0].nodeValue=on?'ДУУ / EFFECT':'ДУУ УНТРААСАН'}
+  function updateInfo(){const el=$id('mpCtlInfo');if(!el)return;if(!currentTable){el.innerHTML='<span>Ширээ сонгоогүй</span><b>—</b>';return}el.innerHTML=`<span>${currentTable.name||'Ширээ'}</span><b>${fmt(currentTable.sb||0)}/${fmt(currentTable.bb||0)}</b><span>Орох дүн</span><b>${fmt(currentTable.buy||0)}</b><span>RAKE</span><b>${Number(db?.rake?.percent??1)}%</b>`}
+  function initLauncher(){let head=document.querySelector('#game .gameHead');if(!head||$id('mpTableMenuLauncher'))return;let b=document.createElement('button');b.id='mpTableMenuLauncher';b.className='mpTableMenuLauncher';b.type='button';b.textContent='☰ ШИРЭЭ';b.onclick=window.mpOpenTableControls;head.appendChild(b)}
+  window.mpOpenTableControls=function(){initLauncher();updateInfo();updateSoundButton();$id('mpCtlShade')?.classList.remove('hidden');$id('mpCtlPanel')?.classList.remove('hidden');vibrate(10)};
+  window.mpCloseTableControls=function(){$id('mpCtlShade')?.classList.add('hidden');$id('mpCtlPanel')?.classList.add('hidden')};
+  window.mpCloseMiniSheet=function(){$id('mpMiniShade')?.classList.add('hidden');document.querySelectorAll('.mpMiniSheet').forEach(x=>x.classList.add('hidden'))};
+  function openMini(id){window.mpCloseTableControls();$id('mpMiniShade')?.classList.remove('hidden');$id(id)?.classList.remove('hidden')}
+  window.mpCtlSit=function(){window.mpCloseTableControls();sitAtGameTable();mpSfx('check')};
+  window.mpCtlWatch=function(){window.mpCloseTableControls();spectate();mpSfx('check')};
+  window.mpCtlSeatSwitch=function(){window.mpCloseTableControls();window.mpStartSeatSwitch?.()};
+  window.mpCtlAddMoney=function(){window.mpCloseTableControls();openAddMoney()};
+  function captureCurrent(){if(!currentTable||!tableSession||!window.mpCapturePokerSession)return null;const s=window.mpCapturePokerSession();sessions[String(currentTable.id)]=s;safeSaveSessions();return s}
+  let saveTimer=0;function scheduleCapture(){if(!currentTable||!tableSession||!userSeatedAtTable)return;clearTimeout(saveTimer);saveTimer=setTimeout(captureCurrent,700)}
+  window.mpCtlDoubleSit=function(){
+    if(!currentTable||!userSeatedAtTable){toast('Эхлээд одоогийн ширээнд сууна уу');return}
+    captureCurrent();window.mpSuspendPokerSession?.();window.mpCloseTableControls();show('tables');toast('Одоогийн ширээ хадгалагдлаа • Өөр ширээ сонгоно уу')
+  };
+  window.mpOpenMyTables=function(){
+    captureCurrent();let box=$id('mpSessionsList');let vals=Object.entries(sessions);
+    box.innerHTML=vals.length?vals.map(([id,s])=>{let t=s.currentTable||{},me=(s.players||[]).find(p=>p&&p.user)||(s.players||[])[0]||{};return `<div class="mpSessionRow"><div><b>${t.name||'Ширээ'}</b><small>${fmt(t.sb||0)}/${fmt(t.bb||0)} • stack ${fmt(me.chips||0)}${currentTable&&String(currentTable.id)===String(id)?' • ОДОО':''}</small></div><button onclick="mpSwitchTableSession('${String(id).replace(/'/g,"\\'")}')">НЭЭХ</button></div>`}).join(''):'<div class="mpHistoryItem">Одоогоор хадгалсан ширээ алга.</div>';
+    openMini('mpMyTablesSheet')
+  };
+  window.mpSwitchTableSession=function(id){
+    const s=sessions[String(id)];if(!s)return toast('Ширээ олдсонгүй');
+    if(currentTable&&tableSession&&String(currentTable.id)!==String(id))captureCurrent();
+    window.mpSuspendPokerSession?.();window.mpCloseMiniSheet();window.mpRestorePokerSession?.(s);toast((s.currentTable?.name||'Ширээ')+' нээгдлээ')
+  };
+  window.mpCtlInfoToast=function(){if(!currentTable)return toast('Ширээ сонгоогүй байна');toast(`${currentTable.name} • ${fmt(currentTable.sb)}/${fmt(currentTable.bb)} • Buy-in ${fmt(currentTable.buy)} • RAKE ${Number(db?.rake?.percent??1)}%`)};
+  window.mpCtlToggleSize=function(){window.mpCloseTableControls();toggleTableSize()};
+  window.mpToggleSound=function(){db.settings=db.settings||{};db.settings.sound=!soundOn();save();updateSoundButton();if(soundOn()){unlockAudio();mpSfx('check')}else toast('Дуу унтарлаа')};
+  window.mpOpenStickerSheet=function(){openMini('mpStickerSheet')};
+  window.mpSendSticker=function(emoji){
+    window.mpCloseMiniSheet();let seat=document.querySelector('#game .seat[data-seat-index="0"]')||document.querySelector('#game .seat.s0');if(!seat)return toast('Эхлээд ширээнд сууна уу');
+    seat.querySelectorAll('.mpStickerBubble').forEach(x=>x.remove());let b=document.createElement('div');b.className='mpStickerBubble';b.textContent=emoji;seat.appendChild(b);mpSfx('check');setTimeout(()=>b.remove(),2200)
+  };
+  window.mpCtlBonus=function(){window.mpCloseTableControls();openGameGift()};
+  window.mpCtlNotifications=function(){window.mpCloseTableControls();openGameBell()};
+  window.mpCtlSettings=function(){window.mpCloseTableControls();openGameSettings()};
+  window.mpCtlLeave=function(){let id=currentTable?.id;window.mpCloseTableControls();leaveTable();if(id!=null){delete sessions[String(id)];safeSaveSessions()}};
+  window.mpOpenHandHistory=function(){let box=$id('mpHandHistoryList');box.innerHTML=handHistory.length?handHistory.map(h=>`<div class="mpHistoryItem"><b>#${h.hand||0} • ${h.table||'Ширээ'}</b><br>${h.status||''}<br><span style="color:#8d938e">${h.board||''}</span></div>`).join(''):'<div class="mpHistoryItem">Өмнөх гарын мэдээлэл алга.</div>';openMini('mpHandHistorySheet')};
+  function recordFinishedHand(){
+    if(!finished||!currentTable)return;const key=String(currentTable.id)+':'+String(handNo);if(key===lastRecordedHand)return;lastRecordedHand=key;
+    const board=(boardCards||[]).map(c=>c?rank(c.r)+c.s:'').filter(Boolean).join(' ');const status=$id('status')?.textContent||'';
+    handHistory.unshift({hand:handNo,table:currentTable.name,status,board,ts:Date.now()});handHistory=handHistory.slice(0,20);safeSaveHistory();mpSfx('win')
+  }
+  const _render=renderGame;renderGame=function(){let r=_render.apply(this,arguments);initLauncher();recordFinishedHand();scheduleCapture();return r};
+  const _newHand=newHand;newHand=function(){let r=_newHand.apply(this,arguments);mpSfx('deal');return r};
+  const _nextStreet=nextStreet;nextStreet=function(){let r=_nextStreet.apply(this,arguments);mpSfx('deal');return r};
+  const _pay=pay;pay=function(i,n){let x=_pay.apply(this,arguments);if(x>0)mpSfx('chip');return x};
+  const _status=setStatus;setStatus=function(t){let r=_status.apply(this,arguments);let s=String(t||'');if(/•\\s*Fold|Та Fold/i.test(s))mpSfx('fold');else if(/•\\s*Raise|Raise хийлээ/i.test(s))mpSfx('raise');else if(/•\\s*Call|Call хийлээ/i.test(s))mpSfx('call');else if(/•\\s*Check|Check хийлээ/i.test(s))mpSfx('check');return r};
+  const _choose=chooseSeat;chooseSeat=function(slot){let r=_choose.apply(this,arguments);if(userSeatedAtTable)captureCurrent();return r};
+  const _leave=leaveTable;leaveTable=function(){let id=currentTable?.id;let r=_leave.apply(this,arguments);if(id!=null){delete sessions[String(id)];safeSaveSessions()}return r};
+  setInterval(()=>{try{let st=window.mpTurnState?.();if(!st||st.finished||st.spectator||st.liveTurn!==0)return;if(st.turnLeft<=3&&st.turnLeft>0&&lastTimerBeep!==st.turnLeft){lastTimerBeep=st.turnLeft;mpSfx('timer');if(st.turnLeft===1)vibrate(45)}if(st.turnLeft>3)lastTimerBeep=null}catch(e){}},250);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{initLauncher();updateSoundButton()});else{initLauncher();updateSoundButton()}
 })();
 </script>
 
