@@ -1472,14 +1472,14 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 #game .seatStatus.allin{background:#4d3510dd;border-color:#d5a936;color:#ffe68b;box-shadow:0 0 7px #f1c84a66}
 #game .seatStatus.raise{background:#4a3313dd;border-color:#b57d24;color:#ffd47a}
 #game .seat.folded{filter:grayscale(.85) opacity(.45)}
-#game .s0{left:50%;bottom:4px;transform:translateX(-50%)}
-#game .s1{left:5%;bottom:62px}
-#game .s2{left:-1%;top:49%;transform:translateY(-50%)}
-#game .s3{left:7%;top:36px}
-#game .s4{left:50%;top:0;transform:translateX(-50%)}
-#game .s5{right:7%;top:36px}
-#game .s6{right:-1%;top:49%;transform:translateY(-50%)}
-#game .s7{right:5%;bottom:62px}
+#game .s0{left:50%!important;right:auto!important;bottom:-12px!important;top:auto!important;transform:translateX(-50%)!important}
+#game .s1{left:6%!important;right:auto!important;bottom:72px!important;top:auto!important;transform:none!important}
+#game .s2{left:-5%!important;right:auto!important;top:57%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s3{left:-5%!important;right:auto!important;top:33%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s4{left:6%!important;right:auto!important;top:54px!important;bottom:auto!important;transform:none!important}
+#game .s5{right:6%!important;left:auto!important;top:54px!important;bottom:auto!important;transform:none!important}
+#game .s6{right:-5%!important;left:auto!important;top:33%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s7{right:-5%!important;left:auto!important;top:57%!important;bottom:auto!important;transform:translateY(-50%)!important}
 #game .tableHud{position:absolute;inset:0;pointer-events:none;z-index:20}
 #game .hudGroup{position:absolute;display:flex;gap:5px;pointer-events:auto}
 #game .hudTL{left:7px;top:6px}.hudTR{right:7px;top:6px}.hudBL{left:8px;bottom:8px}.hudBR{right:8px;bottom:8px}
@@ -2521,7 +2521,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 #game .s5{right:8%!important;left:auto!important;top:47px!important;bottom:auto!important;transform:none!important}
 #game .s6{right:-3%!important;left:auto!important;top:31%!important;bottom:auto!important;transform:translateY(-50%)!important}
 #game .s7{right:-3%!important;left:auto!important;top:54%!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .s8{right:8%!important;left:auto!important;bottom:64px!important;top:auto!important;transform:none!important}
+#game .s8{right:6%!important;left:auto!important;bottom:72px!important;top:auto!important;transform:none!important}
 
 /* Visible empty 9th slot if an eighth admin bot has not been created yet */
 #game .emptySeat{display:block!important;opacity:.38!important;filter:saturate(.35) drop-shadow(0 3px 4px #000)!important}
