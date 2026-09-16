@@ -4313,6 +4313,106 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 }
 </style>
 
+
+<style id="mp-final-seat-click-fix">
+/* Final seat-click fix: keep selectable seats above the fixed action bar. */
+#game.spectatorSeatMode .emptySeat.chooseable{
+  z-index:300!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
+#game.spectatorSeatMode .emptySeat.chooseable.s0{
+  z-index:320!important;
+  bottom:10px!important;
+}
+#game.spectatorSeatMode .emptySeat.chooseable.s0::before{
+  content:""!important;
+  position:absolute!important;
+  left:-24px!important;
+  right:-24px!important;
+  top:-22px!important;
+  bottom:-24px!important;
+  z-index:321!important;
+  pointer-events:auto!important;
+}
+#game.spectatorSeatMode .actionBar{
+  pointer-events:none!important;
+}
+</style>
+<script id="mp-final-seat-click-script">
+(function(){
+  let lastSeatTap=0;
+
+  function seatFromPoint(x,y){
+    const seats=[...document.querySelectorAll('#game .emptySeat.chooseable')];
+    let best=null,bestDist=Infinity;
+    for(const el of seats){
+      const r=el.getBoundingClientRect();
+      const pad=26;
+      if(x>=r.left-pad&&x<=r.right+pad&&y>=r.top-pad&&y<=r.bottom+pad){
+        const cx=(r.left+r.right)/2,cy=(r.top+r.bottom)/2;
+        const d=(x-cx)*(x-cx)+(y-cy)*(y-cy);
+        if(d<bestDist){bestDist=d;best=el}
+      }
+    }
+    return best;
+  }
+
+  function slotOf(el){
+    const m=String(el?.className||'').match(/(?:^|\s)s(\d)(?:\s|$)/);
+    return m?Number(m[1]):null;
+  }
+
+  function doSeatTap(el,e){
+    if(!el||userSeatedAtTable||mpPendingNextHandJoin||!spectator)return false;
+    const now=Date.now();
+    if(now-lastSeatTap<450)return true;
+    const slot=slotOf(el);
+    if(slot===null)return false;
+    lastSeatTap=now;
+    try{e?.preventDefault?.()}catch(_){}
+    try{e?.stopPropagation?.()}catch(_){}
+    chooseSeat(slot);
+    return true;
+  }
+
+  function pointFromEvent(e){
+    const t=e.changedTouches?.[0]||e.touches?.[0]||e;
+    return {x:Number(t?.clientX)||0,y:Number(t?.clientY)||0};
+  }
+
+  function captureSeatTap(e){
+    if(!document.getElementById('game')?.classList.contains('spectatorSeatMode'))return;
+    let el=e.target?.closest?.('#game .emptySeat.chooseable')||null;
+    if(!el){
+      const p=pointFromEvent(e);
+      el=seatFromPoint(p.x,p.y);
+    }
+    if(el)doSeatTap(el,e);
+  }
+
+  /* Capture phase works even if another fixed layer is visually over the seat. */
+  document.addEventListener('pointerup',captureSeatTap,true);
+  document.addEventListener('touchend',captureSeatTap,{capture:true,passive:false});
+  document.addEventListener('click',captureSeatTap,true);
+
+  /* The top/table-control SУУХ command uses the same reliable path. */
+  sitAtGameTable=function(){
+    if(!currentTable)return toast('Эхлээд ширээ сонгоно уу');
+    if(userSeatedAtTable)return toast('Та ширээнд сууж байна');
+    if(mpPendingNextHandJoin)return toast('Дараагийн гараас орохоор суудал хадгалагдсан');
+    spectator=true;
+    renderGame();
+    const el=document.querySelector('#game .emptySeat.s0.chooseable')||
+             document.querySelector('#game .emptySeat.chooseable');
+    if(!el)return toast('Одоогоор сул суудал алга');
+    const slot=slotOf(el);
+    if(slot===null)return toast('Суудал сонгоход алдаа гарлаа');
+    chooseSeat(slot);
+  };
+})();
+</script>
+
 </body></html>
 
 <style id="mp-plus-seat-visibility-fix">
