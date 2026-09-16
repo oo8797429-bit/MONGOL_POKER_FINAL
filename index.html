@@ -911,6 +911,44 @@
 #bonus .rewardSaveBtn{background:linear-gradient(#f2ca56,#ae7411);border:1px solid #ffd86b;color:#15100a}
 #bonus .rewardClearBtn{background:#171717;border:1px solid #555;color:#ddd}
 </style>
+
+<style id="mp-game-statistics-v2">
+/* ONLY: My Games / statistics screen */
+#stats.mpStatsScreen{background:#1b1d20;color:#e8e8e8;min-height:100vh;padding-bottom:76px;font-family:Arial,sans-serif}
+#stats .mpStatsHead{height:58px;background:linear-gradient(180deg,#075232,#063d29);display:grid;grid-template-columns:58px 1fr 58px;align-items:center;border-bottom:1px solid #0b613a}
+#stats .mpStatsHead>div{text-align:center;font-size:20px;font-weight:500}
+#stats .mpStatsHead button{height:100%;border:0;background:transparent;color:#e7f1ed;font-size:27px}
+#stats .mpStatsTabs{height:84px;display:grid;grid-template-columns:1.7fr .72fr .72fr .72fr;border-bottom:1px solid #32363a;background:#1b1d20}
+#stats .mpStatsTabs button{position:relative;border:0;background:transparent;color:#9ea3a7;font-size:25px;display:flex;align-items:center;justify-content:center;gap:10px}
+#stats .mpStatsTabs button:first-child{font-size:19px;justify-content:flex-start;padding-left:28px}
+#stats .mpStatsTabs button b{font-size:17px;font-weight:500;white-space:nowrap}
+#stats .mpStatsTabs button.on{color:#27dc6a}
+#stats .mpStatsTabs button.on:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:3px;background:#27d865}
+#stats .mpStatsFilters{display:grid;grid-template-columns:1fr 1fr auto;gap:7px;padding:10px 14px;background:#23262a;border-bottom:1px solid #34383d}
+#stats .mpStatsFilters select,#stats .mpStatsFilters button{height:36px;border:1px solid #4b5055;border-radius:4px;background:#17191c;color:#d8dadd;padding:0 8px;font-size:11px}
+#stats .mpStatsFilters button{color:#32d973;font-weight:800}
+#stats .mpStatsSummary{height:70px;display:grid;grid-template-columns:1fr 1.35fr 42px;align-items:center;padding:0 24px;color:#aaaeb2;font-size:16px}
+#stats .mpStatsSummary>span:nth-child(2){text-align:right}
+#stats .mpStatsSummary button{border:0;background:transparent;color:#92989d;font-size:22px}
+#stats #stNet.pos{color:#2fd878}#stats #stNet.neg{color:#f04b3f}
+#stats .mpStatsHands{height:66px;display:flex;align-items:center;gap:18px;padding:0 30px;color:#e7e8e9;font-size:14px}
+#stats .mpStatsHands i{width:38px;height:38px;border:1px solid #81868b;border-radius:3px;display:block}
+#stats .mpStatsList{padding:0 14px 10px}
+#stats .mpStatRow{display:grid;grid-template-columns:48px 1fr;gap:10px;margin-bottom:9px}
+#stats .mpStatCheck{width:38px;height:38px;border:1px solid #747a80;border-radius:3px;margin-top:20px}
+#stats .mpStatCard{background:#303338;border-radius:4px;padding:11px 13px;box-shadow:inset 0 1px 0 #3a3e43}
+#stats .mpStatTop{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#f0f0f0;font-size:12px}
+#stats .mpStatType{border:1px solid #8e9499;border-radius:3px;padding:3px 7px;color:#c6c9cb;font-size:9px;white-space:nowrap}
+#stats .mpStatDate{white-space:nowrap;color:#f0f0f0;font-size:11px}
+#stats .mpStatMain{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;margin-top:8px}
+#stats .mpStatName{font-size:15px;color:#f4f4f4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#stats .mpStatResult{font-size:18px;white-space:nowrap}.mpStatResult.pos{color:#2fd878}.mpStatResult.neg{color:#f04b3f}.mpStatResult.zero{color:#cfd2d3}
+#stats .mpStatMeta{display:flex;justify-content:space-between;gap:10px;margin-top:8px;color:#9ea3a7;font-size:11px}
+#stats .mpStatsEmpty{padding:90px 24px 40px;text-align:center;color:#a5aaae;font-size:14px;line-height:1.55}
+#stats .mpStatsEmptyIcon{width:100px;height:100px;border-radius:50%;background:#15171a;margin:0 auto 22px;display:grid;place-items:center;font-size:45px;color:#676d72}
+#stats .mpStatsMore{display:block;width:calc(100% - 30px);height:54px;margin:18px auto 0;border:0;border-radius:5px;background:linear-gradient(#138244,#075d2d);color:#b9c1bd;font-size:17px}
+@media(max-width:360px){#stats .mpStatsTabs button:first-child{padding-left:16px}#stats .mpStatsTabs button b{font-size:14px}#stats .mpStatsSummary{padding:0 16px;font-size:14px}#stats .mpStatName{font-size:13px}}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1049,7 +1087,25 @@
 <section id="registeredUsers" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Бүртгэлтэй хүмүүс</div><button onclick="renderRegisteredUsers()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Бүртгэлтэй хэрэглэгчид <span id="registeredUsersCount"></span></h3><div id="registeredUsersList"></div></div></div></section>
 <section id="contact" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Админтай холбогдох</div><button onclick="renderContact()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Төлбөр / дансны мэдээлэл</h3><div class="settingRow"><span>Банк</span><b id="contactBankName">-</b></div><div class="settingRow"><span>Данс</span><b id="contactBankAccount">-</b></div><div id="contactBankNote" style="font-size:11px;line-height:1.6;color:#c8d0cd;margin-top:12px"></div><button onclick="featureOpen('messages','messages')">✉ Админд мессеж бичих</button></div></div></section>
 <section id="messages" class="screen"><header class="top"><button onclick="gameSmartBack('messages','home')">‹</button><div class="ttl">Мэдэгдэл / Мессеж</div><button onclick="renderMessages()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Админд мессеж илгээх</h3><textarea id="msgText" placeholder="Мессежээ бичнэ үү"></textarea><button onclick="sendMessage()">Илгээх</button></div><div id="messageList"></div></div></section>
-<section id="stats" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Статистик</div><button onclick="renderStats()">⟳</button></header><div class="simplePage"><div class="statGrid"><div class="statBox">Гар<b id="stHands">0</b></div><div class="statBox">Хожил<b id="stWins">0</b></div><div class="statBox">Chip<b id="stChips">0</b></div><div class="statBox">Ширээ<b id="stTables">0</b></div></div><div class="simpleCard"><button onclick="featureOpen('tables','tables')">Ширээнүүд рүү орох</button></div></div></section>
+<section id="stats" class="screen mpStatsScreen">
+  <header class="mpStatsHead"><button onclick="show('home')">←</button><div>Миний Тоглоомууд</div><button onclick="renderStats()">⟳</button></header>
+  <div class="mpStatsTabs">
+    <button class="on" data-stat-tab="all" onclick="mpStatsTab('all',this)"><span>▮▮</span><b>Миний үр дүн</b></button>
+    <button data-stat-tab="wins" onclick="mpStatsTab('wins',this)" aria-label="Хожсон тоглолт"><span>🏆</span></button>
+    <button data-stat-tab="losses" onclick="mpStatsTab('losses',this)" aria-label="Алдсан тоглолт"><span>🂡</span></button>
+    <button onclick="mpToggleStatsFilters()" aria-label="Шүүлтүүр"><span>☷</span></button>
+  </div>
+  <div id="mpStatsFilters" class="mpStatsFilters hidden">
+    <select id="mpStatsGameFilter" onchange="renderStats()"><option value="all">Бүх төрөл</option><option value="holdem">Холдем</option><option value="omaha">Омаха</option></select>
+    <select id="mpStatsTimeFilter" onchange="renderStats()"><option value="all">Бүх хугацаа</option><option value="today">Өнөөдөр</option><option value="7d">7 хоног</option><option value="30d">30 хоног</option></select>
+    <button onclick="mpResetStatsFilters()">ЦЭВЭРЛЭХ</button>
+  </div>
+  <div class="mpStatsSummary"><span><b id="stTables">0</b> Тоглолт</span><span>Үр дүн: <b id="stNet">0</b></span><button onclick="mpToggleStatsFilters()">⚙</button></div>
+  <div class="mpStatsHands"><i></i><b>НИЙТ ГАРУУД: <span id="stHands">0</span></b></div>
+  <div id="mpStatsList" class="mpStatsList"></div>
+  <div id="mpStatsEmpty" class="mpStatsEmpty hidden"><div class="mpStatsEmptyIcon">🂠</div><p>Одоогоор үр дүн гараагүй байна.<br>Ширээнд тоглоод гарахад энд автоматаар бүртгэгдэнэ.</p></div>
+  <button id="mpStatsMore" class="mpStatsMore hidden" onclick="mpToggleStatsMore()">Гарнуудыг харуулах</button>
+</section>
 <section id="bonus" class="screen rewardScreen"><header class="top"><button onclick="gameSmartBack('bonus','home')">‹</button><div class="ttl">Шагнал урамшуулал</div><button onclick="refreshRewards()">⟳</button></header><div class="simplePage rewardPage">
   <div id="rewardAdminPanel" class="rewardAdminPanel hidden">
     <div class="rewardAdminTitle">АДМИН — ШАГНАЛ / УРАМШУУЛАЛ ЗАРЛАХ</div>
@@ -3583,7 +3639,66 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   // Keep the existing in-game menu bonus button compatible with this screen.
   window.mpCtlBonus=function(){try{if(typeof mpCloseControlSheet==='function')mpCloseControlSheet()}catch(e){}openRewards('game')};
 })();
-</script>\n</body></html>
+</script>\n
+<script id="mp-game-statistics-script-v2">
+(function(){
+  let tab='all', showAll=false;
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fnum=n=>Number(n||0).toLocaleString('en-US');
+  const activeMap=u=>{if(!u)return {};u.gameStatActive=u.gameStatActive&&typeof u.gameStatActive==='object'?u.gameStatActive:{};return u.gameStatActive};
+  const history=u=>{if(!u)return [];u.gameHistory=Array.isArray(u.gameHistory)?u.gameHistory:[];return u.gameHistory};
+  function tableKey(){return currentTable?String(currentTable.id||currentTable.name||'table'):''}
+  function ensureSession(){
+    if(!currentUser||!currentTable||!userSeatedAtTable)return null;
+    const m=activeMap(currentUser),k=tableKey();
+    if(!m[k])m[k]={id:'gs'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),tableId:String(currentTable.id||''),tableName:String(currentTable.name||'Ширээ'),gameType:String(currentTable.type||'holdem'),sb:Number(currentTable.sb||0),bb:Number(currentTable.bb||0),rake:Number(db?.rake?.percent??1),startAt:Date.now(),hands:0,cashIn:Number(currentTable.buy||0),buyIn:Number(currentTable.buy||0)};
+    return m[k];
+  }
+  function noteNewHand(){const x=ensureSession();if(x){x.hands=Math.max(0,Number(x.hands)||0)+1;save()}}
+  function noteAddMoney(amount){const x=ensureSession();amount=Math.max(0,Number(amount)||0);if(x&&amount){x.cashIn=Math.max(0,Number(x.cashIn)||0)+amount;save()}}
+  function finalizeCurrent(){
+    if(!currentUser||!currentTable||!userSeatedAtTable)return;
+    const m=activeMap(currentUser),k=tableKey(),x=m[k]||ensureSession();if(!x)return;
+    const me=(players||[]).find(p=>p&&p.user)||(players||[])[0];
+    const cashOut=Math.max(0,Number(me?.chips)||0),cashIn=Math.max(0,Number(x.cashIn)||0);
+    const rec=Object.assign({},x,{endAt:Date.now(),cashOut,result:cashOut-cashIn,hands:Math.max(0,Number(x.hands)||0)});
+    history(currentUser).unshift(rec);currentUser.gameHistory=currentUser.gameHistory.slice(0,500);delete m[k];save();
+  }
+  function dateText(ts){
+    const d=new Date(Number(ts)||Date.now());
+    return `${d.getFullYear()} оны ${d.getMonth()+1}-р сарын ${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  function filtered(){
+    let a=history(currentUser).slice();
+    const gf=document.getElementById('mpStatsGameFilter')?.value||'all',tf=document.getElementById('mpStatsTimeFilter')?.value||'all',now=Date.now();
+    if(tab==='wins')a=a.filter(x=>Number(x.result)>0);else if(tab==='losses')a=a.filter(x=>Number(x.result)<0);
+    if(gf!=='all')a=a.filter(x=>String(x.gameType||'holdem')===gf);
+    if(tf==='today'){let d=new Date();d.setHours(0,0,0,0);a=a.filter(x=>Number(x.endAt||x.startAt)>=d.getTime())}
+    else if(tf==='7d')a=a.filter(x=>Number(x.endAt||x.startAt)>=now-7*86400000);
+    else if(tf==='30d')a=a.filter(x=>Number(x.endAt||x.startAt)>=now-30*86400000);
+    return a.sort((a,b)=>Number(b.endAt||b.startAt||0)-Number(a.endAt||a.startAt||0));
+  }
+  window.mpStatsTab=function(t,btn){tab=t||'all';document.querySelectorAll('#stats .mpStatsTabs button[data-stat-tab]').forEach(b=>b.classList.toggle('on',b===btn));renderStats()};
+  window.mpToggleStatsFilters=function(){document.getElementById('mpStatsFilters')?.classList.toggle('hidden')};
+  window.mpResetStatsFilters=function(){const a=document.getElementById('mpStatsGameFilter'),b=document.getElementById('mpStatsTimeFilter');if(a)a.value='all';if(b)b.value='all';renderStats()};
+  window.mpToggleStatsMore=function(){showAll=!showAll;renderStats()};
+  renderStats=function(){
+    const all=history(currentUser),rows=filtered();
+    const net=rows.reduce((s,x)=>s+Number(x.result||0),0),sessionHands=rows.reduce((s,x)=>s+Number(x.hands||0),0);
+    const legacyHands=Math.max(0,Number(currentUser?.stats?.hands)||0),totalHands=tab==='all'&&(document.getElementById('mpStatsGameFilter')?.value||'all')==='all'&&(document.getElementById('mpStatsTimeFilter')?.value||'all')==='all'?Math.max(sessionHands,legacyHands):sessionHands;
+    const et=document.getElementById('stTables'),eh=document.getElementById('stHands'),en=document.getElementById('stNet');if(et)et.textContent=fnum(rows.length);if(eh)eh.textContent=fnum(totalHands);if(en){en.textContent=(net>0?'+':'')+fnum(net);en.className=net>0?'pos':net<0?'neg':''}
+    const list=document.getElementById('mpStatsList'),empty=document.getElementById('mpStatsEmpty'),more=document.getElementById('mpStatsMore');if(!list)return;
+    const vis=showAll?rows:rows.slice(0,8);
+    list.innerHTML=vis.map(x=>{const r=Number(x.result||0),cls=r>0?'pos':r<0?'neg':'zero',arrow=r>0?'▲':r<0?'▼':'•',type=String(x.gameType||'holdem')==='omaha'?'ПОТ ЛИМИТ ОМАХА':'ХЯЗГААРГҮЙ ХОЛДЕМ';return `<div class="mpStatRow"><div class="mpStatCheck"></div><div class="mpStatCard"><div class="mpStatTop"><span class="mpStatType">${type}</span><span class="mpStatDate">${esc(dateText(x.endAt||x.startAt))}</span></div><div class="mpStatMain"><div class="mpStatName">${esc(x.tableName||'Ширээ')} • RAKE ${Number(x.rake??1)}%</div><div class="mpStatResult ${cls}">${r>0?'+':''}${fnum(r)} ${arrow}</div></div><div class="mpStatMeta"><span>Гарууд: ${fnum(x.hands||0)}</span><span>◉ ${fnum(x.sb||0)}/${fnum(x.bb||0)}</span></div></div></div>`}).join('');
+    if(empty)empty.classList.toggle('hidden',rows.length>0);if(more){more.classList.toggle('hidden',rows.length===0);more.textContent=rows.length>8?(showAll?'Цөөнөөр харуулах':'Гарнуудыг харуулах'):'Гарнуудыг харуулах';more.disabled=rows.length<=8;more.style.opacity=rows.length<=8?'.65':'1'}
+  };
+  const _newHandStats=newHand;newHand=function(){const r=_newHandStats.apply(this,arguments);if(currentTable&&userSeatedAtTable&&!spectator)noteNewHand();return r};
+  const _addMoneyStats=addMoney;addMoney=function(){const before=Number((players||[]).find(p=>p&&p.user)?.chips||0);const r=_addMoneyStats.apply(this,arguments);const after=Number((players||[]).find(p=>p&&p.user)?.chips||0);if(after>before)noteAddMoney(after-before);return r};
+  const _leaveTableStats=leaveTable;leaveTable=function(){try{finalizeCurrent()}catch(e){console.warn('stats finalize',e)}return _leaveTableStats.apply(this,arguments)};
+  const _logoutStats=logout;logout=async function(){try{finalizeCurrent()}catch(e){}return _logoutStats.apply(this,arguments)};
+})();
+</script>
+</body></html>
 
 <style id="mp-plus-seat-visibility-fix">
 /* Only restore the spectator + seat button visibility. */
