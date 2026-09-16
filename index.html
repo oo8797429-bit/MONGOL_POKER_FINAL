@@ -798,6 +798,358 @@
 }
 </style>
 
+
+<style id="royalBlackGoldTableOnly">
+/* ONLY GAME TABLE VISUALS — home/admin/cash/login logic and layout are untouched. */
+
+#game.game{
+  background:
+    radial-gradient(circle at 50% 8%,rgba(190,132,28,.12),transparent 28%),
+    linear-gradient(180deg,#060707 0%,#0b0b0a 42%,#050606 100%)!important;
+}
+#game .gameHead{
+  background:linear-gradient(180deg,#18130a 0%,#080909 100%)!important;
+  border-bottom:1px solid #8d651f!important;
+  box-shadow:0 3px 14px #000b,0 1px 0 #f0c45b22 inset!important;
+}
+#game .gameHead b{color:#f3d27d!important;letter-spacing:.7px!important}
+#game .gameMeta{
+  color:#d9c79b!important;
+  text-shadow:0 1px 2px #000!important;
+}
+#game .tableSizeBtn{
+  background:linear-gradient(#272117,#0c0c0b)!important;
+  border:1px solid #c49433!important;
+  color:#f2ce73!important;
+  box-shadow:0 0 10px #d8a73933,0 3px 8px #000b!important;
+}
+
+/* Long premium oval table */
+#game .pokerTable,
+#game.tableExpanded .pokerTable{
+  width:94%!important;
+  height:min(57dvh,455px)!important;
+  margin:3px auto 0!important;
+  border:10px solid #191714!important;
+  border-radius:47% / 29%!important;
+  background:
+    radial-gradient(ellipse at 50% 43%,rgba(89,62,19,.18) 0%,rgba(32,27,18,.18) 28%,transparent 54%),
+    radial-gradient(ellipse at center,#181816 0%,#11110f 58%,#080908 100%)!important;
+  box-shadow:
+    inset 0 0 0 3px #d2a13d,
+    inset 0 0 0 6px #584018,
+    inset 0 0 42px #000,
+    0 0 0 2px #050505,
+    0 0 18px #d4a33a55,
+    0 16px 34px #000d!important;
+  overflow:visible!important;
+}
+#game .pokerTable:before{
+  content:"";
+  position:absolute;inset:8px;
+  border-radius:inherit;
+  border:1px solid #c99a3766;
+  box-shadow:inset 0 0 28px #d39f2618;
+  pointer-events:none;z-index:1;
+}
+#game .pokerTable:after{
+  content:"";
+  position:absolute;left:12%;right:12%;bottom:11%;height:24%;
+  background:
+    radial-gradient(ellipse at 50% 100%,rgba(213,167,64,.10),transparent 68%);
+  border-radius:50%;
+  pointer-events:none;z-index:1;
+}
+
+/* MP brand in felt */
+#game .tableBrandMP{
+  left:50%!important;top:66%!important;transform:translate(-50%,-50%)!important;
+  color:#cda34a!important;opacity:.78!important;
+  text-shadow:0 2px 8px #000!important;
+  z-index:2!important;
+}
+#game .tableBrandMP b{
+  font-family:Georgia,serif!important;
+  font-size:30px!important;
+  letter-spacing:1px!important;
+  color:#d4aa51!important;
+}
+#game .tableBrandMP small{
+  color:#cfb46e!important;
+  letter-spacing:2px!important;
+  font-size:7px!important;
+}
+
+/* Community cards and pot */
+#game .center{top:43%!important;width:74%!important;z-index:9!important}
+#game .pot{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-width:96px!important;
+  min-height:35px!important;
+  margin-bottom:9px!important;
+  padding:6px 15px 6px 32px!important;
+  border-radius:18px!important;
+  border:1px solid #8c671f!important;
+  background:linear-gradient(180deg,#1b1811e8,#090a09e8)!important;
+  color:#f4cb67!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  box-shadow:0 4px 13px #000b,inset 0 1px #f4cf7344!important;
+  position:relative!important;
+}
+#game .pot:before{
+  content:"";
+  position:absolute;left:11px;top:9px;width:15px;height:15px;border-radius:50%;
+  background:radial-gradient(circle at 34% 28%,#fff5b0 0 12%,#f2ce49 14% 42%,#a8700f 44% 68%,#342000 70%);
+  border:1px solid #ffdc6b;
+  box-shadow:-4px 3px 0 -1px #b47c17,-8px 6px 0 -2px #79500b,1px 2px 5px #000;
+}
+#game .board{gap:4px!important}
+#game .board .card{
+  width:38px!important;height:53px!important;
+  border-radius:5px!important;
+  border:1px solid #d7d0c4!important;
+  box-shadow:0 3px 8px #000a!important;
+  font-family:Georgia,serif!important;
+  font-size:17px!important;
+}
+
+/* Premium circular player portraits */
+#game .seat{width:72px!important;z-index:12!important}
+#game .seat .pic{
+  width:46px!important;height:46px!important;
+  border-radius:50%!important;
+  background:
+    radial-gradient(circle at 35% 28%,#4f4535 0%,#1a1917 58%,#050606 100%)!important;
+  border:2px solid #ddb449!important;
+  color:#fff!important;
+  box-shadow:
+    0 0 0 2px #19140b,
+    0 0 11px #d7a83f66,
+    0 4px 8px #000b!important;
+  font-size:23px!important;
+  position:relative!important;
+}
+#game .seat.active .pic{
+  border-color:#ffe078!important;
+  box-shadow:0 0 0 2px #2a1d08,0 0 18px #f0bf4dbb,0 4px 8px #000b!important;
+}
+#game .seat.winner .pic{
+  border-color:#ffe97d!important;
+  box-shadow:0 0 0 2px #60430d,0 0 22px #ffd34dcc,0 4px 8px #000b!important;
+}
+
+/* Name + money plate like reference */
+#game .seat .nm{
+  margin-top:-2px!important;
+  min-height:18px!important;
+  max-width:72px!important;
+  padding:3px 5px 2px!important;
+  border-radius:8px 8px 2px 2px!important;
+  background:linear-gradient(#151514f2,#080909f2)!important;
+  border:1px solid #8e6a29!important;
+  color:#f2eee3!important;
+  font-size:7.5px!important;
+  font-weight:800!important;
+  box-shadow:0 3px 7px #000a!important;
+}
+#game .seat .stack{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  min-width:56px!important;
+  min-height:18px!important;
+  margin:-1px auto 0!important;
+  padding:2px 5px!important;
+  border-radius:2px 2px 8px 8px!important;
+  background:linear-gradient(#131210,#070807)!important;
+  border:1px solid #8e6a29!important;
+  color:#f2c95f!important;
+  font-size:8px!important;
+  font-weight:900!important;
+  box-shadow:0 3px 7px #000a!important;
+}
+#game .seat .stack:before{
+  content:"";
+  flex:0 0 auto;
+  width:10px;height:10px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff4ae 0 13%,#e9bf3d 15% 47%,#8f5d0b 50% 72%,#2d1d00 74%);
+  border:1px solid #f0ca55;
+  box-shadow:-3px 2px 0 -1px #b37a15,-6px 4px 0 -2px #6f4908;
+}
+
+/* Decorative gold chip piles beside every seat */
+#game .seat:after{
+  content:"";
+  position:absolute;
+  width:19px;height:19px;border-radius:50%;
+  background:radial-gradient(circle at 36% 28%,#fff5b8 0 10%,#f1c63e 12% 42%,#9f690c 45% 70%,#2e1c00 72%);
+  border:1px solid #f0cc5e;
+  box-shadow:
+    0 3px 0 -1px #b7801b,
+    0 6px 0 -2px #8c5e0d,
+    0 9px 0 -3px #624007,
+    0 3px 8px #000a;
+  opacity:.95;
+  pointer-events:none;
+}
+#game .s0:after{right:-2px;top:29px}
+#game .s1:after,#game .s2:after,#game .s3:after{right:-5px;top:28px}
+#game .s4:after{right:-2px;top:28px}
+#game .s5:after,#game .s6:after,#game .s7:after{left:-5px;top:28px}
+
+/* Seat placement — roomy 8-max oval, user centered at bottom */
+#game .s0{left:50%!important;bottom:-13px!important;transform:translateX(-50%)!important;width:86px!important}
+#game .s0 .pic{width:52px!important;height:52px!important;font-size:25px!important}
+#game .s0 .nm,#game .s0 .stack{max-width:86px!important}
+#game .s1{left:4%!important;bottom:38px!important;top:auto!important;transform:none!important}
+#game .s2{left:-1%!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s3{left:5%!important;top:30px!important;bottom:auto!important;transform:none!important}
+#game .s4{left:50%!important;top:-11px!important;bottom:auto!important;transform:translateX(-50%)!important}
+#game .s5{right:5%!important;top:30px!important;left:auto!important;bottom:auto!important;transform:none!important}
+#game .s6{right:-1%!important;top:50%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s7{right:4%!important;bottom:38px!important;left:auto!important;top:auto!important;transform:none!important}
+
+/* Card backs and bet labels */
+#game .holeBacks{top:31px!important}
+#game .holeBack{
+  width:16px!important;height:22px!important;
+  background:
+    linear-gradient(135deg,#171717 25%,#5b4317 25% 30%,#171717 30% 50%,#5b4317 50% 55%,#171717 55%)!important;
+  border:1px solid #d0aa50!important;
+}
+#game .betTag{
+  background:linear-gradient(#1e1a11e8,#090a09e8)!important;
+  border:1px solid #9c772d!important;
+  color:#f4d16f!important;
+  box-shadow:0 2px 7px #000a!important;
+}
+#game .blindTag{
+  background:#0a0a09ee!important;
+  border:1px solid #c39532!important;
+  color:#ffd970!important;
+}
+#game .dealerDot{
+  background:linear-gradient(#fff8d4,#cfac57)!important;
+  border-color:#725317!important;
+  color:#111!important;
+}
+
+/* Player's own cards sit closer to table like the reference */
+#game .mycards{
+  margin:-28px auto 2px!important;
+  position:relative!important;
+  z-index:32!important;
+  pointer-events:none!important;
+}
+#game .mycards .card{
+  width:48px!important;height:67px!important;
+  border:1px solid #d8d0c1!important;
+  box-shadow:0 4px 10px #000c!important;
+  font-family:Georgia,serif!important;
+}
+
+/* Status is subtle, actions are black + gold */
+#game .status{
+  margin:2px 12px 3px!important;
+  padding:5px 8px!important;
+  border:1px solid #66501f!important;
+  background:linear-gradient(#17140e,#0b0c0b)!important;
+  color:#dfd2b0!important;
+  box-shadow:inset 0 1px #ffffff0b,0 2px 8px #0009!important;
+}
+#game .actionBar{
+  margin:3px 10px 5px!important;
+  padding:6px!important;
+  border:1px solid #8f6b27!important;
+  border-radius:11px!important;
+  background:linear-gradient(180deg,#17140d,#070808)!important;
+  box-shadow:0 7px 18px #000c,inset 0 1px #f2cd7040!important;
+}
+#game .baseActions{gap:6px!important}
+#game .baseActions button{
+  height:42px!important;
+  border:1px solid #80601f!important;
+  border-radius:8px!important;
+  font-weight:900!important;
+  letter-spacing:.4px!important;
+  text-shadow:0 1px 2px #000!important;
+}
+#game .fold{
+  background:linear-gradient(#282723,#111211)!important;
+  color:#e0ddd5!important;
+}
+#game .check{
+  background:linear-gradient(#252116,#0d0e0c)!important;
+  color:#f1d888!important;
+}
+#game .call{
+  background:linear-gradient(#3d2d10,#14120b)!important;
+  color:#ffd86d!important;
+  box-shadow:inset 0 0 0 1px #c69a38,0 2px 6px #0008!important;
+}
+#game .raise,
+#game .confirmRaise{
+  background:linear-gradient(180deg,#f0c866 0%,#b67c19 55%,#76500d 100%)!important;
+  color:#171009!important;
+  border-color:#ffe29a!important;
+  text-shadow:none!important;
+  box-shadow:inset 0 1px #fff4c0,0 0 12px #d5a23844,0 2px 7px #0009!important;
+}
+#game .quick button{
+  background:linear-gradient(#282116,#12100b)!important;
+  border:1px solid #76591f!important;
+  color:#f1d079!important;
+}
+#game .raiseAmount{
+  background:linear-gradient(#1d1910,#090a08)!important;
+  border:1px solid #8c6927!important;
+  color:#f2ca63!important;
+}
+#game .vslider{
+  background:linear-gradient(90deg,#7a5310,#d1a33c)!important;
+}
+#game .vslider::-webkit-slider-thumb{
+  background:radial-gradient(circle at 35% 30%,#fff2ad,#dfb63d 55%,#8b5c0c)!important;
+  border:2px solid #ffe18a!important;
+  box-shadow:0 0 10px #d9a83d88!important;
+}
+
+/* Keep the 8-seat premium table readable on short phones */
+@media(max-width:430px){
+  #game .pokerTable,
+  #game.tableExpanded .pokerTable{
+    width:94%!important;
+    height:min(56dvh,445px)!important;
+  }
+  #game .seat{width:68px!important}
+  #game .seat .pic{width:43px!important;height:43px!important;font-size:22px!important}
+  #game .seat .nm{max-width:68px!important;font-size:7.2px!important}
+  #game .seat .stack{min-width:53px!important;font-size:7.5px!important}
+  #game .s0{width:82px!important;bottom:-12px!important}
+  #game .s0 .pic{width:50px!important;height:50px!important}
+  #game .s1{left:3%!important;bottom:36px!important}
+  #game .s2{left:-1.5%!important}
+  #game .s3{left:4%!important;top:28px!important}
+  #game .s5{right:4%!important;top:28px!important}
+  #game .s6{right:-1.5%!important}
+  #game .s7{right:3%!important;bottom:36px!important}
+}
+@media(max-width:430px) and (max-height:700px){
+  #game .pokerTable,
+  #game.tableExpanded .pokerTable{height:51dvh!important}
+  #game .seat .pic{width:39px!important;height:39px!important;font-size:19px!important}
+  #game .seat{width:63px!important}
+  #game .seat .nm{max-width:63px!important;font-size:6.7px!important}
+  #game .seat .stack{font-size:6.9px!important}
+  #game .mycards .card{width:44px!important;height:60px!important}
+  #game .baseActions button{height:38px!important}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
