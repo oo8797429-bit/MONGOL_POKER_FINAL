@@ -1490,7 +1490,7 @@ function mpInitAfterAppLoad(){
 const KEY='mongolPokerAjnaiLikeV1';
 let db={users:[],tables:[],bots:[],messages:[],settings:{start:0,banner:'АДМИНТАЙ ХОЛБОГДОХ',sound:true,vibe:true}},currentUser=null,currentTable=null;
 let deck=[],holes=[],boardCards=[],players=[],folded=[],street=0,potAmt=0,toCall=0,finished=false,spectator=false;
-let userSeatedAtTable=false,userSeatSlot=null,lobbyCompact=false,mpJoinBlindMode='',mpWaitingForBB=false,mpWaitingThisHand=false,mpJustEnteredFromWait=false;
+let userSeatedAtTable=false,userSeatSlot=null,lobbyCompact=false,mpJoinBlindMode='',mpWaitingForBB=false,mpWaitingThisHand=false,mpJustEnteredFromWait=false,mpPendingNextHandJoin=false,mpPendingSeatSlot=null;
 const $=id=>document.getElementById(id),fmt=n=>Number(n||0).toLocaleString('en-US');
 function isAutoFillerBot(b){
   const n=String(b?.name||'').trim();
@@ -1697,7 +1697,7 @@ function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.fil
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
 function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=db.bots.filter(isAdminCreatedBot).slice(0,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
-function leaveTable(){$('joinBlindSheet')?.classList.add('hidden');mpJoinBlindMode='';mpWaitingForBB=false;mpWaitingThisHand=false;mpJustEnteredFromWait=false;let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
+function leaveTable(){$('joinBlindSheet')?.classList.add('hidden');mpJoinBlindMode='';mpWaitingForBB=false;mpWaitingThisHand=false;mpJustEnteredFromWait=false;mpPendingNextHandJoin=false;mpPendingSeatSlot=null;let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
 function makeDeck(){
   const s=['♠','♥','♦','♣'],r=[2,3,4,5,6,7,8,9,10,11,12,13,14],d=[];
   for(const a of s)for(const b of r)d.push({s:a,r:b});
@@ -1737,9 +1737,25 @@ function openGameSettings(){gameTopReturn.settings='game';featureOpen('settings'
 function sitAtGameTable(){if(!currentTable)return toast('Эхлээд ширээ сонгоно уу');if(userSeatedAtTable)return toast('Та ширээнд сууж байна');spectator=true;setStatus('Сул суудлын ＋ дээр дарж суудлаа сонгоно уу');renderGame()}
 function chooseSeat(slot){
   if(!currentTable||userSeatedAtTable)return;
+  if(mpPendingNextHandJoin)return toast('Дараагийн гар хүртэл хүлээж байна');
   slot=Math.max(0,Math.min(8,Number(slot)||0));
   if(currentUser.chips<currentTable.buy)return toast('Орох дүн хүрэхгүй байна');
   const seatEl=document.querySelector('#seats .emptySeat.s'+slot);if(!seatEl)return toast('Энэ суудал эзэнтэй байна');
+
+  /* Important cash-table rule:
+     if the current hand is already running, joining must NOT cancel or restart it.
+     Keep the viewer in spectator mode, reserve the seat, and enter at the next hand. */
+  if(spectatorModeActive()){
+    mpPendingNextHandJoin=true;
+    mpPendingSeatSlot=slot;
+    mpJoinBlindMode='post';
+    mpWaitingForBB=false;mpWaitingThisHand=false;mpJustEnteredFromWait=false;
+    save();renderGame();
+    setStatus('Одоогийн гар явагдаж байна • Дуусмагц дараагийн шинэ гараас автоматаар орно');
+    toast('Суудал хадгалагдлаа • Дараагийн гараас орно');
+    return;
+  }
+
   currentUser.chips-=currentTable.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;
   const emos=['🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','🧑‍🦱'];
   const botPlayers=db.bots.filter(isAdminCreatedBot).slice(0,8).map((b,i)=>({name:b.name,chips:Math.max(currentTable.buy,Number(b.chips)||currentTable.buy),emoji:emos[i]||'🙂',botId:b.id}));
@@ -1753,6 +1769,42 @@ function chooseSeat(slot){
   $('joinBlindSheet')?.classList.remove('hidden');
   setStatus('Суудал сонгогдлоо • Шууд тоглох уу, BB хүртэл хүлээх үү?');
 }
+function mpActivatePendingNextHandJoin(){
+  if(!mpPendingNextHandJoin||!currentTable||!currentUser)return false;
+  const slot=mpPendingSeatSlot;
+  if(currentUser.chips<currentTable.buy){
+    mpPendingNextHandJoin=false;mpPendingSeatSlot=null;
+    renderGame();toast('Орох дүн хүрэхгүй болсон тул суудал цуцлагдлаа');
+    return false;
+  }
+
+  /* Charge the buy-in only when the player actually enters the next hand. */
+  currentUser.chips-=currentTable.buy;
+  currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};
+  currentUser.stats.tables++;
+
+  /* Preserve the currently-playing bots and their stacks instead of rebuilding
+     the table from scratch. The human is index 0 because the game engine uses
+     index 0 for the local player. */
+  const existingBots=players.filter(p=>p&&!p.user).slice(0,8);
+  players=[{name:currentUser.name,chips:currentTable.buy,emoji:'😎',user:true},...existingBots];
+
+  userSeatedAtTable=true;
+  userSeatSlot=slot;
+  spectator=false;
+  mpJoinBlindMode='post';
+  mpWaitingForBB=false;mpWaitingThisHand=false;mpJustEnteredFromWait=false;
+  mpPendingNextHandJoin=false;mpPendingSeatSlot=null;
+
+  /* "Direct next hand" = post BB on that next hand. */
+  mpPrepareUserAsNextBB();
+  if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand='';}
+  save();
+  setStatus('Одоогийн гар дууслаа • Дараагийн шинэ гараас орж байна');
+  newHand();
+  return true;
+}
+
 function mpPrepareUserAsNextBB(){
   const n=Math.max(2,players.length);
   if(n===2){liveDealer=0;return}
@@ -2365,6 +2417,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     spectatorBotLoopRunning=true;
     try{
       while(spectatorModeActive()){
+        if(mpPendingNextHandJoin){mpActivatePendingNextHandJoin();break}
         const active=players.filter(p=>(Number(p?.chips)||0)>0);
         if(active.length<2){
           players.forEach(p=>p.chips=Math.max(currentTable.buy,Number(p.chips)||0));
@@ -2481,7 +2534,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const usedSlots=new Set(seatMap.slice(0,players.length));
     const emptySeats=Array.from({length:9},(_,slot)=>slot)
       .filter(slot=>!usedSlots.has(slot))
-      .map(slot=>`<div class="seat s${slot} emptySeat${spectator&&!userSeatedAtTable?' chooseable':''}" ${spectator&&!userSeatedAtTable?`onclick="chooseSeat(${slot})" role="button"`:''}><div class="pic">＋</div><div class="nm"><span>${spectator&&!userSeatedAtTable?'СУУХ':'СУЛ'}</span></div><div class="stack">—</div></div>`)
+      .map(slot=>{const pending=mpPendingNextHandJoin&&slot===mpPendingSeatSlot;const canChoose=spectator&&!userSeatedAtTable&&!mpPendingNextHandJoin;return `<div class="seat s${slot} emptySeat${canChoose?' chooseable':''}${pending?' pendingNextHand':''}" ${canChoose?`onclick="chooseSeat(${slot})" role="button"`:''}><div class="pic">${pending?'⏳':'＋'}</div><div class="nm"><span>${pending?'ДАРААГИЙН ГАР':(canChoose?'СУУХ':'СУЛ')}</span></div><div class="stack">${pending?'ХҮЛЭЭЖ БАЙНА':'—'}</div></div>`})
       .join('');
     $('seats').innerHTML=players.map((p,i)=>{
       let blind=renderBlindTag(i),bet=liveSeatBets[i]||0,active=i===liveTurn&&!finished;
@@ -2511,7 +2564,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
         myCardsEl.dataset.hand=handKey;
       }
     }
-    const sitBtn=document.querySelector('#game .gameSitBtn');if(sitBtn){sitBtn.textContent=userSeatedAtTable?'СУУСАН':'СУУХ';sitBtn.disabled=!!userSeatedAtTable;}
+    const sitBtn=document.querySelector('#game .gameSitBtn');if(sitBtn){sitBtn.textContent=userSeatedAtTable?'СУУСАН':(mpPendingNextHandJoin?'ДАРААГИЙН ГАР':'СУУХ');sitBtn.disabled=!!userSeatedAtTable||mpPendingNextHandJoin;}
     const userCanAct=!finished&&!spectator&&!liveRoundBusy&&liveTurn===0&&!folded[0];
     document.querySelectorAll('#baseActions button').forEach(b=>b.disabled=!userCanAct);
     $('checkBtn').disabled=!userCanAct||toCall>0;
@@ -4191,6 +4244,23 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 .mpJoinModeBtn.post{background:linear-gradient(180deg,#3b2a0d,#18120a);border-color:#c49332}
 .mpJoinModeBtn.wait{background:linear-gradient(180deg,#18221e,#101513);border-color:#41685b}
 #game .seatStatus.waitbb{background:#183027ee!important;border-color:#6cae90!important;color:#d4f4e7!important}
+</style>
+
+
+<style id="mp-next-hand-join-style">
+#game .emptySeat.pendingNextHand .pic{
+  border-color:#d7ae49!important;
+  box-shadow:0 0 12px rgba(227,184,78,.45)!important;
+  color:#f4d36d!important;
+}
+#game .emptySeat.pendingNextHand .nm span{
+  color:#f1cd68!important;
+  font-size:7px!important;
+}
+#game .emptySeat.pendingNextHand .stack{
+  color:#c9ad68!important;
+  font-size:7px!important;
+}
 </style>
 
 </body></html>
