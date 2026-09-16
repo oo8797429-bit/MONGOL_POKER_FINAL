@@ -3778,7 +3778,78 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   const _logoutStats=logout;logout=async function(){try{finalizeCurrent()}catch(e){}return _logoutStats.apply(this,arguments)};
 })();
 </script>
-</body></html>
+\n
+
+<script id="mpRememberLoginFix_20260916">
+/* ONE FIX ONLY: make the existing “Нэвтрэх нэр / нууц үгийг санах” checkbox actually remember login. */
+(function(){
+  'use strict';
+  const REMEMBER_KEY='mp_mongol_poker_remember_login_v1';
+
+  function els(){
+    return {
+      id:document.getElementById('loginId'),
+      pass:document.getElementById('loginPass'),
+      check:document.getElementById('rememberLogin')
+    };
+  }
+
+  function clearRemembered(){
+    try{ localStorage.removeItem(REMEMBER_KEY); }catch(e){}
+  }
+
+  function saveRemembered(){
+    const e=els();
+    if(!e.check || !e.check.checked){ clearRemembered(); return; }
+    try{
+      localStorage.setItem(REMEMBER_KEY, JSON.stringify({
+        id:e.id ? e.id.value : '',
+        pass:e.pass ? e.pass.value : '',
+        remember:true
+      }));
+    }catch(err){ console.warn('remember login save',err); }
+  }
+
+  function restoreRemembered(){
+    const e=els();
+    if(!e.id || !e.pass || !e.check) return;
+    try{
+      const raw=localStorage.getItem(REMEMBER_KEY);
+      if(!raw) return;
+      const v=JSON.parse(raw);
+      if(!v || v.remember!==true) return;
+      e.id.value=String(v.id||'');
+      e.pass.value=String(v.pass||'');
+      e.check.checked=true;
+    }catch(err){ console.warn('remember login restore',err); }
+  }
+
+  function bind(){
+    const e=els();
+    if(!e.id || !e.pass || !e.check) return;
+    restoreRemembered();
+    e.check.addEventListener('change',function(){
+      if(this.checked) saveRemembered();
+      else clearRemembered();
+    });
+    e.id.addEventListener('input',function(){ if(e.check.checked) saveRemembered(); });
+    e.pass.addEventListener('input',function(){ if(e.check.checked) saveRemembered(); });
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind,{once:true});
+  else bind();
+
+  const originalLogin=window.login;
+  if(typeof originalLogin==='function'){
+    window.login=async function(){
+      saveRemembered();
+      return await originalLogin.apply(this,arguments);
+    };
+  }
+})();
+</script>
+
+\n</body></html>
 
 <style id="mp-plus-seat-visibility-fix">
 /* Only restore the spectator + seat button visibility. */
