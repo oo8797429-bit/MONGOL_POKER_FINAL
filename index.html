@@ -1734,7 +1734,23 @@ function openGameGift(){gameTopReturn.bonus='game';show('bonus');if($('gameBonus
 function checkGameBonus(){if($('gameBonusUser'))$('gameBonusUser').textContent=currentUser?.name||currentUser?.id||'-';if($('gameBonusState'))$('gameBonusState').textContent='Одоогоор идэвхтэй бонус алга';toast('Бонус шалгагдлаа')}
 function openGameBell(){gameTopReturn.messages='game';featureOpen('messages','messages')}
 function openGameSettings(){gameTopReturn.settings='game';featureOpen('settings','settings')}
-function sitAtGameTable(){if(!currentTable)return toast('Эхлээд ширээ сонгоно уу');if(userSeatedAtTable)return toast('Та ширээнд сууж байна');spectator=true;setStatus('Сул суудлын ＋ дээр дарж суудлаа сонгоно уу');renderGame()}
+function sitAtGameTable(){
+  if(!currentTable)return toast('Эхлээд ширээ сонгоно уу');
+  if(userSeatedAtTable)return toast('Та ширээнд сууж байна');
+  if(mpPendingNextHandJoin)return toast('Дараагийн гараас орохоор суудал хадгалагдсан');
+  spectator=true;renderGame();
+
+  /* If there is a bottom-center free seat, use it immediately.
+     Otherwise use the first visible free seat. This avoids the action bar
+     blocking taps on the lower seat in mobile/Messenger webview. */
+  const preferred=document.querySelector('#seats .emptySeat.s0.chooseable');
+  const first=document.querySelector('#seats .emptySeat.chooseable');
+  const seat=preferred||first;
+  if(!seat)return toast('Одоогоор сул суудал алга');
+  const m=String(seat.className||'').match(/(?:^|\s)s(\d)(?:\s|$)/);
+  if(!m)return toast('Суудал сонгоход алдаа гарлаа');
+  chooseSeat(Number(m[1]));
+}
 function chooseSeat(slot){
   if(!currentTable||userSeatedAtTable)return;
   if(mpPendingNextHandJoin)return toast('Дараагийн гар хүртэл хүлээж байна');
@@ -2528,6 +2544,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 
   renderGame=function(){
     ensureChrome();
+    $('game')?.classList.toggle('spectatorSeatMode',!!(spectator&&!userSeatedAtTable));
     const _pt=document.querySelector('#game .pokerTable');if(_pt)_pt.setAttribute('data-seat-count','9');
     $('pot').textContent='Pot: '+fmt(potAmt);$('board').innerHTML=[0,1,2,3,4].map(i=>card(boardCards[i]||null)).join('');
     const seatMap=visualSeatMap();
@@ -4260,6 +4277,39 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 #game .emptySeat.pendingNextHand .stack{
   color:#c9ad68!important;
   font-size:7px!important;
+}
+</style>
+
+
+<style id="mp-sit-tap-fix">
+#game.spectatorSeatMode .actionBar{
+  pointer-events:none!important;
+  opacity:.42!important;
+}
+#game.spectatorSeatMode .emptySeat.chooseable{
+  pointer-events:auto!important;
+  z-index:120!important;
+  cursor:pointer!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:rgba(244,198,95,.18)!important;
+}
+#game.spectatorSeatMode .emptySeat.chooseable.s0{
+  bottom:28px!important;
+}
+#game.spectatorSeatMode .emptySeat.chooseable.s0::before{
+  content:""!important;
+  position:absolute!important;
+  left:-18px!important;
+  right:-18px!important;
+  top:-16px!important;
+  bottom:-18px!important;
+  z-index:125!important;
+}
+#game.spectatorSeatMode .emptySeat.chooseable .pic,
+#game.spectatorSeatMode .emptySeat.chooseable .nm,
+#game.spectatorSeatMode .emptySeat.chooseable .stack{
+  position:relative!important;
+  z-index:130!important;
 }
 </style>
 
