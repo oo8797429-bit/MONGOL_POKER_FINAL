@@ -2423,7 +2423,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     setTimeout(startSpectatorBotLoop,500);
   };
 
-  let spectatorBotLoopRunning=false;
+  let spectatorBotLoopRunning=false,mpCallDownAfterRaise=false;
   function spectatorModeActive(){
     return !!(tableSession&&currentTable&&spectator&&!userSeatedAtTable&&players.length>=2);
   }
@@ -2456,6 +2456,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       }else if(d.action==='raise'){
         const need=owedToTarget(i,d.raiseTo),paid=pay(i,need);
         targetBet=Math.max(targetBet,d.raiseTo);
+        mpCallDownAfterRaise=true;
         liveSeatStatus[i]=players[i].chips<=0&&need>0?'БҮГДИЙГ НЬ':'RAISE';
         setStatus(players[i].name+' • Raise '+fmt(paid));
       }else{
@@ -2502,7 +2503,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
         if(active.length<2){
           players.forEach(p=>p.chips=Math.max(currentTable.buy,Number(p.chips)||0));
         }
-        deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;liveWinner=-1;showdownInfo=[];showdownWinners=[];
+        deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;liveWinner=-1;showdownInfo=[];showdownWinners=[];mpCallDownAfterRaise=false;
         folded=players.map(p=>(Number(p?.chips)||0)<=0);liveSeatBets=players.map(()=>0);liveSeatStatus=players.map(()=>'');
         if(!setupStandardButtonAndBlinds()){renderGame();break}
         dealRoundRobin(currentTable.type==='omaha'?4:2);
@@ -2543,7 +2544,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 
   newHand=function(){
     if(!currentTable||!tableSession)return;
-    deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];handNo=(Number(handNo)||0)+1;
+    deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];mpCallDownAfterRaise=false;handNo=(Number(handNo)||0)+1;
     mpWaitingThisHand=false;mpJustEnteredFromWait=false;
     folded=players.map(p=>(Number(p?.chips)||0)<=0);liveSeatBets=players.map(()=>0);liveSeatStatus=players.map(()=>'');
     if(!setupStandardButtonAndBlinds()){setStatus('Тоглохын тулд дор хаяж 2 тоглогч хэрэгтэй');renderGame();return}
@@ -2719,6 +2720,13 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const chance=mpBotWinChance(i);
     const roundTarget=Math.max(Number(targetBet)||0,...liveSeatBets);
     const need=owedToTarget(i,roundTarget);
+
+    /* After the first RAISE of the hand, every remaining bot stays in:
+       CALL when money is owed, CHECK when it is free, until showdown. */
+    if(mpCallDownAfterRaise){
+      return {action:need>0?'call':'check',chance,target:roundTarget,forcedCallDown:true};
+    }
+
     const bb=Math.max(1,Number(currentTable?.bb)||1);
     const chips=Math.max(0,Number(players[i]?.chips)||0);
 
@@ -2752,8 +2760,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     for(let i=1;i<players.length;i++){
       if(!tableSession||finished)break;
       if(folded[i]||players[i].chips<=0)continue;
-      const timedOut=await waitBotTurn(i);
-      if(timedOut){
+      const timedOut=mpCallDownAfterRaise?(await wait(1800+Math.floor(Math.random()*1200)),false):await waitBotTurn(i);
+      if(timedOut&&!mpCallDownAfterRaise){
         folded[i]=true;liveSeatStatus[i]='FOLD';
         setStatus(players[i].name+' • 20 сек дууслаа — Fold');
         renderGame();
@@ -2766,6 +2774,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       }else if(d.action==='raise'){
         const need=owedToTarget(i,d.raiseTo),paid=pay(i,need);
         targetBet=Math.max(targetBet,d.raiseTo);
+        mpCallDownAfterRaise=true;
         liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':'RAISE';
         setStatus(players[i].name+' • Raise '+fmt(paid));
       }else{
@@ -2810,6 +2819,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const raiseTo=+$('raiseSlider').value;
     const need=owedToTarget(0,raiseTo);
     pay(0,need);
+    mpCallDownAfterRaise=true;
     liveSeatStatus[0]=(players[0].chips<=0&&need>0)?'БҮГДИЙГ НЬ':'RAISE';
     $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');
     setStatus('Та '+fmt(raiseTo)+' хүртэл Raise хийлээ');
@@ -2850,8 +2860,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       for(let i=1;i<players.length;i++){
         if(!tableSession||finished)return;
         if(folded[i]||players[i].chips<=0)continue;
-        const timedOut=await waitBotTurn(i);
-        if(timedOut){folded[i]=true;liveSeatStatus[i]='FOLD';setStatus(players[i].name+' • 20 сек дууслаа — Fold')}
+        const timedOut=mpCallDownAfterRaise?(await wait(1800+Math.floor(Math.random()*1200)),false):await waitBotTurn(i);
+        if(timedOut&&!mpCallDownAfterRaise){folded[i]=true;liveSeatStatus[i]='FOLD';setStatus(players[i].name+' • 20 сек дууслаа — Fold')}
         else{
           const d=mpBotDecision(i,targetBet);
           if(d.action==='fold'){
@@ -2859,6 +2869,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
           }else if(d.action==='raise'){
             const need=owedToTarget(i,d.raiseTo),paid=pay(i,need);
             targetBet=Math.max(targetBet,d.raiseTo);
+        mpCallDownAfterRaise=true;
             liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':'RAISE';
             setStatus(players[i].name+' • Raise '+fmt(paid));
           }else{
