@@ -2659,30 +2659,33 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     }
     return best;
   }
-  function mpBotWinChance(i,sims=72){
+  function mpBotWinChance(i,sims=90){
     const hero=holes[i]||[];
     const holeNeed=currentTable?.type==='omaha'?4:2;
     if(hero.length<holeNeed)return 50;
-    const opponents=players.map((p,j)=>j).filter(j=>j!==i&&!folded[j]&&(Number(players[j]?.chips)||0)>=0);
-    if(!opponents.length)return 100;
+
+    /* Use heads-up hand strength (hero vs ONE unknown hand).
+       The previous version required the bot to beat all 7–8 opponents at once,
+       so almost every normal pre-flop hand scored below 60% and everybody folded. */
     const known=new Set([...hero,...boardCards].filter(Boolean).map(c=>c.r+'|'+c.s));
     let equity=0,done=0;
+
     for(let n=0;n<sims;n++){
       const pool=makeDeck().filter(c=>!known.has(c.r+'|'+c.s));
+      const opp=[];
+      for(let k=0;k<holeNeed&&pool.length;k++)opp.push(pool.pop());
+
       const simBoard=boardCards.slice();
       while(simBoard.length<5&&pool.length)simBoard.push(pool.pop());
-      const he=mpEvalBestFromKnown(hero,simBoard);if(!he)continue;
-      let beaten=false,ties=0;
-      for(const j of opponents){
-        const oh=[];
-        for(let k=0;k<holeNeed&&pool.length;k++)oh.push(pool.pop());
-        const oe=mpEvalBestFromKnown(oh,simBoard);if(!oe)continue;
-        const c=cmpScore(he.score,oe.score);
-        if(c<0){beaten=true;break}
-        if(c===0)ties++;
-      }
+
+      const he=mpEvalBestFromKnown(hero,simBoard);
+      const oe=mpEvalBestFromKnown(opp,simBoard);
+      if(!he||!oe)continue;
+
+      const c=cmpScore(he.score,oe.score);
       done++;
-      if(!beaten)equity+=1/(ties+1);
+      if(c>0)equity+=1;
+      else if(c===0)equity+=0.5;
     }
     return done?equity/done*100:50;
   }
@@ -2692,16 +2695,28 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const need=owedToTarget(i,roundTarget);
     const bb=Math.max(1,Number(currentTable?.bb)||1);
     const chips=Math.max(0,Number(players[i]?.chips)||0);
-    /* Requested rule:
-       >60% = continue (CALL), and strong >75% = RAISE.
-       <=60% = CHECK if free, otherwise FOLD. */
-    if(chance>75 && chips>need+bb){
-      const raiseBy=Math.max(bb,Math.round(bb*(chance>88?2:1)));
+
+    /* 60%+ remains the aggressive rule the user requested.
+       Below 60% no longer means automatic fold:
+       a normal/small price (<= 1 BB) can still be called, so hands actually play out. */
+    if(chance>=75 && chips>need+bb){
+      const raiseBy=Math.max(bb,Math.round(bb*(chance>=88?2:1)));
       const raiseTo=Math.max(roundTarget+raiseBy,(liveSeatBets[i]||0)+need+raiseBy);
       return {action:'raise',chance,raiseTo};
     }
-    if(chance>60)return {action:need>0?'call':'check',chance,target:roundTarget};
-    return {action:need>0?'fold':'check',chance,target:roundTarget};
+    if(chance>=60)return {action:need>0?'call':'check',chance,target:roundTarget};
+
+    /* Free action is always CHECK, never FOLD. */
+    if(need<=0)return {action:'check',chance,target:roundTarget};
+
+    /* Medium hands may call one big blind, especially pre-flop.
+       This prevents the whole 9-max table from instantly folding every hand. */
+    const mediumFloor=street===0?38:45;
+    if(chance>=mediumFloor && need<=bb){
+      return {action:'call',chance,target:roundTarget};
+    }
+
+    return {action:'fold',chance,target:roundTarget};
   }
 
   async function botRound(targetBet=0){
@@ -4448,111 +4463,6 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(slot===null)return toast('Суудал сонгоход алдаа гарлаа');
     chooseSeat(slot);
   };
-})();
-</script>
-
-
-<style id="mp-direct-seat-button-style">
-/* One-purpose fix: a real tap layer over the bottom-center empty seat. */
-#game .mpDirectSeatTap{
-  position:absolute!important;
-  left:50%!important;
-  bottom:0!important;
-  transform:translateX(-50%)!important;
-  width:118px!important;
-  height:118px!important;
-  border:0!important;
-  background:transparent!important;
-  padding:0!important;
-  margin:0!important;
-  z-index:99999!important;
-  pointer-events:auto!important;
-  touch-action:manipulation!important;
-  -webkit-tap-highlight-color:rgba(255,213,100,.12)!important;
-}
-#game .mpDirectSeatTap.hidden{display:none!important}
-</style>
-<script id="mp-direct-seat-button-script">
-(function(){
-  let mpDirectSitBusy=false;
-
-  function slotFromSeat(el){
-    const m=String(el?.className||'').match(/(?:^|\s)s(\d)(?:\s|$)/);
-    return m?Number(m[1]):null;
-  }
-
-  window.mpDirectSitNow=function(ev){
-    try{ev?.preventDefault?.();ev?.stopPropagation?.();ev?.stopImmediatePropagation?.()}catch(e){}
-    if(mpDirectSitBusy)return false;
-    if(!currentTable){toast('Эхлээд ширээ сонгоно уу');return false}
-    if(userSeatedAtTable){toast('Та ширээнд сууж байна');return false}
-    if(mpPendingNextHandJoin){setStatus('Дараагийн шинэ гараас автоматаар орно');return false}
-
-    const seat=document.querySelector('#game .emptySeat.s0.chooseable')||
-               document.querySelector('#game .emptySeat.chooseable');
-    if(!seat){toast('Одоогоор сул суудал алга');return false}
-
-    const slot=slotFromSeat(seat);
-    if(slot===null){toast('Суудал сонгоход алдаа гарлаа');return false}
-
-    if(Number(currentUser?.chips||0)<Number(currentTable?.buy||0)){
-      const need=Math.max(0,Number(currentTable?.buy||0)-Number(currentUser?.chips||0));
-      setStatus('Орох дүн хүрэхгүй • '+fmt(need)+' chip дутуу');
-      toast('Орох дүн хүрэхгүй байна');
-      return false;
-    }
-
-    mpDirectSitBusy=true;
-    try{chooseSeat(slot)}finally{setTimeout(()=>{mpDirectSitBusy=false},500)}
-    return false;
-  };
-
-  function ensureDirectSitTap(){
-    const table=document.querySelector('#game .pokerTable');
-    if(!table)return;
-    let b=document.getElementById('mpDirectSeatTap');
-    if(!b){
-      b=document.createElement('button');
-      b.id='mpDirectSeatTap';
-      b.type='button';
-      b.className='mpDirectSeatTap';
-      b.setAttribute('aria-label','Суудалд суух');
-      b.addEventListener('pointerdown',mpDirectSitNow,{capture:true});
-      b.addEventListener('touchstart',mpDirectSitNow,{capture:true,passive:false});
-      table.appendChild(b);
-    }
-    const bottom=document.querySelector('#game .emptySeat.s0.chooseable');
-    const any=document.querySelector('#game .emptySeat.chooseable');
-    const shouldShow=!!(!userSeatedAtTable&&!mpPendingNextHandJoin&&(bottom||any));
-    b.classList.toggle('hidden',!shouldShow);
-    if(shouldShow){
-      const target=bottom||any;
-      const tableRect=table.getBoundingClientRect(),r=target.getBoundingClientRect();
-      const cx=(r.left+r.right)/2-tableRect.left;
-      const cy=(r.top+r.bottom)/2-tableRect.top;
-      b.style.left=cx+'px';
-      b.style.top=Math.max(0,cy-59)+'px';
-      b.style.bottom='auto';
-    }
-  }
-
-  const baseRender=renderGame;
-  renderGame=function(){
-    const r=baseRender.apply(this,arguments);
-    setTimeout(ensureDirectSitTap,0);
-    return r;
-  };
-
-  /* The top СУУХ button uses the same direct, real-button path. */
-  sitAtGameTable=function(){
-    if(!currentTable)return toast('Эхлээд ширээ сонгоно уу');
-    if(userSeatedAtTable)return toast('Та ширээнд сууж байна');
-    spectator=true;
-    renderGame();
-    setTimeout(()=>mpDirectSitNow(),0);
-  };
-
-  document.addEventListener('DOMContentLoaded',()=>setTimeout(ensureDirectSitTap,0));
 })();
 </script>
 
