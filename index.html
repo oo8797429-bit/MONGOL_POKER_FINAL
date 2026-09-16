@@ -1225,7 +1225,7 @@ const MP_FIREBASE_CONFIG={
   messagingSenderId:'162661425789',
   appId:'1:162661425789:web:945c92df8fa85d96f94714'
 };
-let mpAuth=null,mpRtdb=null,mpRemoteRegistrations=[],mpRemoteWithdrawals=[],mpRegListenerRef=null,mpUserWithdrawRef=null;
+let mpAuth=null,mpRtdb=null,mpRemoteRegistrations=[],mpRemoteWithdrawals=[],mpRegListenerRef=null,mpUserWithdrawRef=null,mpAdminWithdrawReady=false,mpAdminWithdrawSeen=new Set();
 let mpAdminRegCountReady=false,mpAdminRegCount=0;
 try{
   if(!firebase.apps.length)firebase.initializeApp(MP_FIREBASE_CONFIG);
@@ -1426,9 +1426,35 @@ async function mpAdminSetWithdrawalStatus(uid,key,status){
 function mpStopAdminRegistrationListener(){
   if(mpRegListenerRef){try{mpRegListenerRef.off()}catch(e){}mpRegListenerRef=null}
   mpRemoteRegistrations=[];
+  mpRemoteWithdrawals=[];
   mpAdminRegCountReady=false;
   mpAdminRegCount=0;
+  mpAdminWithdrawReady=false;
+  mpAdminWithdrawSeen=new Set();
 }
+
+function mpAdminWithdrawalArrived(w){
+  try{
+    const amount=Math.max(0,Math.floor(Number(w?.amount)||0));
+    const who=String(w?.userName||w?.userId||'Тоглогч');
+    if(typeof toast==='function')toast('💸 Таталт ирлээ • '+who+' • '+fmt(amount)+' MNT');
+    if(navigator.vibrate)navigator.vibrate([180,90,180,90,260]);
+
+    /* Voice notification for the admin phone/browser. */
+    if('speechSynthesis' in window){
+      try{window.speechSynthesis.cancel()}catch(e){}
+      const u=new SpeechSynthesisUtterance('Таталт ирлээ');
+      u.lang='mn-MN';
+      u.rate=0.92;
+      u.pitch=1;
+      u.volume=1;
+      window.speechSynthesis.speak(u);
+    }else{
+      try{if(typeof mpSfx==='function')mpSfx('timer')}catch(e){}
+    }
+  }catch(e){console.warn('Withdrawal voice notice failed',e)}
+}
+
 function mpStartAdminRegistrationListener(){
   if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)return;
   mpStopAdminRegistrationListener();
@@ -1437,6 +1463,18 @@ function mpStartAdminRegistrationListener(){
     const raw=snap.val();
     mpRemoteRegistrations=mpFlattenRegistrations(raw);
     mpRemoteWithdrawals=mpFlattenWithdrawals(raw);
+
+    const pendingWithdrawals=(mpRemoteWithdrawals||[]).filter(w=>w.status==='pending');
+    const pendingKeys=new Set(pendingWithdrawals.map(w=>String(w._firebaseUid||'')+'|'+String(w._firebaseKey||'')));
+    if(mpAdminWithdrawReady){
+      const fresh=pendingWithdrawals.filter(w=>!mpAdminWithdrawSeen.has(String(w._firebaseUid||'')+'|'+String(w._firebaseKey||'')));
+      if(fresh.length){
+        /* Speak once per newly arrived request. */
+        fresh.slice().reverse().forEach((w,i)=>setTimeout(()=>mpAdminWithdrawalArrived(w),i*1300));
+      }
+    }
+    mpAdminWithdrawSeen=pendingKeys;
+    mpAdminWithdrawReady=true;
 
     const nowCount=mpRemoteRegistrations.length;
     if(mpAdminRegCountReady && nowCount>mpAdminRegCount){
