@@ -797,6 +797,21 @@
 #home .exactHome>.telegramContactBanner .telegramArrow{font-size:clamp(22px,7vw,36px)!important;color:#f0c85e!important;line-height:1!important;text-align:right!important}
 </style>
 
+
+<style id="gameTop3MenuPatch">
+/* ONLY CHANGE: game screen top-right 3 independent buttons, matching the approved reference. */
+#game .gameHead{grid-template-columns:45px 1fr 178px!important;min-height:62px;height:62px;background:linear-gradient(180deg,#0c0f0e,#060807)!important;border-bottom:1px solid rgba(219,173,68,.38);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#game .gameHead>b{font-size:15px;letter-spacing:.4px;color:#f3d070;text-shadow:0 1px 5px rgba(0,0,0,.8)}
+#game .gameTopActions{height:100%;display:flex;align-items:center;justify-content:flex-end;gap:2px;padding-right:5px}
+#game .gameSitBtn{height:34px;min-width:52px;padding:0 9px;border:1px solid rgba(232,189,85,.72)!important;border-radius:9px!important;background:linear-gradient(180deg,rgba(78,57,15,.92),rgba(28,22,9,.96))!important;color:#f4cf69!important;font-size:10px!important;font-weight:900;letter-spacing:.35px;white-space:nowrap;box-shadow:inset 0 0 8px rgba(232,189,85,.12);-webkit-tap-highlight-color:transparent}
+#game .gameSitBtn:active{transform:scale(.96);background:rgba(232,189,85,.14)!important}
+#game .gameTopIcon{position:relative;width:36px;height:44px;display:grid;place-items:center;border:0;background:transparent!important;color:#e8bd55!important;border-radius:10px;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#game .gameTopIcon:active{background:rgba(232,189,85,.12)!important;transform:scale(.96)}
+#game .gameTopIcon svg{width:25px;height:25px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 4px rgba(232,189,85,.18))}
+#game .gameTopIcon .notifyDot{position:absolute;right:4px;top:7px;width:8px;height:8px;border-radius:50%;background:#e62929;border:1.5px solid #080a09;box-shadow:0 0 5px rgba(230,41,41,.55)}
+@media(max-width:360px){#game .gameHead{grid-template-columns:40px 1fr 166px!important}#game .gameSitBtn{min-width:48px;padding:0 7px;font-size:9px!important}#game .gameTopIcon{width:34px}#game .gameTopIcon svg{width:23px;height:23px}}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -919,12 +934,13 @@
 
 <section id="registeredUsers" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Бүртгэлтэй хүмүүс</div><button onclick="renderRegisteredUsers()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Бүртгэлтэй хэрэглэгчид <span id="registeredUsersCount"></span></h3><div id="registeredUsersList"></div></div></div></section>
 <section id="contact" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Админтай холбогдох</div><button onclick="renderContact()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Төлбөр / дансны мэдээлэл</h3><div class="settingRow"><span>Банк</span><b id="contactBankName">-</b></div><div class="settingRow"><span>Данс</span><b id="contactBankAccount">-</b></div><div id="contactBankNote" style="font-size:11px;line-height:1.6;color:#c8d0cd;margin-top:12px"></div><button onclick="featureOpen('messages','messages')">✉ Админд мессеж бичих</button></div></div></section>
-<section id="messages" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Мессеж</div><button onclick="renderMessages()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Админд мессеж илгээх</h3><textarea id="msgText" placeholder="Мессежээ бичнэ үү"></textarea><button onclick="sendMessage()">Илгээх</button></div><div id="messageList"></div></div></section>
+<section id="messages" class="screen"><header class="top"><button onclick="gameSmartBack('messages','home')">‹</button><div class="ttl">Мэдэгдэл / Мессеж</div><button onclick="renderMessages()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Админд мессеж илгээх</h3><textarea id="msgText" placeholder="Мессежээ бичнэ үү"></textarea><button onclick="sendMessage()">Илгээх</button></div><div id="messageList"></div></div></section>
 <section id="stats" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Статистик</div><button onclick="renderStats()">⟳</button></header><div class="simplePage"><div class="statGrid"><div class="statBox">Гар<b id="stHands">0</b></div><div class="statBox">Хожил<b id="stWins">0</b></div><div class="statBox">Chip<b id="stChips">0</b></div><div class="statBox">Ширээ<b id="stTables">0</b></div></div><div class="simpleCard"><button onclick="featureOpen('tables','tables')">Ширээнүүд рүү орох</button></div></div></section>
-<section id="settings" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тохиргоо</div><button></button></header><div class="simplePage"><div class="simpleCard"><div class="settingRow"><span>Дуу</span><input id="setSound" type="checkbox" checked onchange="saveSettings()"></div><div class="settingRow"><span>Чичиргээ</span><input id="setVibe" type="checkbox" checked onchange="saveSettings()"></div><button onclick="saveSettings();toast('Тохиргоо хадгалагдлаа')">Хадгалах</button></div></div></section>
+<section id="bonus" class="screen"><header class="top"><button onclick="gameSmartBack('bonus','game')">‹</button><div class="ttl">Бэлэг / Бонус</div><button onclick="checkGameBonus()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>🎁 Бэлэг / Бонус</h3><div class="settingRow"><span>Өдрийн бонус</span><b id="gameBonusState">Шалгах боломжтой</b></div><div class="settingRow"><span>Тоглогч</span><b id="gameBonusUser">-</b></div><button onclick="checkGameBonus()">Бонус шалгах</button></div></div></section>
+<section id="settings" class="screen"><header class="top"><button onclick="gameSmartBack('settings','menu')">‹</button><div class="ttl">Тохиргоо</div><button></button></header><div class="simplePage"><div class="simpleCard"><div class="settingRow"><span>Дуу</span><input id="setSound" type="checkbox" checked onchange="saveSettings()"></div><div class="settingRow"><span>Чичиргээ</span><input id="setVibe" type="checkbox" checked onchange="saveSettings()"></div><button onclick="saveSettings();toast('Тохиргоо хадгалагдлаа')">Хадгалах</button></div></div></section>
 <section id="help" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тусламж</div><button></button></header><div class="simplePage"><div class="simpleCard"><h3>Mongol Poker</h3><div style="font-size:12px;line-height:1.7">Ширээ сонгоод орох дүнгээр сууна. Тоглолтын үед FOLD, CHECK/CALL, RAISE товч ажиллана. Асуудал гарвал Мессеж хэсгээс админд бичээрэй.</div><button onclick="featureOpen('messages','messages')">Админд бичих</button></div></div></section>
 <section id="sitgo" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Sit & Go</div><button></button></header><div class="simplePage"><div class="simpleCard"><h3>Sit & Go</h3><div style="font-size:12px">Sit & Go хэсэг ажиллаж байна. Админ тэмцээн нээх хүртэл энд хүлээнэ.</div><button onclick="featureOpen('tour','tour')">Тэмцээнүүд харах</button></div></div></section>
-<section id="game" class="screen game"><div class="gameHead"><button onclick="leaveTable()">‹</button><b>Тоглолт</b><button onclick="openSide()">☰</button></div><button id="tableSizeBtn" class="tableSizeBtn" onclick="toggleTableSize()" aria-label="Ширээ том/жижиг болгох">⛶</button><div class="gameMeta"><b id="gameName">Ширээ</b><span id="gameBlind">0/0</span></div><div class="pokerTable"><div class="tableBrandMP" aria-hidden="true"><b>MP</b><small>MONGOL POKER</small></div><div id="seats"></div><div class="center"><div class="pot" id="pot">Pot: 0</div><div class="board" id="board"></div></div></div><div class="status" id="status">Ачаалж байна...</div><div class="mycards" id="mycards"></div><div class="actionBar"><div id="baseActions" class="baseActions"><button class="fold" onclick="fold()">FOLD</button><button class="check" id="checkBtn" onclick="checkCall()">CHECK</button><button class="call" id="callBtn" onclick="checkCall()">CALL</button><button class="raise" onclick="showRaise()">RAISE</button></div><div id="raisePanel" class="raisePanel hidden"><div class="raiseLeft"><div class="raiseAmount" id="raiseAmount">0</div><div class="quick"><button onclick="preset(.33)">1/3</button><button onclick="preset(.5)">1/2</button><button onclick="preset(.66)">2/3</button><button onclick="preset(1)">POT</button></div><button class="confirmRaise" onclick="confirmRaise()">BET / RAISE</button></div><div class="vwrap"><input id="raiseSlider" class="vslider" type="range" oninput="updateRaise()"></div></div></div></section>
+<section id="game" class="screen game"><div class="gameHead"><button onclick="leaveTable()">‹</button><b>Тоглолт</b><div class="gameTopActions" aria-label="Тоглоомын дээд цэс"><button type="button" class="gameSitBtn" onclick="sitAtGameTable()" aria-label="Ширээнд суух">СУУХ</button><button type="button" class="gameTopIcon" onclick="openGameGift()" aria-label="Бэлэг, бонус"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12v9H4v-9M2.5 7.5h19v4.5h-19zM12 7.5V21M7.2 7.5C5.4 7.5 4 6.5 4 5.2 4 4 5 3 6.2 3 8.2 3 10.2 5.2 12 7.5M16.8 7.5c1.8 0 3.2-1 3.2-2.3C20 4 19 3 17.8 3 15.8 3 13.8 5.2 12 7.5"/></svg></button><button type="button" class="gameTopIcon" onclick="openGameBell()" aria-label="Мэдэгдэл, мессеж"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span class="notifyDot" aria-hidden="true"></span></button><button type="button" class="gameTopIcon" onclick="openGameSettings()" aria-label="Тохиргоо"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.86 2.86-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.86-2.86.06-.06A1.7 1.7 0 0 0 4.2 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H2.4v-4h.1A1.7 1.7 0 0 0 4.2 8.6a1.7 1.7 0 0 0-.34-1.88L3.8 6.66 6.66 3.8l.06.06A1.7 1.7 0 0 0 8.6 4.2a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V2.4h4v.1a1.7 1.7 0 0 0 1 1.7 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.86 2.86-.06.06A1.7 1.7 0 0 0 19.4 8.6a1.7 1.7 0 0 0 .6 1 1.7 1.7 0 0 0 1.1.4h.1v4h-.1a1.7 1.7 0 0 0-1.7 1z"/></svg></button></div></div><button id="tableSizeBtn" class="tableSizeBtn" onclick="toggleTableSize()" aria-label="Ширээ том/жижиг болгох">⛶</button><div class="gameMeta"><b id="gameName">Ширээ</b><span id="gameBlind">0/0</span></div><div class="pokerTable"><div class="tableBrandMP" aria-hidden="true"><b>MP</b><small>MONGOL POKER</small></div><div id="seats"></div><div class="center"><div class="pot" id="pot">Pot: 0</div><div class="board" id="board"></div></div></div><div class="status" id="status">Ачаалж байна...</div><div class="mycards" id="mycards"></div><div class="actionBar"><div id="baseActions" class="baseActions"><button class="fold" onclick="fold()">FOLD</button><button class="check" id="checkBtn" onclick="checkCall()">CHECK</button><button class="call" id="callBtn" onclick="checkCall()">CALL</button><button class="raise" onclick="showRaise()">RAISE</button></div><div id="raisePanel" class="raisePanel hidden"><div class="raiseLeft"><div class="raiseAmount" id="raiseAmount">0</div><div class="quick"><button onclick="preset(.33)">1/3</button><button onclick="preset(.5)">1/2</button><button onclick="preset(.66)">2/3</button><button onclick="preset(1)">POT</button></div><button class="confirmRaise" onclick="confirmRaise()">BET / RAISE</button></div><div class="vwrap"><input id="raiseSlider" class="vslider" type="range" oninput="updateRaise()"></div></div></div></section>
 <nav id="bottom" class="bottom hidden"><button onclick="show('home')"><span class="ico">⌂</span>Үндсэн</button><button onclick="featureOpen('cash','cash')"><span class="ico">▣</span>Касс</button><button onclick="featureOpen('messages','messages')"><span class="ico">◎</span>Мессеж</button><button onclick="featureOpen('stats','stats')"><span class="ico">▥</span>Статистик</button><button onclick="show('menu')"><span class="ico">☰</span>Цэс</button></nav>
 <div id="sideShade" class="sideShade hidden" onclick="closeSide()"></div><div id="sideMenu" class="sideMenu hidden"><div class="sideTitle">↑ Суудлаас босох</div><div class="sideItem" onclick="leaveTable()"><span>🚪</span>Тоглоомыг орхих</div><div class="sideItem" onclick="openAddMoney()"><span>🎯</span>Ширээнд мөнгө нэмэх</div><div class="sideItem" onclick="spectate()"><span>◔</span>Тоглолт үзэх</div><div class="sideItem" onclick="closeSide();featureOpen('cash','cash')"><span>💼</span>Касс</div><div class="sideItem" onclick="openTableSettings()"><span>▭</span>Ширээний тохиргоо</div><div class="sideItem" onclick="closeSide();featureOpen('settings','settings')"><span>⚙</span>Тохиргоо ›</div><div class="sideItem" onclick="leaveTable()"><span>⌂</span>Лоббируу буцах</div><div class="sideItem" onclick="shareApp()"><span>⌯</span>Хуваалцах</div></div>
 <div id="moneySheet" class="sheet hidden"><h3>Ширээнд мөнгө нэмэх</h3><div class="sheetRow"><span>Ширээ</span><b id="sheetTable"></b></div><input id="moneyInput" type="number" value="5000" oninput="syncMoney()"><input id="moneyRange" class="range" type="range" min="1000" max="100000" step="1000" value="5000" oninput="syncMoney(true)"><div class="sheetBtns"><button onclick="setMoney(.5)">½ Buy-in</button><button onclick="setMoney(1)">1× Buy-in</button><button onclick="setMoney(2)">2× Buy-in</button></div><div class="sheetRow"><span>Одоогийн stack</span><b id="sheetStack"></b></div><button class="ok" onclick="addMoney()">Мөнгө нэмэх</button><button class="close" onclick="closeMoney()">Хаах</button></div>
@@ -1274,6 +1290,15 @@ function preset(x){let min=+$('raiseSlider').min,max=+$('raiseSlider').max,base=
 function confirmRaise(){if(!adminAllows('gameplay'))return;let a=+$('raiseSlider').value;pay(0,a);bots(Math.max(currentTable.bb,Math.floor(a*.6)));$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');toCall=0;setStatus('Та '+fmt(a)+' Raise хийлээ');setTimeout(nextStreet,350)}
 function showdown(){while(boardCards.length<5)boardCards.push(deck.pop());let alive=players.map((_,i)=>i).filter(i=>!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||0,p=takeRakeFromPot();players[w].chips+=p.net;if(w===0&&currentUser){currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.wins++;}potAmt=0;finished=true;setStatus(players[w].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');renderGame();syncUser();setTimeout(newHand,1500)}
 function syncUser(){players.slice(1).forEach(p=>{let b=db.bots.find(x=>x.id===p.botId);if(b)b.chips=p.chips});save()}
+
+let gameTopReturn={messages:null,settings:null,bonus:null};
+function gameSmartBack(key,fallback){const to=gameTopReturn[key]||fallback;gameTopReturn[key]=null;show(to)}
+function openGameGift(){gameTopReturn.bonus='game';show('bonus');if($('gameBonusUser'))$('gameBonusUser').textContent=currentUser?.name||currentUser?.id||'-'}
+function checkGameBonus(){if($('gameBonusUser'))$('gameBonusUser').textContent=currentUser?.name||currentUser?.id||'-';if($('gameBonusState'))$('gameBonusState').textContent='Одоогоор идэвхтэй бонус алга';toast('Бонус шалгагдлаа')}
+function openGameBell(){gameTopReturn.messages='game';featureOpen('messages','messages')}
+function openGameSettings(){gameTopReturn.settings='game';featureOpen('settings','settings')}
+function sitAtGameTable(){if(!currentTable)return toast('Эхлээд ширээ сонгоно уу');if(!spectator)return toast('Та ширээнд сууж байна');spectator=false;$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');setStatus('Та ширээнд суулаа');renderGame()}
+
 function openSide(){$('sideShade').classList.remove('hidden');$('sideMenu').classList.remove('hidden')}
 function closeSide(){$('sideShade').classList.add('hidden');$('sideMenu').classList.add('hidden')}
 function openAddMoney(){if(!adminAllows('addmoney'))return;closeSide();if(!currentTable)return toast('Эхлээд ширээнд орно уу');$('sheetTable').textContent=currentTable.name;$('sheetStack').textContent=fmt(players[0]?.chips||0);$('moneyInput').value=currentTable.buy;$('moneyRange').min=Math.max(1000,currentTable.buy/2);$('moneyRange').max=Math.max(currentTable.buy*2,currentTable.buy);$('moneyRange').step=currentTable.bb;$('moneyRange').value=currentTable.buy;$('moneySheet').classList.remove('hidden')}
@@ -2464,7 +2489,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 
 /* Tall oval black leather table with gold rails */
 #game .pokerTable,#game.tableExpanded .pokerTable{
-  width:91%!important;height:66dvh!important;min-height:470px!important;max-height:585px!important;
+  width:91%!important;height:72dvh!important;min-height:610px!important;max-height:720px!important;
   margin:2px auto 0!important;aspect-ratio:auto!important;position:relative!important;overflow:visible!important;
   border:10px solid #090705!important;border-radius:46%/12%!important;
   background:
@@ -2513,15 +2538,15 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 #game .seat{width:72px!important;z-index:28!important;text-align:center!important;filter:drop-shadow(0 4px 4px #000)!important}
 #game .s0{left:50%!important;right:auto!important;bottom:-12px!important;top:auto!important;transform:translateX(-50%)!important}
 
-#game .s4{left:4%!important;right:auto!important;top:10%!important;bottom:auto!important;transform:none!important}
-#game .s3{left:-6%!important;right:auto!important;top:34%!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .s2{left:-6%!important;right:auto!important;top:58%!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .s1{left:4%!important;right:auto!important;top:78%!important;bottom:auto!important;transform:none!important}
+#game .s4{left:5%!important;right:auto!important;top:12%!important;bottom:auto!important;transform:none!important}
+#game .s3{left:-5%!important;right:auto!important;top:35%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s2{left:-5%!important;right:auto!important;top:59%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s1{left:5%!important;right:auto!important;top:77%!important;bottom:auto!important;transform:none!important}
 
-#game .s5{right:4%!important;left:auto!important;top:10%!important;bottom:auto!important;transform:none!important}
-#game .s6{right:-6%!important;left:auto!important;top:34%!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .s7{right:-6%!important;left:auto!important;top:58%!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .s8{right:4%!important;left:auto!important;top:78%!important;bottom:auto!important;transform:none!important}
+#game .s5{right:5%!important;left:auto!important;top:12%!important;bottom:auto!important;transform:none!important}
+#game .s6{right:-5%!important;left:auto!important;top:35%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s7{right:-5%!important;left:auto!important;top:59%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s8{right:5%!important;left:auto!important;top:77%!important;bottom:auto!important;transform:none!important}
 
 /* Visible empty 9th slot if an eighth admin bot has not been created yet */
 #game .emptySeat{display:block!important;opacity:.38!important;filter:saturate(.35) drop-shadow(0 3px 4px #000)!important}
@@ -2660,7 +2685,9 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 #game .vslider::-webkit-slider-thumb{background:#d9aa4e!important}
 
 @media(max-width:430px){
-  #game .pokerTable,#game.tableExpanded .pokerTable{width:90%!important;height:65dvh!important;min-height:455px!important;max-height:565px!important}
+  #game .pokerTable,#game.tableExpanded .pokerTable{
+    width:90%!important;height:70dvh!important;min-height:600px!important;max-height:700px!important
+  }
   #game .seat{width:66px!important}
   #game .seat .pic{width:46px!important;height:46px!important}
   #game .seat .nm{width:66px!important;max-width:66px!important;font-size:7px!important}
@@ -2675,6 +2702,135 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   #game .pokerTable:before{top:-58px!important;height:140px!important}
   #game .baseActions button{height:48px!important}
 }
+
+
+/* CLEAN FINAL SEAT LAYOUT — VISUAL ONLY */
+#game .pokerTable,#game.tableExpanded .pokerTable{
+  width:90%!important;
+  height:68dvh!important;
+  min-height:570px!important;
+  max-height:680px!important;
+}
+
+/* 4 left + 4 right + admin bottom-center */
+#game .s4{left:4%!important;right:auto!important;top:12%!important;bottom:auto!important;transform:none!important}
+#game .s3{left:-4%!important;right:auto!important;top:34%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s2{left:-4%!important;right:auto!important;top:56%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s1{left:4%!important;right:auto!important;top:76%!important;bottom:auto!important;transform:none!important}
+
+#game .s5{right:4%!important;left:auto!important;top:12%!important;bottom:auto!important;transform:none!important}
+#game .s6{right:-4%!important;left:auto!important;top:34%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s7{right:-4%!important;left:auto!important;top:56%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s8{right:4%!important;left:auto!important;top:76%!important;bottom:auto!important;transform:none!important}
+#game .s0{left:50%!important;right:auto!important;bottom:-10px!important;top:auto!important;transform:translateX(-50%)!important}
+
+/* Compact player blocks so nothing touches the next seat */
+#game .seat{width:64px!important;z-index:28!important}
+#game .seat .pic{width:44px!important;height:44px!important}
+#game .seat .nm{
+  width:64px!important;
+  max-width:64px!important;
+  font-size:7px!important;
+  padding:2px 3px!important;
+  margin-top:0!important;
+}
+#game .seat .stack{
+  min-width:44px!important;
+  font-size:7px!important;
+  padding:2px 5px!important;
+  margin-top:1px!important;
+}
+
+/* Opponent hole cards sit beside, not on top of, avatar/name */
+#game .holeBacks{top:6px!important}
+#game .holeBack{width:17px!important;height:25px!important}
+#game .s1 .holeBacks,#game .s2 .holeBacks,#game .s3 .holeBacks,#game .s4 .holeBacks{
+  left:43px!important;right:auto!important;
+}
+#game .s5 .holeBacks,#game .s6 .holeBacks,#game .s7 .holeBacks,#game .s8 .holeBacks{
+  right:43px!important;left:auto!important;
+}
+
+/* Smaller decorative chip stacks beside each player */
+#game .seat:not(.emptySeat):after{
+  width:19px!important;height:24px!important;
+}
+#game .s1:after,#game .s2:after,#game .s3:after,#game .s4:after{
+  right:-3px!important;top:25px!important;
+}
+#game .s5:after,#game .s6:after,#game .s7:after,#game .s8:after{
+  left:-3px!important;top:25px!important;
+}
+#game .s0:after{right:-4px!important;top:25px!important}
+
+/* Reference-style clean table: remove floating action/blind/bet badges around players.
+   Game logic remains untouched; only these visual badges are hidden. */
+#game .seatStatus,
+#game .blindTag,
+#game .betTag{
+  display:none!important;
+}
+
+/* Center POT / board with more breathing room */
+#game .center{
+  left:50%!important;
+  top:48%!important;
+  width:78%!important;
+  transform:translate(-50%,-50%)!important;
+}
+#game .pot{
+  min-width:110px!important;
+  margin-bottom:13px!important;
+}
+#game .board{gap:5px!important}
+#game .board .card{
+  width:39px!important;
+  height:56px!important;
+  font-size:17px!important;
+}
+
+/* Keep table info below cards, clear of seats */
+#game .tableFootInfo{
+  bottom:108px!important;
+  font-size:7px!important;
+}
+
+/* User cards and admin block separated cleanly */
+#game .pokerTable > .mycards{
+  bottom:53px!important;
+  gap:3px!important;
+}
+#game .pokerTable > .mycards .card{
+  width:40px!important;
+  height:56px!important;
+  font-size:19px!important;
+}
+
+/* Cleaner 3-button bar */
+#game .actionBar{margin:8px 14px 0!important}
+#game .baseActions{gap:8px!important}
+#game .baseActions button{
+  height:54px!important;
+  font-size:12px!important;
+}
+
+@media(max-width:430px){
+  #game .pokerTable,#game.tableExpanded .pokerTable{
+    width:89%!important;
+    height:66dvh!important;
+    min-height:550px!important;
+    max-height:650px!important;
+  }
+  #game .seat{width:60px!important}
+  #game .seat .pic{width:42px!important;height:42px!important}
+  #game .seat .nm{width:60px!important;max-width:60px!important;font-size:7px!important}
+  #game .seat .stack{font-size:7px!important}
+  #game .s4,#game .s5{top:12%!important}
+  #game .s3,#game .s6{top:34%!important}
+  #game .s2,#game .s7{top:56%!important}
+  #game .s1,#game .s8{top:76%!important}
+}
+
 </style>
 
 
