@@ -879,6 +879,38 @@
 #game .gameSitBtn[disabled]{opacity:.55}
 @media(max-width:370px){#tables .tableRow.premiumTableCard{grid-template-columns:40% 1fr 70px}#tables .premiumTableList{padding-left:5px;padding-right:5px}#tables .tableName{font-size:9px!important}#tables .join button{font-size:7px}}
 </style>
+
+<style id="mp-rewards-style">
+#bonus.rewardScreen{background:radial-gradient(circle at 50% 0,#2b1d08 0,#090b0c 33%,#050607 100%)}
+#bonus .rewardPage{padding:14px 12px 90px}
+#bonus .rewardIntro{border:1px solid #9d7628;border-radius:16px;padding:14px 15px;margin-bottom:12px;background:linear-gradient(145deg,#251a08,#0d0d0c);box-shadow:inset 0 0 20px #8f641522}
+#bonus .rewardIntro b{display:block;color:#f4c84b;font-size:17px;margin-bottom:5px}
+#bonus .rewardIntro span{display:block;color:#c9c2ae;font-size:11px;line-height:1.45}
+#bonus .rewardList{display:grid;gap:10px}
+#bonus .rewardCard{position:relative;overflow:hidden;border:1px solid #8f6b23;border-radius:16px;padding:14px;background:linear-gradient(145deg,#17130b,#080a0b 65%);box-shadow:0 8px 20px #0007,inset 0 0 22px #c68e1717}
+#bonus .rewardCard:before{content:'★';position:absolute;right:10px;top:3px;font-size:48px;color:#e6b93612;transform:rotate(12deg)}
+#bonus .rewardCard.off{opacity:.56;border-color:#555}
+#bonus .rewardBadge{display:inline-flex;align-items:center;gap:5px;border:1px solid #b98c31;border-radius:999px;padding:3px 8px;color:#f3cc67;font-size:9px;font-weight:900;letter-spacing:.3px;background:#2b1b06}
+#bonus .rewardCard h3{margin:8px 0 6px;color:#fff4cc;font-size:16px;line-height:1.25}
+#bonus .rewardPrize{font-size:20px;font-weight:1000;color:#ffd84f;text-shadow:0 0 12px #f5b10044;margin:3px 0 8px}
+#bonus .rewardDetail{white-space:pre-wrap;color:#d4d0c4;font-size:11px;line-height:1.55}
+#bonus .rewardUntil{margin-top:9px;padding-top:8px;border-top:1px solid #6b552333;color:#aaa38e;font-size:10px}
+#bonus .rewardAdminActions{display:flex;gap:7px;margin-top:10px}
+#bonus .rewardAdminActions button{flex:1;min-height:34px;border-radius:9px;border:1px solid #6f5d31;background:#171717;color:#eee;font-weight:800}
+#bonus .rewardAdminActions button.danger{border-color:#7f3434;color:#ffaaaa}
+#bonus .rewardEmpty{padding:28px 15px;text-align:center;border:1px dashed #5b4d2c;border-radius:15px;color:#aaa38e;font-size:12px;background:#0d0e0f}
+#bonus .rewardAdminPanel{border:1px solid #b68a2b;border-radius:16px;padding:12px;margin-bottom:12px;background:linear-gradient(160deg,#2a1d08,#101010);box-shadow:0 8px 22px #0009}
+#bonus .rewardAdminTitle{color:#ffd45d;font-weight:1000;font-size:12px;margin-bottom:10px}
+#bonus .rewardAdminPanel label{display:block;color:#bbb19a;font-size:10px;margin:8px 0}
+#bonus .rewardAdminPanel input[type=text],#bonus .rewardAdminPanel input:not([type]),#bonus .rewardAdminPanel input[type=hidden]+label input,#bonus .rewardAdminPanel textarea{box-sizing:border-box;width:100%;margin-top:4px;border:1px solid #554926;border-radius:9px;background:#090a0b;color:white;padding:9px 10px;font-size:12px;outline:none}
+#bonus .rewardAdminPanel input:focus,#bonus .rewardAdminPanel textarea:focus{border-color:#d3a33a;box-shadow:0 0 0 2px #d3a33a22}
+#bonus .rewardActiveRow{display:flex!important;align-items:center;justify-content:space-between;border:1px solid #423a27;border-radius:9px;padding:9px 10px}
+#bonus .rewardActiveRow input{width:20px;height:20px;accent-color:#c99222}
+#bonus .rewardAdminBtns{display:flex;gap:8px;margin-top:10px}
+#bonus .rewardAdminBtns button{flex:1;min-height:40px;border-radius:10px;font-weight:1000}
+#bonus .rewardSaveBtn{background:linear-gradient(#f2ca56,#ae7411);border:1px solid #ffd86b;color:#15100a}
+#bonus .rewardClearBtn{background:#171717;border:1px solid #555;color:#ddd}
+</style>
 </head>
 <body>
 <div class="app">
@@ -906,7 +938,7 @@
   <button class="homeHot h-tour" onclick="featureOpen('tour','tour')" aria-label="Тэмцээнүүд"></button>
   <button class="homeHot h-sitgo" onclick="featureOpen('sitgo','sitgo')" aria-label="Sit & Go"></button>
   <button class="homeHot h-cash" onclick="featureOpen('cash','cash')" aria-label="Касс"></button>
-  <button class="homeHot h-bonus" onclick="toast('Бонус хэсэг удахгүй')" aria-label="Бонус"></button>
+  <button class="homeHot h-bonus" onclick="openRewards()" aria-label="Шагнал урамшуулал"></button>
   <button class="homeHot h-statsTile" onclick="featureOpen('stats','stats')" aria-label="Статистик"></button>
   <button class="homeHot h-settings" onclick="featureOpen('settings','settings')" aria-label="Тохиргоо"></button>
   <button class="homeHot h-contact" onclick="show('contact')" aria-label="Админтай холбогдох"></button>
@@ -1018,7 +1050,20 @@
 <section id="contact" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Админтай холбогдох</div><button onclick="renderContact()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Төлбөр / дансны мэдээлэл</h3><div class="settingRow"><span>Банк</span><b id="contactBankName">-</b></div><div class="settingRow"><span>Данс</span><b id="contactBankAccount">-</b></div><div id="contactBankNote" style="font-size:11px;line-height:1.6;color:#c8d0cd;margin-top:12px"></div><button onclick="featureOpen('messages','messages')">✉ Админд мессеж бичих</button></div></div></section>
 <section id="messages" class="screen"><header class="top"><button onclick="gameSmartBack('messages','home')">‹</button><div class="ttl">Мэдэгдэл / Мессеж</div><button onclick="renderMessages()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>Админд мессеж илгээх</h3><textarea id="msgText" placeholder="Мессежээ бичнэ үү"></textarea><button onclick="sendMessage()">Илгээх</button></div><div id="messageList"></div></div></section>
 <section id="stats" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Статистик</div><button onclick="renderStats()">⟳</button></header><div class="simplePage"><div class="statGrid"><div class="statBox">Гар<b id="stHands">0</b></div><div class="statBox">Хожил<b id="stWins">0</b></div><div class="statBox">Chip<b id="stChips">0</b></div><div class="statBox">Ширээ<b id="stTables">0</b></div></div><div class="simpleCard"><button onclick="featureOpen('tables','tables')">Ширээнүүд рүү орох</button></div></div></section>
-<section id="bonus" class="screen"><header class="top"><button onclick="gameSmartBack('bonus','game')">‹</button><div class="ttl">Бэлэг / Бонус</div><button onclick="checkGameBonus()">⟳</button></header><div class="simplePage"><div class="simpleCard"><h3>🎁 Бэлэг / Бонус</h3><div class="settingRow"><span>Өдрийн бонус</span><b id="gameBonusState">Шалгах боломжтой</b></div><div class="settingRow"><span>Тоглогч</span><b id="gameBonusUser">-</b></div><button onclick="checkGameBonus()">Бонус шалгах</button></div></div></section>
+<section id="bonus" class="screen rewardScreen"><header class="top"><button onclick="gameSmartBack('bonus','home')">‹</button><div class="ttl">Шагнал урамшуулал</div><button onclick="refreshRewards()">⟳</button></header><div class="simplePage rewardPage">
+  <div id="rewardAdminPanel" class="rewardAdminPanel hidden">
+    <div class="rewardAdminTitle">АДМИН — ШАГНАЛ / УРАМШУУЛАЛ ЗАРЛАХ</div>
+    <input id="rewardEditId" type="hidden">
+    <label>Гарчиг<input id="rewardTitle" maxlength="60" placeholder="Жишээ: 7 хоногийн топ тоглогч"></label>
+    <label>Шагнал<input id="rewardPrize" maxlength="80" placeholder="Жишээ: 50,000 chip"></label>
+    <label>Нөхцөл / тайлбар<textarea id="rewardDetail" maxlength="400" rows="3" placeholder="Шагнал авах нөхцөл, тайлбар..."></textarea></label>
+    <label>Дуусах хугацаа<input id="rewardUntil" maxlength="60" placeholder="Жишээ: 2026-09-30 23:59"></label>
+    <label class="rewardActiveRow"><span>Тоглогчдод харагдах</span><input id="rewardActive" type="checkbox" checked></label>
+    <div class="rewardAdminBtns"><button class="rewardSaveBtn" onclick="saveRewardAdmin()">ЗАРЛАХ / ХАДГАЛАХ</button><button class="rewardClearBtn" onclick="clearRewardEditor()">ЦЭВЭРЛЭХ</button></div>
+  </div>
+  <div class="rewardIntro"><b>🎁 Шагнал урамшуулал</b><span>Сайтаас зарласан идэвхтэй урамшууллууд энд харагдана.</span></div>
+  <div id="rewardList" class="rewardList"></div>
+</div></section>
 <section id="settings" class="screen"><header class="top"><button onclick="gameSmartBack('settings','menu')">‹</button><div class="ttl">Тохиргоо</div><button></button></header><div class="simplePage"><div class="simpleCard"><div class="settingRow"><span>Дуу</span><input id="setSound" type="checkbox" checked onchange="saveSettings()"></div><div class="settingRow"><span>Чичиргээ</span><input id="setVibe" type="checkbox" checked onchange="saveSettings()"></div><button onclick="saveSettings();toast('Тохиргоо хадгалагдлаа')">Хадгалах</button></div></div></section>
 <section id="help" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Тусламж</div><button></button></header><div class="simplePage"><div class="simpleCard"><h3>Mongol Poker</h3><div style="font-size:12px;line-height:1.7">Ширээ сонгоод орох дүнгээр сууна. Тоглолтын үед FOLD, CHECK/CALL, RAISE товч ажиллана. Асуудал гарвал Мессеж хэсгээс админд бичээрэй.</div><button onclick="featureOpen('messages','messages')">Админд бичих</button></div></div></section>
 <section id="sitgo" class="screen"><header class="top"><button onclick="show('home')">‹</button><div class="ttl">Sit & Go</div><button></button></header><div class="simplePage"><div class="simpleCard"><h3>Sit & Go</h3><div style="font-size:12px">Sit & Go хэсэг ажиллаж байна. Админ тэмцээн нээх хүртэл энд хүлээнэ.</div><button onclick="featureOpen('tour','tour')">Тэмцээнүүд харах</button></div></div></section>
@@ -1077,6 +1122,7 @@ function mpSharedLobbyPayload(){
     _type:'sharedLobby',
     tables:(db?.tables||[]).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false})),
     bots:(db?.bots||[]).filter(isAdminCreatedBot).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true})),
+    promotions:(db?.promotions||[]).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)})),
     rakePercent:Number(db?.rake?.percent??1),
     updatedAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()
   };
@@ -1113,11 +1159,13 @@ async function mpStartSharedLobby(opts={}){
         db.tables=remoteTables.filter(Boolean).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
       }
       db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
+      if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
       db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
       if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
       try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
       try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}
       try{if(currentUser?.role==='admin'&&document.getElementById('admin')?.classList.contains('active'))renderAdmin()}catch(e){}
+      try{if(document.getElementById('bonus')?.classList.contains('active')&&typeof renderRewards==='function')renderRewards()}catch(e){}
     },async err=>{
       console.warn('Shared lobby listener failed',err);
       /* If read permission needs auth, retry once after anonymous sign-in. */
@@ -1292,7 +1340,7 @@ function isAdminCreatedBot(b){
   return !!b && !isAutoFillerBot(b) && (b.adminCreated===true || /^b\d{10,}$/.test(String(b.id||'')));
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
-function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.withdrawals=db.withdrawals||[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:25000};db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.withdrawals=db.withdrawals||[];db.promotions=Array.isArray(db.promotions)?db.promotions:[];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});/* Keep admin-created custom bots, but permanently remove old automatic Player N / Bot N fillers. */db.bots=db.bots.filter(isAdminCreatedBot).map(b=>Object.assign(b,{adminCreated:true}));save()}
 function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
 async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,cgp:0,stars:0,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
@@ -1331,6 +1379,7 @@ async function mpRefreshSharedLobbyOnce(){
     if(v.bots!==undefined){
       db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
     }
+    if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
     db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
     if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
     try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
@@ -3443,7 +3492,98 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 })();
 </script>
 
-</body></html>
+\n<script id="mp-rewards-script">
+(function(){
+  function esc(v){return String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}
+  function ensure(){if(!Array.isArray(db.promotions))db.promotions=[]}
+  function currentScreen(){return document.querySelector('.screen.active')?.id||'home'}
+  window.openRewards=function(from){
+    ensure();
+    const prev=from||currentScreen();
+    gameTopReturn.bonus=(prev==='bonus'?'home':prev)||'home';
+    show('bonus');
+    renderRewards();
+    refreshRewards(false);
+  };
+  window.openGameGift=function(){openRewards('game')};
+  window.checkGameBonus=function(){refreshRewards(true)};
+  window.refreshRewards=async function(showToast=true){
+    ensure();
+    let ok=false;
+    try{ok=await mpRefreshSharedLobbyOnce()}catch(e){console.warn(e)}
+    renderRewards();
+    if(showToast)toast(ok?'Шагнал урамшуулал шинэчлэгдлээ':'Хадгалсан мэдээллийг харуулж байна');
+  };
+  window.renderRewards=function(){
+    ensure();
+    const isAdmin=currentUser?.role==='admin';
+    const panel=document.getElementById('rewardAdminPanel');if(panel)panel.classList.toggle('hidden',!isAdmin);
+    const list=document.getElementById('rewardList');if(!list)return;
+    const rows=db.promotions.slice().sort((a,b)=>Number(b.updatedAt||b.createdAt||0)-Number(a.updatedAt||a.createdAt||0)).filter(r=>isAdmin||r.active!==false);
+    list.innerHTML=rows.length?rows.map(r=>{
+      const active=r.active!==false;
+      return `<div class="rewardCard ${active?'':'off'}">
+        <span class="rewardBadge">${active?'★ ИДЭВХТЭЙ':'⏸ ТҮР ХААСАН'}</span>
+        <h3>${esc(r.title||'Шагнал урамшуулал')}</h3>
+        ${r.prize?`<div class="rewardPrize">${esc(r.prize)}</div>`:''}
+        ${r.detail?`<div class="rewardDetail">${esc(r.detail)}</div>`:''}
+        ${r.until?`<div class="rewardUntil">⏳ Дуусах хугацаа: ${esc(r.until)}</div>`:''}
+        ${isAdmin?`<div class="rewardAdminActions"><button onclick="editRewardAdmin('${esc(r.id)}')">ЗАСАХ</button><button class="danger" onclick="deleteRewardAdmin('${esc(r.id)}')">УСТГАХ</button></div>`:''}
+      </div>`
+    }).join(''):'<div class="rewardEmpty">Одоогоор идэвхтэй шагнал урамшуулал зарлаагүй байна.</div>';
+  };
+  window.clearRewardEditor=function(){
+    ['rewardEditId','rewardTitle','rewardPrize','rewardDetail','rewardUntil'].forEach(id=>{const e=document.getElementById(id);if(e)e.value=''});
+    const a=document.getElementById('rewardActive');if(a)a.checked=true;
+  };
+  window.editRewardAdmin=function(id){
+    if(currentUser?.role!=='admin')return;ensure();
+    const r=db.promotions.find(x=>String(x.id)===String(id));if(!r)return;
+    document.getElementById('rewardEditId').value=r.id||'';
+    document.getElementById('rewardTitle').value=r.title||'';
+    document.getElementById('rewardPrize').value=r.prize||'';
+    document.getElementById('rewardDetail').value=r.detail||'';
+    document.getElementById('rewardUntil').value=r.until||'';
+    document.getElementById('rewardActive').checked=r.active!==false;
+    document.getElementById('bonus')?.scrollTo?.({top:0,behavior:'smooth'});
+  };
+  async function publishRewards(){
+    save();
+    let online=false;
+    try{online=await mpPublishSharedLobby()}catch(e){console.warn(e)}
+    renderRewards();
+    return online;
+  }
+  window.saveRewardAdmin=async function(){
+    if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');ensure();
+    const id=(document.getElementById('rewardEditId')?.value||'').trim();
+    const title=(document.getElementById('rewardTitle')?.value||'').trim();
+    const prize=(document.getElementById('rewardPrize')?.value||'').trim();
+    const detail=(document.getElementById('rewardDetail')?.value||'').trim();
+    const until=(document.getElementById('rewardUntil')?.value||'').trim();
+    const active=!!document.getElementById('rewardActive')?.checked;
+    if(!title)return toast('Шагналын гарчиг оруулна уу');
+    const now=Date.now();
+    if(id){
+      const r=db.promotions.find(x=>String(x.id)===id);if(!r)return toast('Засах мэдээлэл олдсонгүй');
+      Object.assign(r,{title,prize,detail,until,active,updatedAt:now});
+    }else{
+      db.promotions.push({id:'rw'+now.toString(36)+Math.random().toString(36).slice(2,6),title,prize,detail,until,active,createdAt:now,updatedAt:now});
+    }
+    const online=await publishRewards();clearRewardEditor();
+    toast(online?'Шагнал урамшуулал нийтлэгдлээ':'Төхөөрөмж дээр хадгалагдлаа. Online sync-г шалгана уу');
+  };
+  window.deleteRewardAdmin=async function(id){
+    if(currentUser?.role!=='admin')return;ensure();
+    if(!confirm('Энэ шагнал урамшууллыг устгах уу?'))return;
+    db.promotions=db.promotions.filter(x=>String(x.id)!==String(id));
+    const online=await publishRewards();clearRewardEditor();
+    toast(online?'Устгагдлаа':'Төхөөрөмж дээр устгагдлаа. Online sync-г шалгана уу');
+  };
+  // Keep the existing in-game menu bonus button compatible with this screen.
+  window.mpCtlBonus=function(){try{if(typeof mpCloseControlSheet==='function')mpCloseControlSheet()}catch(e){}openRewards('game')};
+})();
+</script>\n</body></html>
 
 <style id="mp-plus-seat-visibility-fix">
 /* Only restore the spectator + seat button visibility. */
