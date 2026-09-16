@@ -650,20 +650,55 @@
 .adminWithdrawItem .wdActions{display:flex;gap:7px;margin-top:8px}
 .adminWithdrawItem .wdActions button{flex:1;height:32px;border:0;border-radius:4px;color:#fff;font-weight:700}
 .adminWithdrawItem .wdPay{background:#0c9d58}.adminWithdrawItem .wdReject{background:#934548}
+</style>
 
-/* Login logo placement only */
-.authBrand{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 12px;padding:4px 0 2px}
-.authBrandMark{width:92px;height:92px;border-radius:50%;background-repeat:no-repeat;background-size:cover;background-position:center;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
-.authBrandText{margin-top:6px;text-align:center;line-height:1}
-.authBrandText b{display:block;font-size:18px;letter-spacing:.7px;color:#e4b73d;text-shadow:0 1px 0 #4d3610,0 0 8px rgba(228,183,61,.18)}
-.authBrandText span{display:block;margin-top:3px;font-size:10px;letter-spacing:3px;color:#f1d98a}
-.authCard{padding-top:12px}
+
+<style id="finalExactLoginTarget">
+/* ONLY login screen: match the supplied reference screenshot. */
+#auth .auth{background:#121719!important;padding:0 14px 34px!important;min-height:100vh!important;}
+#auth .hero{height:350px!important;margin:0 -14px 7px!important;position:relative!important;overflow:hidden!important;background:radial-gradient(circle at 62% 12%,rgba(188,75,31,.68) 0,rgba(91,35,21,.48) 25%,rgba(17,20,20,.98) 62%),#0f1314!important;}
+#auth .hero::before{content:"♠  A  ♥  A  ♦  A  ♣  A"!important;position:absolute!important;left:50%!important;right:auto!important;bottom:22px!important;top:auto!important;transform:translateX(-50%)!important;width:max-content!important;color:#fff!important;font-size:28px!important;font-weight:900!important;letter-spacing:4px!important;line-height:1!important;text-shadow:0 0 10px rgba(255,161,52,.52)!important;}
+#auth .hero::after{content:none!important;display:none!important;}
+#auth .hero .heroLogo.logoImg{display:flex!important;align-items:center!important;justify-content:flex-start!important;position:absolute!important;left:7%!important;top:72px!important;width:86%!important;height:144px!important;padding:0 28px!important;border-radius:35px!important;background-image:none!important;background:linear-gradient(104deg,#63370d 0%,#c98714 17%,#ffc83e 57%,#e8b83a 100%)!important;border:4px solid #efc84f!important;box-shadow:0 0 0 3px rgba(74,45,12,.92),0 0 28px rgba(255,119,32,.56),inset 0 0 22px rgba(255,255,255,.16)!important;color:transparent!important;font-size:0!important;overflow:hidden!important;animation:mpLoginGlow 1.7s ease-in-out infinite alternate!important;}
+#auth .hero .heroLogo.logoImg::before{content:"MP"!important;position:static!important;display:block!important;margin-right:20px!important;color:#ff9a2b!important;font-size:50px!important;line-height:1!important;font-weight:1000!important;letter-spacing:-4px!important;text-shadow:0 0 7px rgba(255,70,18,.72),0 1px 0 #ffe59a!important;white-space:nowrap!important;}
+#auth .hero .heroLogo.logoImg::after{content:"MONGOL POKER"!important;position:static!important;display:block!important;transform:none!important;color:#ffa12d!important;font-size:24px!important;line-height:1!important;font-weight:1000!important;letter-spacing:1.5px!important;text-shadow:0 0 7px rgba(255,74,18,.72),0 1px 0 #ffe59a!important;white-space:nowrap!important;background:none!important;}
+@keyframes mpLoginGlow{from{filter:brightness(.98)}to{filter:brightness(1.08)}}
+
+#auth .authCard{background:#1b1f21!important;border:1px solid #3b4245!important;padding:20px 18px 18px!important;border-radius:0!important;box-shadow:none!important;}
+#auth .authCard h2{font-size:19px!important;text-align:center!important;margin:0 0 20px!important;color:#f4f4f4!important;font-weight:700!important;}
+#auth .targetLoginField{margin:0 0 14px!important;}
+#auth .targetLoginField input{height:62px!important;background:#1a1e20!important;border:1px solid #41494d!important;border-radius:7px!important;color:#fff!important;padding:0 16px!important;font-size:17px!important;box-shadow:none!important;}
+#auth .targetLoginField input::placeholder{color:#70767a!important;opacity:1!important;}
+#auth .passWrap{position:relative!important;}
+#auth .passWrap input{padding-right:54px!important;}
+#auth .eyeBtn{position:absolute!important;right:2px!important;top:2px!important;width:50px!important;height:58px!important;border:0!important;background:transparent!important;color:#8a9297!important;font-size:17px!important;}
+#auth .loginUtility{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin:14px 4px 22px!important;}
+#auth .rememberRow{display:flex!important;align-items:flex-start!important;gap:10px!important;color:#d7d9da!important;font-size:11px!important;line-height:1.35!important;min-width:0!important;}
+#auth .rememberRow input{appearance:auto!important;-webkit-appearance:checkbox!important;width:21px!important;height:21px!important;margin:0!important;accent-color:#17bd68!important;flex:0 0 auto!important;}
+#auth .forgotBtn{border:0!important;background:transparent!important;color:#21d276!important;font-size:10px!important;font-weight:900!important;padding:5px 0!important;white-space:nowrap!important;}
+#auth .langBox{margin:0 0 16px!important;border:1px solid #434b4f!important;border-radius:7px!important;padding:4px 10px 8px!important;min-width:0!important;}
+#auth .langBox legend{padding:0 7px!important;color:#a8afb2!important;font-size:10px!important;}
+#auth .langBox select{width:100%!important;height:52px!important;background:#1b1f21!important;border:1px solid #41494d!important;border-radius:7px!important;color:#f1f1f1!important;padding:0 15px!important;font-size:16px!important;}
+#auth .targetLoginBtn{height:46px!important;border:0!important;border-radius:4px!important;background:linear-gradient(#18bf69,#078843)!important;color:#fff!important;font-weight:800!important;box-shadow:none!important;margin-top:3px!important;}
+#auth .targetRegisterLink{margin-top:13px!important;color:#31d98a!important;font-size:12px!important;}
+
+/* Registration remains functional and uses the existing app style. */
+#auth #regFields .primary{background:linear-gradient(#17bd68,#078842)!important;color:#fff!important;border:0!important;box-shadow:none!important;}
+
+@media(max-width:380px){
+ #auth .hero .heroLogo.logoImg{left:6%!important;width:88%!important;height:136px!important;padding:0 22px!important;}
+ #auth .hero .heroLogo.logoImg::before{font-size:45px!important;margin-right:16px!important;}
+ #auth .hero .heroLogo.logoImg::after{font-size:21px!important;}
+ #auth .hero::before{font-size:25px!important;letter-spacing:3px!important;}
+ #auth .authCard{padding-left:16px!important;padding-right:16px!important;}
+ #auth .forgotBtn{font-size:9px!important;}
+}
 </style>
 
 </head>
 <body>
 <div class="app">
-<section id="auth" class="screen active"><div class="auth"><div class="hero"><div class="heroLogo logoImg"></div></div><div class="authCard"><div class="authBrand"><div class="authBrandMark logoImg"></div><div class="authBrandText"><b>MP MONGOL POKER</b><span>POKER CLUB</span></div></div><h2 id="authTitle">Нэвтрэх</h2><div id="loginFields"><div class="field"><label>Хэрэглэгчийн нэр</label><input id="loginId" placeholder="Хэрэглэгчийн нэр"></div><div class="field"><label>Нууц үг</label><input id="loginPass" type="password" placeholder="Нууц үг"></div><button class="primary" onclick="login()">Нэвтрэх</button><div class="switch" onclick="toggleRegister(true)">Бүртгүүлэх</div></div><div id="regFields" class="hidden"><div class="field"><label>Нэр</label><input id="regName" placeholder="* Нэр"></div><div class="field"><label>Хэрэглэгчийн нэр</label><input id="regId" placeholder="Хэрэглэгчийн нэр"></div><div class="field"><label>Нууц үг</label><input id="regPass" type="password" placeholder="* Нууц үг"></div><div class="field"><label>Нууц үг батлах</label><input id="regPass2" type="password" placeholder="* Нууц үг батлах"></div><div class="field"><label>Утас</label><input id="regPhone" inputmode="tel" placeholder="+976-__-__-____"></div><div class="field"><label>Банкны код</label><select id="regBank"><option value="">* Банкны код</option><option>ХААН БАНК</option><option>ГОЛОМТ БАНК</option><option>ХУДАЛДАА ХӨГЖЛИЙН БАНК</option><option>ТӨРИЙН БАНК</option><option>ХАС БАНК</option><option>КАПИТРОН БАНК</option><option>БОГД БАНК</option><option>АРИГ БАНК</option><option>ТРАНС БАНК</option><option>М БАНК</option><option>БУСАД</option></select></div><div class="field"><label>Банкны дансны дугаар</label><input id="regBankAccount" inputmode="numeric" placeholder="* Банкны дансны дугаар"></div><button class="primary" onclick="register()">Илгээх</button><div class="switch" onclick="toggleRegister(false)">Нэвтрэх рүү буцах</div></div></div></div></section>
+<section id="auth" class="screen active"><div class="auth"><div class="hero"><div class="heroLogo logoImg"></div></div><div class="authCard"><h2 id="authTitle">Нэвтрэх</h2><div id="loginFields"><div class="field targetLoginField"><input id="loginId" placeholder="*Хэрэглэгчийн нэр"></div><div class="field targetLoginField"><div class="passWrap"><input id="loginPass" type="password" placeholder="*Нууц үг"><button type="button" class="eyeBtn" onclick="toggleLoginPassword()" aria-label="Нууц үг харах">◉</button></div></div><div class="loginUtility"><label class="rememberRow"><input id="rememberLogin" type="checkbox"><span>Нэвтрэх нэр / нууц үгийг<br>санах</span></label><button type="button" class="forgotBtn" onclick="toast('Админтай холбогдоно уу')">НУУЦ ҮГЭЭ МАРТСАН?</button></div><fieldset class="langBox"><legend>Хэл</legend><select id="loginLang"><option>Монгол</option></select></fieldset><button class="primary targetLoginBtn" onclick="login()">Нэвтрэх</button><div class="switch targetRegisterLink" onclick="toggleRegister(true)">Бүртгүүлэх</div></div><div id="regFields" class="hidden"><div class="field"><label>Нэр</label><input id="regName" placeholder="* Нэр"></div><div class="field"><label>Хэрэглэгчийн нэр</label><input id="regId" placeholder="Хэрэглэгчийн нэр"></div><div class="field"><label>Нууц үг</label><input id="regPass" type="password" placeholder="* Нууц үг"></div><div class="field"><label>Нууц үг батлах</label><input id="regPass2" type="password" placeholder="* Нууц үг батлах"></div><div class="field"><label>Утас</label><input id="regPhone" inputmode="tel" placeholder="+976-__-__-____"></div><div class="field"><label>Банкны код</label><select id="regBank"><option value="">* Банкны код</option><option>ХААН БАНК</option><option>ГОЛОМТ БАНК</option><option>ХУДАЛДАА ХӨГЖЛИЙН БАНК</option><option>ТӨРИЙН БАНК</option><option>ХАС БАНК</option><option>КАПИТРОН БАНК</option><option>БОГД БАНК</option><option>АРИГ БАНК</option><option>ТРАНС БАНК</option><option>М БАНК</option><option>БУСАД</option></select></div><div class="field"><label>Банкны дансны дугаар</label><input id="regBankAccount" inputmode="numeric" placeholder="* Банкны дансны дугаар"></div><button class="primary" onclick="register()">Илгээх</button><div class="switch" onclick="toggleRegister(false)">Нэвтрэх рүү буцах</div></div></div></div></section>
 <section id="home" class="screen"><div class="refHome">
   <div class="refTopMini">
     <div class="refMiniLogo"><span>MP</span><small>MONGOL<br>POKER</small></div>
@@ -2028,4 +2063,9 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 #game .pokerTable[data-seat-count="8"] .seat.s2 .betTag{left:58px!important;right:auto!important;top:25px!important;transform:none!important}
 #game .pokerTable[data-seat-count="8"] .seat.s6 .betTag{right:58px!important;left:auto!important;top:25px!important;transform:none!important}
 </style>
+
+<script id="loginPasswordToggleHelper">
+function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p.type=(p.type==='password'?'text':'password');}
+</script>
+
 </body></html>
