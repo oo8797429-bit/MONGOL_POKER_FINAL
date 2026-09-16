@@ -800,29 +800,31 @@
 
 
 <style id="royalBlackGoldTableOnly">
-/* ONLY GAME TABLE VISUALS.
-   Home / login / admin / cash / register / core poker logic stay unchanged. */
+/* ONLY GAME TABLE PRESENTATION.
+   Home/login/admin/cash/register/game rules stay untouched. */
 
 #game.game{
   min-height:100dvh!important;height:100dvh!important;overflow:hidden!important;
   position:relative!important;padding-bottom:4px!important;
-  background:linear-gradient(180deg,#070808 0%,#0b0c0b 24%,#050606 100%)!important;
+  background:linear-gradient(180deg,#060707 0%,#0a0b0b 22%,#050606 100%)!important;
 }
 #game.game:before{
-  content:"";position:absolute;inset:0 0 auto 0;height:26dvh;z-index:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.72));
+  content:"";position:absolute;left:0;right:0;top:0;height:23dvh;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 0%,rgba(207,161,64,.10),transparent 42%),
+    linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.70));
 }
-#game > *{position:relative;z-index:2}
+#game>*{position:relative;z-index:2}
 
 #game .gameHead{
-  height:48px!important;position:absolute!important;left:0;right:0;top:0!important;z-index:50!important;
-  background:linear-gradient(180deg,#060706dd,#07070680,transparent)!important;
+  height:50px!important;position:absolute!important;left:0;right:0;top:0!important;z-index:50!important;
+  background:linear-gradient(180deg,#050606ea,#070707a8,transparent)!important;
   border-bottom:0!important;box-shadow:none!important;
 }
-#game .gameHead button{font-size:24px!important;color:#f0d084!important;text-shadow:0 1px 4px #000!important}
+#game .gameHead button{font-size:24px!important;color:#eccf86!important;text-shadow:0 1px 4px #000!important}
 #game .gameHead b{
   text-align:center!important;font:900 14px/1.1 Georgia,serif!important;letter-spacing:1px!important;
-  color:#d7b35a!important;text-shadow:0 2px 6px #000!important;
+  color:#d8b65f!important;text-shadow:0 2px 6px #000!important;
 }
 
 #game .gameMeta{
@@ -838,25 +840,27 @@
 #game .gameMeta #gameBlind:before{content:"BLIND";display:block;color:#c8b88b;font-size:7px;font-weight:700;margin-bottom:2px}
 
 #game .tableSizeBtn{
-  position:absolute!important;right:14px!important;top:102px!important;z-index:48!important;
+  position:absolute!important;right:14px!important;top:104px!important;z-index:48!important;
   width:34px!important;height:34px!important;border-radius:50%!important;
   background:#0d0f0fcc!important;border:1px solid #b28632!important;color:#f2d27b!important;
   box-shadow:0 3px 10px #000b!important;
 }
 
+/* cleaner, taller oval table */
 #game .pokerTable,
 #game.tableExpanded .pokerTable{
   position:relative!important;z-index:10!important;
-  width:96%!important;height:min(63dvh,690px)!important;
-  margin:118px auto 0!important;
-  border:12px solid #171513!important;border-radius:47% / 25%!important;
+  width:95%!important;height:min(64dvh,700px)!important;
+  margin:116px auto 0!important;
+  border:14px solid #151412!important;border-radius:46% / 24%!important;
   background:
-    radial-gradient(ellipse at 50% 45%,rgba(66,52,24,.16),transparent 42%),
-    radial-gradient(ellipse at center,#161714 0%,#11120f 62%,#080908 100%)!important;
+    radial-gradient(ellipse at 50% 76%,rgba(198,150,52,.08),transparent 26%),
+    radial-gradient(ellipse at 50% 40%,rgba(54,43,20,.13),transparent 38%),
+    radial-gradient(ellipse at center,#151613 0%,#10110f 62%,#070807 100%)!important;
   box-shadow:
     inset 0 0 0 3px #d0a03b,
-    inset 0 0 0 7px #4d3715,
-    inset 0 0 52px #000,
+    inset 0 0 0 7px #443114,
+    inset 0 0 58px #000,
     0 0 0 2px #050505,
     0 0 22px #c6932a55,
     0 14px 28px #000d!important;
@@ -864,146 +868,161 @@
 }
 #game .pokerTable:before{
   content:"";position:absolute;inset:8px;border-radius:inherit;pointer-events:none;z-index:1;
-  border:1px solid #d5aa4a66;box-shadow:inset 0 0 28px #d7a63810;
+  border:1px solid #d7af5160;box-shadow:inset 0 0 26px #d7a63810;
+}
+#game .pokerTable:after{
+  content:"";position:absolute;left:25%;right:25%;bottom:13%;height:16%;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(198,150,52,.12),transparent 70%);
+  border-radius:50%;
 }
 
 #game .tableBrandMP{
-  left:50%!important;top:57%!important;transform:translate(-50%,-50%)!important;z-index:2!important;
-  color:#cfa84f!important;opacity:.88!important;text-align:center!important;text-shadow:0 2px 7px #000!important;
+  left:50%!important;top:61%!important;transform:translate(-50%,-50%)!important;z-index:2!important;
+  color:#cfa84f!important;opacity:.80!important;text-align:center!important;text-shadow:0 2px 7px #000!important;
 }
-#game .tableBrandMP b{display:block!important;font:900 34px/.85 Georgia,serif!important;letter-spacing:-1px!important;color:#d6ad50!important}
-#game .tableBrandMP small{display:block!important;margin-top:6px!important;font:800 7px/1 Arial,sans-serif!important;letter-spacing:2px!important;color:#d2bc7a!important}
+#game .tableBrandMP b{display:block!important;font:900 36px/.85 Georgia,serif!important;letter-spacing:-1px!important;color:#d6ad50!important}
+#game .tableBrandMP small{display:block!important;margin-top:7px!important;font:800 7px/1 Arial,sans-serif!important;letter-spacing:2px!important;color:#d2bc7a!important}
 
-#game .center{top:45%!important;width:78%!important;z-index:12!important}
+#game .center{top:43%!important;width:76%!important;z-index:12!important}
 #game .pot{
-  min-width:110px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  padding:7px 14px 7px 35px!important;margin-bottom:11px!important;border-radius:18px!important;
+  min-width:118px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  padding:7px 16px 7px 36px!important;margin-bottom:14px!important;border-radius:19px!important;
   border:1px solid #89651f!important;background:linear-gradient(#1c1912eb,#090a09eb)!important;
   color:#f3cb69!important;font-size:15px!important;font-weight:900!important;
   box-shadow:0 4px 12px #000b,inset 0 1px #f3d27d33!important;position:relative!important;
 }
 #game .pot:before{
-  content:"";position:absolute;left:11px;top:9px;width:17px;height:17px;border-radius:50%;
+  content:"";position:absolute;left:11px;top:9px;width:18px;height:18px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%,#fff6bd 0 11%,#f0cb45 13% 44%,#9a660b 46% 69%,#2f1d00 71%);
   border:1px solid #ffdc72;box-shadow:-4px 3px 0 -1px #b67f18,-7px 6px 0 -2px #6e4708,1px 2px 5px #000;
 }
-#game .board{gap:4px!important}
+#game .board{gap:6px!important}
 #game .board .card{
-  width:39px!important;height:55px!important;border-radius:5px!important;border:1px solid #d6d0c6!important;
-  box-shadow:0 4px 9px #000c!important;font-family:Georgia,serif!important;font-size:17px!important;
+  width:41px!important;height:57px!important;border-radius:5px!important;border:1px solid #d6d0c6!important;
+  box-shadow:0 4px 9px #000c!important;font-family:Georgia,serif!important;font-size:18px!important;
 }
-#game .board .card.blank{background:#ffffff0a!important;border:1px solid #80745b66!important;color:transparent!important}
+#game .board .card.blank{background:#ffffff08!important;border:1px solid #80745b55!important;color:transparent!important}
 
+/* cleaner players */
 #game .seat{
-  width:64px!important;z-index:18!important;text-align:center!important;
+  width:60px!important;z-index:18!important;text-align:center!important;
   filter:drop-shadow(0 4px 5px #000a)!important;
 }
 #game .seat .pic{
   width:40px!important;height:40px!important;border-radius:50%!important;margin:auto!important;
-  background:radial-gradient(circle at 35% 28%,#4a4134,#171715 59%,#050606 100%)!important;
+  background:radial-gradient(circle at 35% 28%,#494034,#171715 59%,#050606 100%)!important;
   border:2px solid #d8ae48!important;color:#fff!important;font-size:20px!important;
-  box-shadow:0 0 0 2px #171208,0 0 10px #d4a54055,0 4px 8px #000b!important;
+  box-shadow:0 0 0 2px #171208,0 0 9px #d4a54055,0 4px 8px #000b!important;
 }
-#game .seat.active .pic{border-color:#ffe582!important;box-shadow:0 0 0 2px #3b290a,0 0 18px #f0c24ca8,0 4px 8px #000b!important}
-#game .seat.winner .pic{border-color:#fff1a0!important;box-shadow:0 0 0 2px #60430d,0 0 20px #ffd553cc,0 4px 8px #000b!important}
+#game .seat.active .pic{border-color:#ffe582!important;box-shadow:0 0 0 2px #3b290a,0 0 16px #f0c24ca8,0 4px 8px #000b!important}
+#game .seat.winner .pic{border-color:#fff1a0!important;box-shadow:0 0 0 2px #60430d,0 0 18px #ffd553cc,0 4px 8px #000b!important}
 
 #game .seat .nm{
   display:flex!important;align-items:center!important;justify-content:center!important;gap:2px!important;
-  margin-top:2px!important;min-height:17px!important;padding:2px 4px!important;border-radius:8px 8px 2px 2px!important;
-  background:linear-gradient(#161614f5,#080909f5)!important;border:1px solid #896525!important;
-  color:#f1ede2!important;font-size:6.5px!important;font-weight:800!important;white-space:nowrap!important;
+  margin-top:4px!important;min-height:16px!important;padding:2px 4px!important;border-radius:8px 8px 2px 2px!important;
+  background:#0c0d0ded!important;border:1px solid #7f5d23!important;
+  color:#f1ede2!important;font-size:6.4px!important;font-weight:800!important;white-space:nowrap!important;
   box-shadow:0 2px 6px #000b!important;
 }
 #game .seat .seatFlag{font-size:8px!important}
 #game .seat .stack{
   display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;
-  min-width:48px!important;min-height:17px!important;margin:-1px auto 0!important;padding:2px 5px!important;
-  border-radius:2px 2px 8px 8px!important;background:linear-gradient(#14120f,#070807)!important;
-  border:1px solid #896525!important;color:#f3cc69!important;font-size:7px!important;font-weight:900!important;
+  min-width:46px!important;min-height:16px!important;margin:-1px auto 0!important;padding:2px 5px!important;
+  border-radius:2px 2px 8px 8px!important;background:#0a0b0bec!important;
+  border:1px solid #7f5d23!important;color:#f3cc69!important;font-size:6.9px!important;font-weight:900!important;
   box-shadow:0 2px 6px #000b!important;
 }
 #game .seat .stack:before{
-  content:"";width:9px;height:9px;border-radius:50%;
+  content:"";width:8px;height:8px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%,#fff4ae 0 13%,#e8be3d 15% 47%,#8f5d0b 50% 72%,#2d1d00 74%);
-  border:1px solid #f0ca55;box-shadow:-3px 2px 0 -1px #b37a15,-6px 4px 0 -2px #6f4908;
+  border:1px solid #f0ca55;box-shadow:-2px 2px 0 -1px #b37a15,-4px 4px 0 -2px #6f4908;
 }
-#game .blindTag,#game .betTag{
-  font-size:7px!important;padding:2px 5px!important;border-radius:10px!important;
+
+/* less clutter */
+#game .seatStatus{display:none!important}
+#game .blindTag{
+  top:28px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+  padding:1px 5px!important;border-radius:9px!important;font-size:6px!important;
+  background:#090909f0!important;border:1px solid #b88c31!important;color:#ffd86a!important;
 }
-#game .blindTag{top:39px!important;background:#0b0b0ae8!important;border-color:#a47b28!important;color:#ffd86a!important}
-#game .betTag{top:60px!important;background:#13110de8!important;border-color:#8f6c29!important;color:#f4d271!important}
+#game .betTag{
+  top:44px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+  padding:1px 6px!important;border-radius:10px!important;font-size:6px!important;
+  background:#15120eec!important;border:1px solid #8f6c29!important;color:#f4d271!important;
+}
 #game .dealerDot{
-  right:-2px!important;top:-2px!important;width:18px!important;height:18px!important;font-size:10px!important;
+  right:-2px!important;top:-2px!important;width:16px!important;height:16px!important;font-size:9px!important;
   background:linear-gradient(#fff7d4,#d9b45d)!important;border-color:#725419!important;
 }
-
-/* small gold chip pile beside each seat */
+/* small tidy chip pile beside each seat */
 #game .seat:after{
-  content:"";position:absolute;width:16px;height:16px;border-radius:50%;pointer-events:none;opacity:.98;
+  content:"";position:absolute;width:14px;height:14px;border-radius:50%;pointer-events:none;opacity:.98;
   background:radial-gradient(circle at 36% 28%,#fff6bb 0 10%,#f2ca40 12% 42%,#9f690c 45% 70%,#2e1c00 72%);
   border:1px solid #f0cc5e;
-  box-shadow:0 3px 0 -1px #bd861a,0 6px 0 -2px #9b680f,0 2px 6px #000a;
+  box-shadow:0 3px 0 -1px #bd861a,0 5px 0 -2px #9b680f,0 2px 6px #000a;
 }
-#game .s0:after{right:-3px;top:26px}
-#game .s1:after,#game .s2:after,#game .s3:after,#game .s4:after{right:-5px;top:24px}
-#game .s5:after,#game .s6:after,#game .s7:after,#game .s8:after{left:-5px;top:24px}
+#game .s0:after{right:-2px;top:24px}
+#game .s1:after,#game .s2:after,#game .s3:after,#game .s4:after{right:-4px;top:22px}
+#game .s5:after,#game .s6:after,#game .s7:after,#game .s8:after{left:-4px;top:22px}
 
-/* Clean 9-max positions */
-#game .s0{left:50%!important;bottom:-12px!important;transform:translateX(-50%)!important;width:76px!important}
-#game .s0 .pic{width:46px!important;height:46px!important;font-size:22px!important}
-#game .s1{left:6%!important;bottom:30px!important;top:auto!important;transform:none!important}
-#game .s2{left:0%!important;top:54%!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .s3{left:6%!important;top:82px!important;bottom:auto!important;transform:none!important}
-#game .s4{left:25%!important;top:10px!important;bottom:auto!important;transform:none!important}
-#game .s5{right:25%!important;top:10px!important;left:auto!important;bottom:auto!important;transform:none!important}
-#game .s6{right:6%!important;top:82px!important;left:auto!important;bottom:auto!important;transform:none!important}
-#game .s7{right:0%!important;top:54%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%)!important}
-#game .s8{right:6%!important;bottom:30px!important;left:auto!important;top:auto!important;transform:none!important}
+/* 9-max positions with more air */
+#game .s0{left:50%!important;bottom:-14px!important;transform:translateX(-50%)!important;width:72px!important}
+#game .s0 .pic{width:44px!important;height:44px!important;font-size:22px!important}
+#game .s1{left:6%!important;bottom:40px!important;top:auto!important;transform:none!important}
+#game .s2{left:-1.5%!important;top:58%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s3{left:7%!important;top:76px!important;bottom:auto!important;transform:none!important}
+#game .s4{left:26%!important;top:4px!important;bottom:auto!important;transform:none!important}
+#game .s5{right:26%!important;top:4px!important;left:auto!important;bottom:auto!important;transform:none!important}
+#game .s6{right:7%!important;top:76px!important;left:auto!important;bottom:auto!important;transform:none!important}
+#game .s7{right:-1.5%!important;top:58%!important;left:auto!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s8{right:6%!important;bottom:40px!important;left:auto!important;top:auto!important;transform:none!important}
 
-#game .holeBacks{top:26px!important;z-index:-1!important}
+#game .holeBacks{top:24px!important;z-index:-1!important}
 #game .holeBack{
-  width:14px!important;height:20px!important;background:linear-gradient(135deg,#1b1a18 0 42%,#4e3b18 42% 48%,#1b1a18 48%)!important;
+  width:13px!important;height:19px!important;background:linear-gradient(135deg,#1b1a18 0 42%,#4e3b18 42% 48%,#1b1a18 48%)!important;
   border:1px solid #cfaa51!important;
 }
 
 #game .mycards{
-  position:absolute!important;left:50%!important;bottom:66px!important;transform:translateX(-50%)!important;z-index:30!important;
-  display:flex!important;gap:6px!important;margin:0!important;pointer-events:none!important;
+  position:absolute!important;left:50%!important;bottom:82px!important;transform:translateX(-50%)!important;z-index:30!important;
+  display:flex!important;gap:7px!important;margin:0!important;pointer-events:none!important;
 }
 #game .mycards .card{
-  width:48px!important;height:67px!important;border:1px solid #d7d0c3!important;border-radius:6px!important;
+  width:46px!important;height:65px!important;border:1px solid #d7d0c3!important;border-radius:6px!important;
   box-shadow:0 5px 11px #000d!important;font-family:Georgia,serif!important;font-size:21px!important;
 }
 
 #game .tableHud{z-index:30!important}
 #game .hudTL{left:8px!important;top:-100px!important}
 #game .hudTR{right:8px!important;top:-100px!important}
-#game .hudBL{left:7px!important;bottom:22px!important}
-#game .hudBR{right:7px!important;bottom:22px!important}
-#game .hudBtn{background:#0f1111dd!important;border-color:#9a742a!important;color:#f0d17b!important}
+#game .hudBL{left:8px!important;bottom:28px!important}
+#game .hudBR{right:8px!important;bottom:28px!important}
+#game .hudBtn{
+  width:38px!important;height:38px!important;background:#0e1010e8!important;border-color:#98712a!important;color:#f0d17b!important;
+}
 #game .handCode,#game .tableFootInfo{display:none!important}
 
 #game .turnClock{
-  right:-5px!important;top:-5px!important;width:18px!important;height:18px!important;
-  font-size:8px!important;line-height:18px!important;
+  right:-4px!important;top:-4px!important;width:17px!important;height:17px!important;
+  font-size:8px!important;line-height:17px!important;
 }
 
 #game .status{
-  margin:4px 14px 4px!important;padding:4px 8px!important;min-height:24px!important;border-radius:9px!important;
+  margin:4px 14px 4px!important;padding:5px 8px!important;min-height:24px!important;border-radius:10px!important;
   border:1px solid #6d511e!important;background:linear-gradient(#17140f,#0b0c0b)!important;color:#d8c9a6!important;
   font-size:8px!important;box-shadow:inset 0 1px #ffffff0b!important;
 }
 #game .actionBar{
-  margin:4px 12px 5px!important;padding:7px!important;border:1px solid #8b6726!important;border-radius:12px!important;
+  margin:4px 12px 5px!important;padding:7px!important;border:1px solid #8b6726!important;border-radius:14px!important;
   background:linear-gradient(#17130d,#070808)!important;box-shadow:0 7px 18px #000c,inset 0 1px #f2cd7040!important;
 }
 #game .baseActions{grid-template-columns:repeat(3,1fr)!important;gap:8px!important}
 #game .baseActions button{
-  height:46px!important;border:1px solid #7f5e1f!important;border-radius:9px!important;font-size:11px!important;
+  height:48px!important;border:1px solid #7f5e1f!important;border-radius:10px!important;font-size:11px!important;
   font-weight:900!important;letter-spacing:.4px!important;text-shadow:0 1px 2px #000!important;
 }
-#game .fold{background:linear-gradient(#292824,#111211)!important;color:#e0ddd5!important}
-#game .check,#game .call{background:linear-gradient(#372b16,#11100c)!important;color:#f3d37e!important}
+#game .fold{background:linear-gradient(#232320,#101111)!important;color:#e0ddd5!important}
+#game .check,#game .call{background:linear-gradient(#332915,#11100c)!important;color:#f3d37e!important}
 #game .raise{
   background:linear-gradient(180deg,#f0ca6c,#ba811f 56%,#73500f)!important;color:#171009!important;
   border-color:#ffe39b!important;text-shadow:none!important;box-shadow:inset 0 1px #fff4c0,0 0 13px #d7a63d55,0 2px 7px #0009!important;
@@ -1015,13 +1034,10 @@
 #game .vslider{background:linear-gradient(90deg,#765010,#d3a53e)!important}
 #game .vslider::-webkit-slider-thumb{background:radial-gradient(circle at 35% 30%,#fff2ad,#dfb63d 55%,#8b5c0c)!important;border:2px solid #ffe18a!important}
 
-@media(max-width:430px){
-  #game .pokerTable,#game.tableExpanded .pokerTable{height:min(62dvh,670px)!important;margin-top:114px!important}
-}
 @media(max-width:430px) and (max-height:760px){
   #game .pokerTable,#game.tableExpanded .pokerTable{height:58dvh!important;margin-top:105px!important}
-  #game .s3,#game .s6{top:74px!important}
-  #game .mycards{bottom:60px!important}
+  #game .s3,#game .s6{top:70px!important}
+  #game .mycards{bottom:76px!important}
 }
 </style>
 
@@ -2022,10 +2038,10 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       1:[0],
       2:[0,5],
       3:[0,3,6],
-      4:[0,2,4,7],
+      4:[0,2,6,8],
       5:[0,2,4,6,8],
-      6:[0,1,3,4,6,8],
-      7:[0,1,2,4,6,7,8],
+      6:[0,1,3,5,7,8],
+      7:[0,1,3,4,5,7,8],
       8:[0,1,2,3,5,6,7,8],
       9:[0,1,2,3,4,5,6,7,8]
     };
