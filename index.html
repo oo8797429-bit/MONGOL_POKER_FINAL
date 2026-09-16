@@ -2315,28 +2315,22 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       setStatus(players[i].name+'-ийн ээлж');renderGame();
       await wait(1500+Math.floor(Math.random()*1000));
       if(!spectatorModeActive())return false;
-      /* Never let the final two live players both disappear pre-flop.
-         This keeps a real hand progressing to the board instead of constantly
-         resetting at blinds/pot 300–500. */
-      const aliveNow=spectatorAliveSeats().length;
-      const foldChance=street===0?0.05:0.09;
-      const canFold=aliveNow>2 && Math.random()<foldChance;
-      if(canFold){
+      const d=mpBotDecision(i,targetBet);
+      /* Heads-up: if <=60% and checking is impossible, fold is allowed;
+         otherwise >60% continues exactly by the requested rule. */
+      if(d.action==='fold'){
         folded[i]=true;liveSeatStatus[i]='FOLD';
         setStatus(players[i].name+' • Fold');
+      }else if(d.action==='raise'){
+        const need=owedToTarget(i,d.raiseTo),paid=pay(i,need);
+        targetBet=Math.max(targetBet,d.raiseTo);
+        liveSeatStatus[i]=players[i].chips<=0&&need>0?'БҮГДИЙГ НЬ':'RAISE';
+        setStatus(players[i].name+' • Raise '+fmt(paid));
       }else{
-        let roundTarget=Math.max(targetBet,...liveSeatBets);
-        if(Math.random()<.08&&(Number(players[i]?.chips)||0)>currentTable.bb*2){
-          roundTarget=Math.max(roundTarget+currentTable.bb,liveSeatBets[i]+currentTable.bb);
-          targetBet=roundTarget;
-          const need=owedToTarget(i,roundTarget),paid=pay(i,need);
-          liveSeatStatus[i]=players[i].chips<=0&&need>0?'БҮГДИЙГ НЬ':'RAISE';
-          setStatus(players[i].name+' • Raise '+fmt(paid));
-        }else{
-          const need=owedToTarget(i,roundTarget),paid=pay(i,need);
-          liveSeatStatus[i]=players[i].chips<=0&&need>0?'БҮГДИЙГ НЬ':(paid?'CALL':'CHECK');
-          setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
-        }
+        const roundTarget=Math.max(targetBet,...liveSeatBets);
+        const need=owedToTarget(i,roundTarget),paid=pay(i,need);
+        liveSeatStatus[i]=players[i].chips<=0&&need>0?'БҮГДИЙГ НЬ':(paid?'CALL':'CHECK');
+        setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
       }
       renderGame();
       await wait(650);
@@ -2539,6 +2533,69 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     return Math.max(0, Math.min(players[i]?.chips||0, (Number(target)||0) - (liveSeatBets[i]||0)));
   }
 
+
+  function mpEvalBestFromKnown(h,b){
+    h=Array.isArray(h)?h:[];b=Array.isArray(b)?b:[];
+    let sets=[];
+    if(currentTable?.type==='omaha'){
+      if(h.length<2||b.length<3)return null;
+      for(const hh of comb(h,2))for(const bb of comb(b,3))sets.push([...hh,...bb]);
+    }else{
+      if(h.length+b.length<5)return null;
+      sets=comb([...h,...b],5);
+    }
+    let best=null;
+    for(const cs of sets){
+      const e=eval5(cs);
+      if(!best||cmpScore(e.score,best.score)>0)best=e;
+    }
+    return best;
+  }
+  function mpBotWinChance(i,sims=72){
+    const hero=holes[i]||[];
+    const holeNeed=currentTable?.type==='omaha'?4:2;
+    if(hero.length<holeNeed)return 50;
+    const opponents=players.map((p,j)=>j).filter(j=>j!==i&&!folded[j]&&(Number(players[j]?.chips)||0)>=0);
+    if(!opponents.length)return 100;
+    const known=new Set([...hero,...boardCards].filter(Boolean).map(c=>c.r+'|'+c.s));
+    let equity=0,done=0;
+    for(let n=0;n<sims;n++){
+      const pool=makeDeck().filter(c=>!known.has(c.r+'|'+c.s));
+      const simBoard=boardCards.slice();
+      while(simBoard.length<5&&pool.length)simBoard.push(pool.pop());
+      const he=mpEvalBestFromKnown(hero,simBoard);if(!he)continue;
+      let beaten=false,ties=0;
+      for(const j of opponents){
+        const oh=[];
+        for(let k=0;k<holeNeed&&pool.length;k++)oh.push(pool.pop());
+        const oe=mpEvalBestFromKnown(oh,simBoard);if(!oe)continue;
+        const c=cmpScore(he.score,oe.score);
+        if(c<0){beaten=true;break}
+        if(c===0)ties++;
+      }
+      done++;
+      if(!beaten)equity+=1/(ties+1);
+    }
+    return done?equity/done*100:50;
+  }
+  function mpBotDecision(i,targetBet){
+    const chance=mpBotWinChance(i);
+    const roundTarget=Math.max(Number(targetBet)||0,...liveSeatBets);
+    const need=owedToTarget(i,roundTarget);
+    const bb=Math.max(1,Number(currentTable?.bb)||1);
+    const chips=Math.max(0,Number(players[i]?.chips)||0);
+    /* Requested rule:
+       >60% = continue (CALL), and strong >75% = RAISE.
+       <=60% = CHECK if free, otherwise FOLD. */
+    if(chance>75 && chips>need+bb){
+      const raiseBy=Math.max(bb,Math.round(bb*(chance>88?2:1)));
+      const raiseTo=Math.max(roundTarget+raiseBy,(liveSeatBets[i]||0)+need+raiseBy);
+      return {action:'raise',chance,raiseTo};
+    }
+    if(chance>60)return {action:need>0?'call':'check',chance,target:roundTarget};
+    return {action:need>0?'fold':'check',chance,target:roundTarget};
+  }
+
   async function botRound(targetBet=0){
     stopUserTurnClock();
     liveRoundBusy=true;
@@ -2554,11 +2611,17 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
         await wait(500);
         continue;
       }
-      if(Math.random()<.10){
+      const d=mpBotDecision(i,targetBet);
+      if(d.action==='fold'){
         folded[i]=true;liveSeatStatus[i]='FOLD';setStatus(players[i].name+' • Fold');
+      }else if(d.action==='raise'){
+        const need=owedToTarget(i,d.raiseTo),paid=pay(i,need);
+        targetBet=Math.max(targetBet,d.raiseTo);
+        liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':'RAISE';
+        setStatus(players[i].name+' • Raise '+fmt(paid));
       }else{
-        const need=owedToTarget(i,targetBet);
-        const paid=pay(i,need);
+        const roundTarget=Math.max(targetBet,...liveSeatBets);
+        const need=owedToTarget(i,roundTarget),paid=pay(i,need);
         liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':(paid?'CALL':'CHECK');
         setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
       }
@@ -2640,11 +2703,21 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
         if(folded[i]||players[i].chips<=0)continue;
         const timedOut=await waitBotTurn(i);
         if(timedOut){folded[i]=true;liveSeatStatus[i]='FOLD';setStatus(players[i].name+' • 20 сек дууслаа — Fold')}
-        else if(Math.random()<.10){folded[i]=true;liveSeatStatus[i]='FOLD';setStatus(players[i].name+' • Fold')}
         else{
-          const need=owedToTarget(i,targetBet),paid=pay(i,need);
-          liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':(paid?'CALL':'CHECK');
-          setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
+          const d=mpBotDecision(i,targetBet);
+          if(d.action==='fold'){
+            folded[i]=true;liveSeatStatus[i]='FOLD';setStatus(players[i].name+' • Fold');
+          }else if(d.action==='raise'){
+            const need=owedToTarget(i,d.raiseTo),paid=pay(i,need);
+            targetBet=Math.max(targetBet,d.raiseTo);
+            liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':'RAISE';
+            setStatus(players[i].name+' • Raise '+fmt(paid));
+          }else{
+            const roundTarget=Math.max(targetBet,...liveSeatBets);
+            const need=owedToTarget(i,roundTarget),paid=pay(i,need);
+            liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':(paid?'CALL':'CHECK');
+            setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
+          }
         }
         renderGame();await wait(500);
         alive=aliveSeats();
