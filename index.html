@@ -1073,24 +1073,41 @@ function mpStopSharedLobby(){
 async function mpStartSharedLobby(opts={}){
   if(!mpRtdb)return false;
   try{
-    if(!mpAuth?.currentUser)await mpEnsureWriter();
+    /* Admin publishes its current tables/bots first. Bot gameplay is untouched. */
+    if(opts.publishAdmin===true&&currentUser?.role==='admin')await mpPublishSharedLobby();
+
+    /* A viewer device may not have Anonymous Auth enabled. Do not let that stop
+       a public/shared lobby listener from attaching. */
+    if(!mpAuth?.currentUser){
+      try{await mpEnsureWriter()}catch(e){console.warn('Shared lobby auth unavailable; trying direct read',e)}
+    }
+
     mpStopSharedLobby();
     mpSharedLobbyRef=mpRtdb.ref('sharedLobby');
-    if(opts.publishAdmin===true&&currentUser?.role==='admin')await mpPublishSharedLobby();
     mpSharedLobbyRef.on('value',snap=>{
       const v=snap.val();if(!v||typeof v!=='object')return;
-      if(Array.isArray(v.tables)&&v.tables.length){
-        db.tables=v.tables.map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
+      const remoteTables=Array.isArray(v.tables)?v.tables:Object.values(v.tables||{});
+      const remoteBots=Array.isArray(v.bots)?v.bots:Object.values(v.bots||{});
+      if(remoteTables.length){
+        db.tables=remoteTables.filter(Boolean).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
       }
-      if(Array.isArray(v.bots)){
-        db.bots=v.bots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
-      }
+      db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
       db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
       if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
       try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
       try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}
       try{if(currentUser?.role==='admin'&&document.getElementById('admin')?.classList.contains('active'))renderAdmin()}catch(e){}
-    },err=>console.warn('Shared lobby listener failed',err));
+    },async err=>{
+      console.warn('Shared lobby listener failed',err);
+      /* If read permission needs auth, retry once after anonymous sign-in. */
+      if(!mpAuth?.currentUser){
+        try{
+          await mpEnsureWriter();
+          mpStopSharedLobby();
+          setTimeout(()=>mpStartSharedLobby(),150);
+        }catch(e){console.warn('Shared lobby auth retry failed',e)}
+      }
+    });
     return true;
   }catch(e){console.warn('Shared lobby setup failed',e);return false}
 }
@@ -1260,7 +1277,7 @@ function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle'
 async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,cgp:0,stars:0,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
 async function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();if(id==='admin'||id.includes('@')){try{let adminEmail=id==='admin'?'darkness881100@gmail.com':id;await mpFirebaseAdminLogin(adminEmail,pass);let u=db.users.find(x=>x.role==='admin')||db.users.find(x=>x.id==='admin');if(!u)throw new Error('Local admin profile missing');currentUser=u;mpStartSharedLobby({publishAdmin:true});show('home');return}catch(e){console.warn(e);return toast('Admin нэр эсвэл нууц үг буруу')}}let u=db.users.find(x=>x.id===id&&x.role!=='admin'&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;mpStartUserWithdrawalListener(u.id);mpStartSharedLobby();show('home')}
 async function logout(){syncUser();let wasAdmin=currentUser?.role==='admin';currentUser=null;currentTable=null;mpStopAdminRegistrationListener();mpStopUserWithdrawalListener();mpStopSharedLobby();if(wasAdmin&&mpAuth?.currentUser?.uid===MP_ADMIN_UID){try{await mpAuth.signOut()}catch(e){}}$('bottom').classList.add('hidden');show('auth')}
-function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelector('.app')?.classList.toggle('tablesMode',id==='tables');document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game'||id==='home');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables')renderTables();if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
+function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelector('.app')?.classList.toggle('tablesMode',id==='tables');document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game'||id==='home');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables'){renderTables();if(currentUser&&!mpSharedLobbyRef)mpStartSharedLobby({publishAdmin:currentUser?.role==='admin'});}if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
 function featureOpen(key,target,after){let f=db.settings.features||{};if(currentUser?.role!=='admin'&&f[key]===false)return toast('Энэ хэсгийг админ түр хаасан байна');show(target);if(typeof after==='function')after()}
 function adminAllows(key){let f=db.settings.features||{};if(currentUser?.role==='admin')return true;if(f[key]===false){toast('Энэ үйлдлийг админ түр хаасан байна');return false}return true}
 function saveFeatureSettings(){if(currentUser?.role!=='admin')return;db.settings.features=db.settings.features||{};['tables','tour','sitgo','cash','messages','stats','settings','help','register','join','gameplay','addmoney','spectate','cashout','sendmsg','share'].forEach(k=>{let e=$('feat_'+k);if(e)db.settings.features[k]=!!e.checked});save();toast('Товчны удирдлага хадгалагдлаа')}
