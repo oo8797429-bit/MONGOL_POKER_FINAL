@@ -695,6 +695,44 @@
 }
 </style>
 
+
+<style id="homeFinalContactTicker">
+/* FINAL HOME CHANGE ONLY: slow cash guide ticker + Telegram admin banner. */
+#home .cashGuideTicker{
+  margin:9px 11px 12px;height:38px;border:1px solid #b78620;border-radius:18px;
+  background:linear-gradient(180deg,#211706,#110d07);overflow:hidden;display:flex;align-items:center;
+  box-shadow:inset 0 0 16px #5d3d0a88,0 0 8px #c9972f55;cursor:pointer;
+}
+#home .cashGuideTrack{
+  display:inline-block;white-space:nowrap;min-width:max-content;padding-left:100%;
+  color:#f4d06c;font-size:12px;font-weight:800;text-shadow:0 0 7px #e8a93277;
+  animation:cashGuideSlow 18s linear infinite;
+}
+@keyframes cashGuideSlow{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+#home .telegramContactBanner{
+  width:calc(100% - 48px);min-height:74px;margin:22px 24px 84px;padding:10px 15px;
+  border:1px solid #d1a23b;border-radius:12px;background:linear-gradient(100deg,#231704,#17130d 55%,#221704);
+  color:#fff;display:grid;grid-template-columns:52px 1fr 26px;align-items:center;gap:10px;text-align:left;
+  box-shadow:inset 0 0 20px #6b430866,0 0 10px #d4a23c66;cursor:pointer;
+}
+#home .telegramIcon{
+  width:48px;height:48px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(145deg,#34b7f1,#168bd0);color:#fff;font-size:28px;font-weight:900;
+  transform:rotate(-16deg);box-shadow:0 3px 10px #0008,0 0 11px #2db2ee66;
+}
+#home .telegramCopy{display:block;min-width:0}
+#home .telegramCopy b{display:block;color:#f0c85e;font-size:15px;line-height:1.15;margin-bottom:5px}
+#home .telegramCopy small{display:block;color:#d9d9d9;font-size:10px;line-height:1.3}
+#home .telegramArrow{font-size:34px;color:#f0c85e;line-height:1;text-align:right}
+@media(max-width:360px){
+  #home .cashGuideTrack{font-size:11px;animation-duration:20s}
+  #home .telegramContactBanner{width:calc(100% - 32px);margin-left:16px;margin-right:16px;grid-template-columns:46px 1fr 20px}
+  #home .telegramIcon{width:43px;height:43px;font-size:25px}
+  #home .telegramCopy b{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){#home .cashGuideTrack{animation:none;padding-left:12px}}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -708,12 +746,23 @@
     </div>
   </div>
   <div class="refJackpot" onclick="openJackpot()"><small>Bad beat</small><span>ЖЕКПОТ</span><b id="uBal">0</b></div>
-  <div class="refBanner" id="homeBanner" onclick="featureOpen('messages','messages')"><span class="plane">✈</span><strong>АДМИНТАЙ<br>ХОЛБОГДОХ</strong></div>
+
+  <div class="cashGuideTicker" onclick="featureOpen('cash','cash')" title="Касс руу орох">
+    <div class="cashGuideTrack">💰 Цэнэглэх заавар КАСС хэсэгт байгаа шүү! &nbsp;&nbsp; • &nbsp;&nbsp; 💰 Цэнэглэх заавар КАСС хэсэгт байгаа шүү! &nbsp;&nbsp; • &nbsp;&nbsp;</div>
+  </div>
+
   <div class="refTiles">
     <div class="refTile" onclick="featureOpen('tables','tables')"><div class="refIcon cardsCoin">🃏🪙</div><span>Ширээнүүд</span></div>
     <div class="refTile" onclick="featureOpen('tour','tour')"><div class="refIcon cupBall">🏆🟡</div><span>Тэмцээнүүд</span></div>
     <div class="refTile sit" onclick="featureOpen('sitgo','sitgo')"><div class="refIcon cupBolt">🏆⚡</div><span>Sit &amp; Go</span></div>
   </div>
+
+  <button class="telegramContactBanner" type="button" onclick="show('contact')" title="Админтай холбогдох">
+    <span class="telegramIcon">➤</span>
+    <span class="telegramCopy"><b>Админтай холбогдох</b><small>Telegram-аар шууд холбогдоно уу</small></span>
+    <span class="telegramArrow">›</span>
+  </button>
+
   <div class="refFloat"><button title="Админтай холбогдох" onclick="show('contact')">✉</button><button title="Мессеж" onclick="featureOpen('messages','messages')">◔</button></div>
   <span id="uName" class="hidden"></span>
 </div></section>
