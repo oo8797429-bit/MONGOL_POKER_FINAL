@@ -1049,6 +1049,51 @@ async function mpEnsureWriter(){
   const c=await mpAuth.signInAnonymously();
   return c.user;
 }
+
+let mpSharedLobbyRef=null;
+function mpSharedLobbyPayload(){
+  return {
+    _type:'sharedLobby',
+    tables:(db?.tables||[]).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false})),
+    bots:(db?.bots||[]).filter(isAdminCreatedBot).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true})),
+    rakePercent:Number(db?.rake?.percent??1),
+    updatedAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()
+  };
+}
+async function mpPublishSharedLobby(){
+  if(!mpRtdb||currentUser?.role!=='admin'||mpAuth?.currentUser?.uid!==MP_ADMIN_UID)return false;
+  try{
+    await mpRtdb.ref('sharedLobby').set(mpSharedLobbyPayload());
+    return true;
+  }catch(e){console.warn('Shared lobby publish failed',e);return false}
+}
+function mpStopSharedLobby(){
+  if(mpSharedLobbyRef){try{mpSharedLobbyRef.off()}catch(e){}mpSharedLobbyRef=null}
+}
+async function mpStartSharedLobby(opts={}){
+  if(!mpRtdb)return false;
+  try{
+    if(!mpAuth?.currentUser)await mpEnsureWriter();
+    mpStopSharedLobby();
+    mpSharedLobbyRef=mpRtdb.ref('sharedLobby');
+    if(opts.publishAdmin===true&&currentUser?.role==='admin')await mpPublishSharedLobby();
+    mpSharedLobbyRef.on('value',snap=>{
+      const v=snap.val();if(!v||typeof v!=='object')return;
+      if(Array.isArray(v.tables)&&v.tables.length){
+        db.tables=v.tables.map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
+      }
+      if(Array.isArray(v.bots)){
+        db.bots=v.bots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
+      }
+      db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
+      if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
+      try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
+      try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}
+      try{if(currentUser?.role==='admin'&&document.getElementById('admin')?.classList.contains('active'))renderAdmin()}catch(e){}
+    },err=>console.warn('Shared lobby listener failed',err));
+    return true;
+  }catch(e){console.warn('Shared lobby setup failed',e);return false}
+}
 async function mpWriteRegistration(u){
   if(!mpRtdb)return false;
   const user=await mpEnsureWriter();
@@ -1213,8 +1258,8 @@ function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});/* Keep admin-created custom bots, but permanently remove old automatic Player N / Bot N fillers. */db.bots=db.bots.filter(isAdminCreatedBot).map(b=>Object.assign(b,{adminCreated:true}));save()}
 function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
 async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,cgp:0,stars:0,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
-async function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();if(id==='admin'||id.includes('@')){try{let adminEmail=id==='admin'?'darkness881100@gmail.com':id;await mpFirebaseAdminLogin(adminEmail,pass);let u=db.users.find(x=>x.role==='admin')||db.users.find(x=>x.id==='admin');if(!u)throw new Error('Local admin profile missing');currentUser=u;show('home');return}catch(e){console.warn(e);return toast('Admin нэр эсвэл нууц үг буруу')}}let u=db.users.find(x=>x.id===id&&x.role!=='admin'&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;mpStartUserWithdrawalListener(u.id);show('home')}
-async function logout(){syncUser();let wasAdmin=currentUser?.role==='admin';currentUser=null;currentTable=null;mpStopAdminRegistrationListener();mpStopUserWithdrawalListener();if(wasAdmin&&mpAuth?.currentUser?.uid===MP_ADMIN_UID){try{await mpAuth.signOut()}catch(e){}}$('bottom').classList.add('hidden');show('auth')}
+async function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();if(id==='admin'||id.includes('@')){try{let adminEmail=id==='admin'?'darkness881100@gmail.com':id;await mpFirebaseAdminLogin(adminEmail,pass);let u=db.users.find(x=>x.role==='admin')||db.users.find(x=>x.id==='admin');if(!u)throw new Error('Local admin profile missing');currentUser=u;mpStartSharedLobby({publishAdmin:true});show('home');return}catch(e){console.warn(e);return toast('Admin нэр эсвэл нууц үг буруу')}}let u=db.users.find(x=>x.id===id&&x.role!=='admin'&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;mpStartUserWithdrawalListener(u.id);mpStartSharedLobby();show('home')}
+async function logout(){syncUser();let wasAdmin=currentUser?.role==='admin';currentUser=null;currentTable=null;mpStopAdminRegistrationListener();mpStopUserWithdrawalListener();mpStopSharedLobby();if(wasAdmin&&mpAuth?.currentUser?.uid===MP_ADMIN_UID){try{await mpAuth.signOut()}catch(e){}}$('bottom').classList.add('hidden');show('auth')}
 function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelector('.app')?.classList.toggle('tablesMode',id==='tables');document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game'||id==='home');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables')renderTables();if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
 function featureOpen(key,target,after){let f=db.settings.features||{};if(currentUser?.role!=='admin'&&f[key]===false)return toast('Энэ хэсгийг админ түр хаасан байна');show(target);if(typeof after==='function')after()}
 function adminAllows(key){let f=db.settings.features||{};if(currentUser?.role==='admin')return true;if(f[key]===false){toast('Энэ үйлдлийг админ түр хаасан байна');return false}return true}
@@ -1331,15 +1376,15 @@ function renderContact(){let b=db.settings.bank||{};if($('contactBankName'))$('c
 function adminSetJackpot(){if(currentUser?.role!=='admin')return;let a=Number($('adminJackpot')?.value);if(!Number.isFinite(a)||a<0)return toast('Жекпот дүнгээ шалгана уу');db.jackpot=Math.floor(a);db.jackpotSettings={blind:$('adminJpBlind')?.value||'500/1000+',game:$('adminJpGame')?.value||"Texas Hold'em",trigger:$('adminJpTrigger')?.value||'',loser:Number($('adminJpLoser')?.value)||0,winner:Number($('adminJpWinner')?.value)||0,table:Number($('adminJpTable')?.value)||0,house:Number($('adminJpHouse')?.value)||0};save();renderAdmin();renderHome();toast('Жекпот тохиргоо хадгалагдлаа')}
 function adminAddJackpot(a){if(currentUser?.role!=='admin')return;db.jackpot=Math.max(0,Math.floor((db.jackpot||0)+Number(a||0)));save();renderAdmin();renderHome();toast('Жекпот +'+fmt(a))}
 function adminResetJackpot(){if(currentUser?.role!=='admin')return;db.jackpot=200000;save();renderAdmin();renderHome();toast('Жекпот 200,000 боллоо')}
-function saveRakeSettings(){if(currentUser?.role!=='admin')return;let p=Number($('adminRakePercent')?.value);if(!Number.isFinite(p)||p<0||p>20)return toast('Татас 0–20% байна');db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.round(p*10)/10;save();renderAdmin();renderTables();toast('RAKE '+db.rake.percent+'% хадгалагдлаа')}
+function saveRakeSettings(){if(currentUser?.role!=='admin')return;let p=Number($('adminRakePercent')?.value);if(!Number.isFinite(p)||p<0||p>20)return toast('Татас 0–20% байна');db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.round(p*10)/10;save();mpPublishSharedLobby();renderAdmin();renderTables();toast('RAKE '+db.rake.percent+'% хадгалагдлаа')}
 function collectAdminRake(){if(currentUser?.role!=='admin')return;db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});let a=Math.max(0,Math.floor(Number(db.rake.balance)||0));if(!a)return toast('Авах татас алга');currentUser.chips=Math.max(0,Math.floor(Number(currentUser.chips)||0))+a;db.rake.balance=0;save();renderAdmin();renderHome();toast('Админ татас +'+fmt(a)+' chip авлаа')}
 function takeRakeFromPot(){let gross=Math.max(0,Math.floor(potAmt||0));db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});let pct=Math.max(0,Math.min(20,Number(db.rake.percent)||0));let rake=(gross>0&&pct>0)?Math.max(1,Math.floor(gross*pct/100)):0;if(rake>gross)rake=gross;db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0))+rake;db.rake.total=Math.max(0,Math.floor(Number(db.rake.total)||0))+rake;save();return {gross,rake,net:gross-rake}}
-function createTable(){if(currentUser?.role!=='admin')return;let type=$('newType').value,name=$('newName').value.trim(),sb=+$('newSB').value,bb=+$('newBB').value,buy=+$('newBuy').value;if(!name||sb<=0||bb<=sb||buy<=0)return toast('Утгаа шалгана уу');if(type==='omaha'&&!/OMAHA|ОМАХА/i.test(name))name='OMAHA '+name;db.tables.push({id:'t'+Date.now(),name,type,sb,bb,buy,color:['gold','blue','green'][db.tables.length%3],open:true});save();$('newName').value='';renderAdmin();toast((type==='omaha'?'Omaha':'Holdem')+' ширээ нээгдлээ')}
+function createTable(){if(currentUser?.role!=='admin')return;let type=$('newType').value,name=$('newName').value.trim(),sb=+$('newSB').value,bb=+$('newBB').value,buy=+$('newBuy').value;if(!name||sb<=0||bb<=sb||buy<=0)return toast('Утгаа шалгана уу');if(type==='omaha'&&!/OMAHA|ОМАХА/i.test(name))name='OMAHA '+name;db.tables.push({id:'t'+Date.now(),name,type,sb,bb,buy,color:['gold','blue','green'][db.tables.length%3],open:true});save();mpPublishSharedLobby();$('newName').value='';renderAdmin();toast((type==='omaha'?'Omaha':'Holdem')+' ширээ нээгдлээ')}
 function adminAddChips(){if(currentUser?.role!=='admin')return;let id=$('chipUserId').value.trim(),a=+$('chipAmount').value,u=db.users.find(x=>x.id===id);if(!u)return toast('Хэрэглэгч олдсонгүй');if(a<=0)return toast('Chip дүнгээ шалгана уу');u.chips+=a;save();renderAdmin();renderHome();toast(fmt(a)+' chip нэмэгдлээ')}
-function createBot(){if(currentUser?.role!=='admin')return;let name=$('botName').value.trim(),chips=+$('botChips').value;if(!name||chips<=0)return toast('Bot мэдээллээ шалгана уу');db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true});save();$('botName').value='';renderAdmin();toast('Bot үүсгэлээ')}
-function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();renderAdmin()}
-function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();renderAdmin()}}
-function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();renderAdmin()}
+function createBot(){if(currentUser?.role!=='admin')return;let name=$('botName').value.trim(),chips=+$('botChips').value;if(!name||chips<=0)return toast('Bot мэдээллээ шалгана уу');db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true});save();mpPublishSharedLobby();$('botName').value='';renderAdmin();toast('Bot үүсгэлээ')}
+function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();mpPublishSharedLobby();renderAdmin()}
+function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
+function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=db.bots.filter(isAdminCreatedBot).slice(0,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
 function leaveTable(){let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
 function makeDeck(){
@@ -1534,7 +1579,7 @@ function saveSettings(){db.settings.sound=$('setSound')?.checked!==false;db.sett
 function saveAdminSettings(){if(currentUser?.role!=='admin')return;db.settings.banner=$('adminBanner').value.trim()||'АДМИНТАЙ ХОЛБОГДОХ';let s=+$('adminStart').value;if(s>0)db.settings.start=s;save();renderAdmin();renderHome();toast('Апп тохиргоо хадгалагдлаа')}
 function openTableSettings(){closeSide();if(!currentTable)return toast('Ширээ сонгоогүй байна');$('tsName').textContent=currentTable.name;$('tsSB').value=currentTable.sb;$('tsBB').value=currentTable.bb;$('tsBuy').value=currentTable.buy;let can=currentUser?.role==='admin';['tsSB','tsBB','tsBuy'].forEach(id=>$(id).disabled=!can);$('tableSettingsSheet').classList.remove('hidden')}
 function closeTableSettings(){$('tableSettingsSheet').classList.add('hidden')}
-function saveTableSettings(){if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');let sb=+$('tsSB').value,bb=+$('tsBB').value,buy=+$('tsBuy').value;if(sb<=0||bb<=sb||buy<=0)return toast('Утгаа шалгана уу');currentTable.sb=sb;currentTable.bb=bb;currentTable.buy=buy;save();$('gameBlind').textContent=fmt(sb)+'/'+fmt(bb);closeTableSettings();toast('Ширээний тохиргоо хадгалагдлаа')}
+function saveTableSettings(){if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');let sb=+$('tsSB').value,bb=+$('tsBB').value,buy=+$('tsBuy').value;if(sb<=0||bb<=sb||buy<=0)return toast('Утгаа шалгана уу');currentTable.sb=sb;currentTable.bb=bb;currentTable.buy=buy;save();mpPublishSharedLobby();$('gameBlind').textContent=fmt(sb)+'/'+fmt(bb);closeTableSettings();toast('Ширээний тохиргоо хадгалагдлаа')}
 async function shareApp(){if(!adminAllows('share'))return;closeSide();let data={title:'Mongol Poker',text:'Mongol Poker',url:location.href};try{if(navigator.share)await navigator.share(data);else if(navigator.clipboard){await navigator.clipboard.writeText(location.href);toast('Link хууллаа')}else toast(location.href)}catch(e){}}
 
 load();renderTours();show('auth');mpInitAfterAppLoad();
