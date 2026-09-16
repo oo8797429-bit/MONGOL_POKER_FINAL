@@ -820,6 +820,26 @@
   left:auto!important;
 }
 </style>
+
+<style id="alwaysVisibleGameControlsFix">
+/* Keep poker action controls visible in normal (non-expanded) table view. */
+#game.active:not(.tableExpanded){
+  padding-bottom:76px!important;
+}
+#game.active:not(.tableExpanded) .actionBar{
+  position:fixed!important;
+  left:50%!important;
+  bottom:max(8px, env(safe-area-inset-bottom))!important;
+  transform:translateX(-50%)!important;
+  width:min(calc(100% - 26px),404px)!important;
+  max-width:404px!important;
+  margin:0!important;
+  z-index:80!important;
+}
+/* Preserve the existing Raise/Base action switching logic. */
+#game .baseActions.hidden,
+#game .raisePanel.hidden{display:none!important;}
+</style>
 </head>
 <body>
 <div class="app">
