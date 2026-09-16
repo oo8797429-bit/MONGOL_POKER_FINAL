@@ -4451,6 +4451,111 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 })();
 </script>
 
+
+<style id="mp-direct-seat-button-style">
+/* One-purpose fix: a real tap layer over the bottom-center empty seat. */
+#game .mpDirectSeatTap{
+  position:absolute!important;
+  left:50%!important;
+  bottom:0!important;
+  transform:translateX(-50%)!important;
+  width:118px!important;
+  height:118px!important;
+  border:0!important;
+  background:transparent!important;
+  padding:0!important;
+  margin:0!important;
+  z-index:99999!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:rgba(255,213,100,.12)!important;
+}
+#game .mpDirectSeatTap.hidden{display:none!important}
+</style>
+<script id="mp-direct-seat-button-script">
+(function(){
+  let mpDirectSitBusy=false;
+
+  function slotFromSeat(el){
+    const m=String(el?.className||'').match(/(?:^|\s)s(\d)(?:\s|$)/);
+    return m?Number(m[1]):null;
+  }
+
+  window.mpDirectSitNow=function(ev){
+    try{ev?.preventDefault?.();ev?.stopPropagation?.();ev?.stopImmediatePropagation?.()}catch(e){}
+    if(mpDirectSitBusy)return false;
+    if(!currentTable){toast('Эхлээд ширээ сонгоно уу');return false}
+    if(userSeatedAtTable){toast('Та ширээнд сууж байна');return false}
+    if(mpPendingNextHandJoin){setStatus('Дараагийн шинэ гараас автоматаар орно');return false}
+
+    const seat=document.querySelector('#game .emptySeat.s0.chooseable')||
+               document.querySelector('#game .emptySeat.chooseable');
+    if(!seat){toast('Одоогоор сул суудал алга');return false}
+
+    const slot=slotFromSeat(seat);
+    if(slot===null){toast('Суудал сонгоход алдаа гарлаа');return false}
+
+    if(Number(currentUser?.chips||0)<Number(currentTable?.buy||0)){
+      const need=Math.max(0,Number(currentTable?.buy||0)-Number(currentUser?.chips||0));
+      setStatus('Орох дүн хүрэхгүй • '+fmt(need)+' chip дутуу');
+      toast('Орох дүн хүрэхгүй байна');
+      return false;
+    }
+
+    mpDirectSitBusy=true;
+    try{chooseSeat(slot)}finally{setTimeout(()=>{mpDirectSitBusy=false},500)}
+    return false;
+  };
+
+  function ensureDirectSitTap(){
+    const table=document.querySelector('#game .pokerTable');
+    if(!table)return;
+    let b=document.getElementById('mpDirectSeatTap');
+    if(!b){
+      b=document.createElement('button');
+      b.id='mpDirectSeatTap';
+      b.type='button';
+      b.className='mpDirectSeatTap';
+      b.setAttribute('aria-label','Суудалд суух');
+      b.addEventListener('pointerdown',mpDirectSitNow,{capture:true});
+      b.addEventListener('touchstart',mpDirectSitNow,{capture:true,passive:false});
+      table.appendChild(b);
+    }
+    const bottom=document.querySelector('#game .emptySeat.s0.chooseable');
+    const any=document.querySelector('#game .emptySeat.chooseable');
+    const shouldShow=!!(!userSeatedAtTable&&!mpPendingNextHandJoin&&(bottom||any));
+    b.classList.toggle('hidden',!shouldShow);
+    if(shouldShow){
+      const target=bottom||any;
+      const tableRect=table.getBoundingClientRect(),r=target.getBoundingClientRect();
+      const cx=(r.left+r.right)/2-tableRect.left;
+      const cy=(r.top+r.bottom)/2-tableRect.top;
+      b.style.left=cx+'px';
+      b.style.top=Math.max(0,cy-59)+'px';
+      b.style.bottom='auto';
+    }
+  }
+
+  const baseRender=renderGame;
+  renderGame=function(){
+    const r=baseRender.apply(this,arguments);
+    setTimeout(ensureDirectSitTap,0);
+    return r;
+  };
+
+  /* The top СУУХ button uses the same direct, real-button path. */
+  sitAtGameTable=function(){
+    if(!currentTable)return toast('Эхлээд ширээ сонгоно уу');
+    if(userSeatedAtTable)return toast('Та ширээнд сууж байна');
+    spectator=true;
+    renderGame();
+    setTimeout(()=>mpDirectSitNow(),0);
+  };
+
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(ensureDirectSitTap,0));
+})();
+</script>
+
 </body></html>
 
 <style id="mp-plus-seat-visibility-fix">
