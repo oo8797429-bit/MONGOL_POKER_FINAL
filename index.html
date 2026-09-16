@@ -3143,3 +3143,21 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 </script>
 
 </body></html>
+
+<style id="mp-plus-seat-visibility-fix">
+/* Only restore the spectator + seat button visibility. */
+#game .emptySeat.chooseable{
+  display:block!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  z-index:40!important;
+}
+#game .emptySeat.chooseable .pic{
+  opacity:1!important;
+  transform:none!important;
+}
+#game .emptySeat.chooseable.s0{
+  bottom:10px!important;
+}
+</style>
