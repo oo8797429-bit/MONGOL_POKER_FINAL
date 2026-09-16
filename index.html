@@ -2228,8 +2228,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     if(boardCards.length<5){burnOne();if(deck.length)boardCards.push(deck.pop())}
   }
   function miniCard(c){if(!c)return '';return `<i class="miniCard${red(c.s)?' red':''}">${rank(c.r)}${c.s}</i>`}
-  function showdownSeatCards(i){return finished&&!folded[i]&&holes[i]?`<div class="showCards">${holes[i].map(miniCard).join('')}</div>`:''}
-  function showdownSeatLabel(i){let x=showdownInfo[i];return finished&&x&&!folded[i]?`<div class="handLabel">${x.name}</div>`:''}
+  function showdownSeatCards(i){return finished&&showdownWinners.includes(i)&&holes[i]?`<div class="showCards">${holes[i].map(miniCard).join('')}</div>`:''}
+  function showdownSeatLabel(i){let x=showdownInfo[i];return finished&&x&&showdownWinners.includes(i)?`<div class="handLabel">${x.name}</div>`:''}
 
   join=async function(id){
     if(!adminAllows('join'))return;
@@ -2449,12 +2449,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     let oldBanner=document.querySelector('#game .showdownBanner');if(oldBanner)oldBanner.remove();
     if(finished&&showdownWinners.length&&showdownInfo.length){
       let names=showdownWinners.map(i=>players[i]?.name).join(', '),hi=showdownInfo[showdownWinners[0]];
-      let detail=players.map((p,i)=>({p,i})).filter(x=>!folded[x.i]&&showdownInfo[x.i]).map(x=>{
-        let hole=(holes[x.i]||[]).map(c=>rank(c.r)+c.s).join(' ');
-        return `<div class="showdownDetail${showdownWinners.includes(x.i)?' win':''}"><span>${x.p.name}: ${hole}</span><b>${showdownInfo[x.i]?.name||''}</b></div>`;
-      }).join('');
       let b=document.createElement('div');b.className='showdownBanner';
-      b.innerHTML=`<b>${names} яллаа — ${hi?.name||''}</b>${detail}`;
+      b.innerHTML=`<b>${names} яллаа — ${hi?.name||''}</b>`;
       $('pokerTable')?.appendChild(b)
     }
     /* Keep the player's hole cards mounted for the whole hand.
