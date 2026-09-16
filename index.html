@@ -1935,7 +1935,124 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     $('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb)+' • 9 MAX';
     show('game');$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');
     setStatus('Тоглолт үзэж байна • Сул суудлын ＋ дээр дарж суудлаа сонгоно уу');renderGame();
+    setTimeout(startSpectatorBotLoop,500);
   };
+
+  let spectatorBotLoopRunning=false;
+  function spectatorModeActive(){
+    return !!(tableSession&&currentTable&&spectator&&!userSeatedAtTable&&players.length>=2);
+  }
+  function spectatorAliveSeats(){
+    return players.map((p,i)=>i).filter(i=>!folded[i]&&(Number(p?.chips)||0)>0);
+  }
+  async function spectatorBotActRound(targetBet){
+    targetBet=Math.max(0,Number(targetBet)||0);
+    let start=nextActiveSeat(liveBB>=0?liveBB:liveDealer);
+    if(start<0)start=0;
+    const order=[];
+    for(let step=0;step<players.length;step++){
+      const i=(start+step)%players.length;
+      if(!order.includes(i))order.push(i);
+    }
+    for(const i of order){
+      if(!spectatorModeActive())return false;
+      if(folded[i]||(Number(players[i]?.chips)||0)<=0)continue;
+      liveTurn=i;turnLeft=TURN_SECONDS;
+      setStatus(players[i].name+'-ийн ээлж');renderGame();
+      await wait(700+Math.floor(Math.random()*700));
+      if(!spectatorModeActive())return false;
+      if(Math.random()<.11){
+        folded[i]=true;liveSeatStatus[i]='FOLD';
+        setStatus(players[i].name+' • Fold');
+      }else{
+        let roundTarget=Math.max(targetBet,...liveSeatBets);
+        if(Math.random()<.08&&(Number(players[i]?.chips)||0)>currentTable.bb*2){
+          roundTarget=Math.max(roundTarget+currentTable.bb,liveSeatBets[i]+currentTable.bb);
+          targetBet=roundTarget;
+          const need=owedToTarget(i,roundTarget),paid=pay(i,need);
+          liveSeatStatus[i]=players[i].chips<=0&&need>0?'БҮГДИЙГ НЬ':'RAISE';
+          setStatus(players[i].name+' • Raise '+fmt(paid));
+        }else{
+          const need=owedToTarget(i,roundTarget),paid=pay(i,need);
+          liveSeatStatus[i]=players[i].chips<=0&&need>0?'БҮГДИЙГ НЬ':(paid?'CALL':'CHECK');
+          setStatus(players[i].name+(paid?' • Call '+fmt(paid):' • Check'));
+        }
+      }
+      renderGame();
+      await wait(350);
+      if(spectatorAliveSeats().length<=1)return true;
+    }
+    return true;
+  }
+  async function spectatorBotFinishHand(){
+    if(!spectatorModeActive())return;
+    let alive=spectatorAliveSeats();
+    if(!alive.length)return;
+    if(alive.length===1){
+      const w=alive[0],win=Math.max(0,potAmt||0);
+      players[w].chips+=win;potAmt=0;finished=true;liveWinner=w;liveSeatStatus[w]='ЯЛАГЧ';
+      setStatus(players[w].name+' яллаа! +'+fmt(win));
+      renderGame();
+      return;
+    }
+    completeBoardToRiver();
+    showdownInfo=players.map((_,i)=>alive.includes(i)?bestHandFor(i):null);
+    let best=null;
+    for(const i of alive)if(!best||cmpScore(showdownInfo[i].score,best.score)>0)best=showdownInfo[i];
+    showdownWinners=alive.filter(i=>cmpScore(showdownInfo[i].score,best.score)===0);
+    const share=Math.floor((potAmt||0)/Math.max(1,showdownWinners.length)),rem=(potAmt||0)-share*showdownWinners.length;
+    showdownWinners.forEach((i,k)=>players[i].chips+=share+(k===0?rem:0));
+    const won=potAmt;potAmt=0;finished=true;liveWinner=showdownWinners[0]??-1;
+    setStatus(showdownWinners.map(i=>players[i].name).join(', ')+' яллаа — '+(best?.name||'')+' • +'+fmt(won));
+    renderGame();
+  }
+  async function startSpectatorBotLoop(){
+    if(spectatorBotLoopRunning||!spectatorModeActive())return;
+    spectatorBotLoopRunning=true;
+    try{
+      while(spectatorModeActive()){
+        const active=players.filter(p=>(Number(p?.chips)||0)>0);
+        if(active.length<2){
+          players.forEach(p=>p.chips=Math.max(currentTable.buy,Number(p.chips)||0));
+        }
+        deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;liveWinner=-1;showdownInfo=[];showdownWinners=[];
+        folded=players.map(p=>(Number(p?.chips)||0)<=0);liveSeatBets=players.map(()=>0);liveSeatStatus=players.map(()=>'');
+        if(!setupStandardButtonAndBlinds()){renderGame();break}
+        dealRoundRobin(currentTable.type==='omaha'?4:2);
+        const sbPaid=pay(liveSB,currentTable.sb),bbPaid=pay(liveBB,currentTable.bb);
+        liveSeatStatus[liveSB]='SB';liveSeatStatus[liveBB]='BB';
+        liveTurn=-1;renderGame();animateChip(liveSB,sbPaid);animateChip(liveBB,bbPaid);
+        await wait(650);
+        if(!spectatorModeActive())break;
+        await spectatorBotActRound(currentTable.bb);
+        if(!spectatorModeActive())break;
+        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(1400);continue}
+        liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');
+        burnOne();boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop');
+        renderGame();await wait(650);
+        await spectatorBotActRound(0);
+        if(!spectatorModeActive())break;
+        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(1400);continue}
+        liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');
+        burnOne();boardCards.push(deck.pop());street=2;setStatus('Turn');
+        renderGame();await wait(650);
+        await spectatorBotActRound(0);
+        if(!spectatorModeActive())break;
+        if(spectatorAliveSeats().length<=1){await spectatorBotFinishHand();await wait(1400);continue}
+        liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');
+        burnOne();boardCards.push(deck.pop());street=3;setStatus('River');
+        renderGame();await wait(650);
+        await spectatorBotActRound(0);
+        if(!spectatorModeActive())break;
+        await spectatorBotFinishHand();
+        await wait(1600);
+      }
+    }finally{
+      spectatorBotLoopRunning=false;
+      liveRoundBusy=false;
+      if(spectatorModeActive())setTimeout(startSpectatorBotLoop,350);
+    }
+  }
 
   newHand=function(){
     if(!currentTable||!tableSession)return;deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;finished=false;spectator=false;liveWinner=-1;liveRoundBusy=false;showdownInfo=[];showdownWinners=[];handNo=(Number(handNo)||0)+1;
