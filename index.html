@@ -2,8 +2,25 @@
 <html lang="mn">
 <head>
 <meta charset="utf-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <title>Mongol Poker</title>
+<script id="MP_SINGLE_LOBBY_BUILD_GUARD">
+(function(){
+  var BUILD='20260916_2031_SINGLE_LOBBY';
+  window.MP_BUILD=BUILD;
+  try{
+    var u=new URL(window.location.href);
+    if(u.searchParams.get('mpv')!==BUILD){
+      u.searchParams.set('mpv',BUILD);
+      window.location.replace(u.toString());
+      return;
+    }
+  }catch(e){}
+})();
+</script>
 <style>
 :root{--bg:#111416;--panel:#1d2225;--panel2:#272d30;--line:#353c3f;--green:#067943;--green2:#0caf63;--gold:#d7a42f;--text:#f4f4f4;--muted:#9ba3a7;--red:#a43f48;--blue:#2b75a7}
 *{box-sizing:border-box}html,body{margin:0;background:#090b0c;color:var(--text);font-family:Arial,Helvetica,sans-serif}button,input,select{font:inherit}.app{width:100%;max-width:430px;min-height:100vh;margin:auto;background:var(--bg);position:relative;overflow:hidden}.hidden{display:none!important}.screen{display:none;min-height:100vh}.screen.active{display:block}.top{height:48px;background:linear-gradient(#0c7a49,#075c39);display:grid;grid-template-columns:48px 1fr 48px;align-items:center;position:sticky;top:0;z-index:50}.top button{border:0;background:transparent;color:#fff;font-size:26px}.top .ttl{text-align:center;font-weight:700}.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:56px;background:#0d1011;border-top:1px solid #252b2e;display:grid;grid-template-columns:repeat(5,1fr);z-index:60}.bottom button{border:0;background:transparent;color:#777f82;font-size:9px}.bottom .ico{display:block;font-size:18px;margin-bottom:3px}.bottom .on{color:#13cb76}.auth{min-height:100vh;background:#16191b;padding:0 14px 32px}.hero{height:265px;margin:0 -14px 14px;background:radial-gradient(circle at 68% 30%,#8f3e22 0,#4f2118 24%,#1e1614 47%,#101314 75%);position:relative;overflow:hidden}.hero:before{content:'♠ A  ♥ A  ♦ A  ♣ A';position:absolute;right:14px;bottom:35px;color:#fff;font-weight:800;font-size:22px;letter-spacing:3px}.hero:after{content:'MONGOL POKER';position:absolute;left:16px;top:26px;font-weight:900;color:#d8ad43;letter-spacing:1px}.authCard{background:#1c2022;border:1px solid #32383b;padding:14px}.authCard h2{font-size:15px;text-align:center;margin:0 0 12px}.field{margin:9px 0}.field label{display:block;font-size:10px;color:#a6adb0;margin-bottom:5px}.field input,.field select{width:100%;height:38px;background:#141719;border:1px solid #394044;color:#fff;padding:0 10px}.primary{width:100%;height:40px;border:0;background:linear-gradient(#17bd68,#078842);color:white;font-weight:700}.switch{text-align:center;font-size:11px;color:#36d88a;margin-top:12px}.home{padding:10px 10px 72px;background:linear-gradient(180deg,#061f18 0,#111516 36%);min-height:100vh}.userinfo{display:flex;align-items:center;gap:8px;font-size:10px}.avatar{width:32px;height:32px;border-radius:50%;background:#26362e;border:1px solid #50625a;display:grid;place-items:center}.bal{margin-left:auto;color:#f1ca69;font-size:12px;position:relative;overflow:hidden;padding:7px 10px;border-radius:16px;white-space:nowrap;text-shadow:0 0 6px rgba(255,196,70,.45)}
@@ -1277,7 +1294,30 @@ function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle'
 async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:db.settings.start||25000,cgp:0,stars:0,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
 async function login(){let id=$('loginId').value.trim(),pass=$('loginPass').value.trim();if(id==='admin'||id.includes('@')){try{let adminEmail=id==='admin'?'darkness881100@gmail.com':id;await mpFirebaseAdminLogin(adminEmail,pass);let u=db.users.find(x=>x.role==='admin')||db.users.find(x=>x.id==='admin');if(!u)throw new Error('Local admin profile missing');currentUser=u;mpStartSharedLobby({publishAdmin:true});show('home');return}catch(e){console.warn(e);return toast('Admin нэр эсвэл нууц үг буруу')}}let u=db.users.find(x=>x.id===id&&x.role!=='admin'&&String(x.pass)===pass);if(!u)return toast('Нэр эсвэл нууц үг буруу');currentUser=u;mpStartUserWithdrawalListener(u.id);mpStartSharedLobby();show('home')}
 async function logout(){syncUser();let wasAdmin=currentUser?.role==='admin';currentUser=null;currentTable=null;mpStopAdminRegistrationListener();mpStopUserWithdrawalListener();mpStopSharedLobby();if(wasAdmin&&mpAuth?.currentUser?.uid===MP_ADMIN_UID){try{await mpAuth.signOut()}catch(e){}}$('bottom').classList.add('hidden');show('auth')}
-function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelector('.app')?.classList.toggle('tablesMode',id==='tables');document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game'||id==='home');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables'){renderTables();if(currentUser&&!mpSharedLobbyRef)mpStartSharedLobby({publishAdmin:currentUser?.role==='admin'});}if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
+
+/* MP_SHARED_LOBBY_FRESH_READ: lobby-only cross-device refresh. */
+async function mpRefreshSharedLobbyOnce(){
+  try{
+    const r=await fetch('https://mongol-poker-default-rtdb.firebaseio.com/sharedLobby.json?_='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return false;
+    const v=await r.json();
+    if(!v||typeof v!=='object')return false;
+    const remoteTables=Array.isArray(v.tables)?v.tables:Object.values(v.tables||{});
+    const remoteBots=Array.isArray(v.bots)?v.bots:Object.values(v.bots||{});
+    if(remoteTables.length){
+      db.tables=remoteTables.filter(Boolean).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
+    }
+    if(remoteBots.length||v.bots){
+      db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
+    }
+    db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
+    if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
+    try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
+    return true;
+  }catch(e){console.warn('Shared lobby fresh read failed',e);return false}
+}
+
+function show(id){if(id==='admin'&&currentUser?.role!=='admin'){toast('Админ хэсэгт зөвхөн админ орно');id='home'}document.querySelector('.app')?.classList.toggle('tablesMode',id==='tables');document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');$('bottom').classList.toggle('hidden',id==='auth'||id==='game'||id==='home');document.querySelectorAll('.bottom button').forEach(x=>x.classList.remove('on'));if(id==='home')renderHome();if(id==='tables'){renderTables();mpRefreshSharedLobbyOnce().then(ok=>{if(ok&&document.getElementById('tables')?.classList.contains('active'))renderTables()});if(currentUser&&!mpSharedLobbyRef)mpStartSharedLobby({publishAdmin:currentUser?.role==='admin'});}if(id==='tour')renderTours();if(id==='cash')renderCash();if(id==='admin')renderAdmin();if(id==='registeredUsers')renderRegisteredUsers();if(id==='contact')renderContact();if(id==='messages')renderMessages();if(id==='stats')renderStats();if(id==='settings')renderSettings();scrollTo(0,0)}
 function featureOpen(key,target,after){let f=db.settings.features||{};if(currentUser?.role!=='admin'&&f[key]===false)return toast('Энэ хэсгийг админ түр хаасан байна');show(target);if(typeof after==='function')after()}
 function adminAllows(key){let f=db.settings.features||{};if(currentUser?.role==='admin')return true;if(f[key]===false){toast('Энэ үйлдлийг админ түр хаасан байна');return false}return true}
 function saveFeatureSettings(){if(currentUser?.role!=='admin')return;db.settings.features=db.settings.features||{};['tables','tour','sitgo','cash','messages','stats','settings','help','register','join','gameplay','addmoney','spectate','cashout','sendmsg','share'].forEach(k=>{let e=$('feat_'+k);if(e)db.settings.features[k]=!!e.checked});save();toast('Товчны удирдлага хадгалагдлаа')}
@@ -1445,12 +1485,12 @@ function chooseSeat(slot){
   if(!currentTable||userSeatedAtTable)return;
   slot=Math.max(0,Math.min(8,Number(slot)||0));
   if(currentUser.chips<currentTable.buy)return toast('Орох дүн хүрэхгүй байна');
-  const occupied=new Set(visualSeatMap().slice(0,players.length));if(occupied.has(slot))return toast('Энэ суудал эзэнтэй байна');
+  const seatEl=document.querySelector('#seats .emptySeat.s'+slot);if(!seatEl)return toast('Энэ суудал эзэнтэй байна');
   currentUser.chips-=currentTable.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;
   const emos=['🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','🧑‍🦱'];
   const botPlayers=db.bots.filter(isAdminCreatedBot).slice(0,8).map((b,i)=>({name:b.name,chips:Math.max(currentTable.buy,Number(b.chips)||currentTable.buy),emoji:emos[i]||'🙂',botId:b.id}));
   players=[{name:currentUser.name,chips:currentTable.buy,emoji:'😎',user:true},...botPlayers];
-  userSeatedAtTable=true;userSeatSlot=slot;spectator=false;handNo=0;dealSessionToken++;burnedCards=[];
+  userSeatedAtTable=true;userSeatSlot=slot;spectator=false;handNo=0;
   if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand='';}
   save();setStatus('Суудал сонгогдлоо • Тоглолт эхэлж байна');newHand();
 }
