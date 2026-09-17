@@ -13,8 +13,23 @@
   window.MP_BUILD=BUILD;
   try{
     var u=new URL(window.location.href);
+    var now=Date.now();
+    var changed=false;
+
     if(u.searchParams.get('mpv')!==BUILD){
       u.searchParams.set('mpv',BUILD);
+      changed=true;
+    }
+
+    // Every new link entry / manual reload gets a fresh URL once,
+    // so Messenger/Chrome do not reuse an old cached page.
+    var fresh=Number(u.searchParams.get('mpfresh')||0);
+    if(!fresh || Math.abs(now-fresh)>15000){
+      u.searchParams.set('mpfresh',String(now));
+      changed=true;
+    }
+
+    if(changed){
       window.location.replace(u.toString());
       return;
     }
