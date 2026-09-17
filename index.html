@@ -1448,14 +1448,28 @@ async function mpStartUserWithdrawalListener(userId){
         if(!local){
           local={...remote,remoteKey:remote._firebaseKey,remoteUid:remote._firebaseUid};
           db.withdrawals.push(local);
+          // If the first sync we receive is already rejected, refund immediately.
+          if(remote.status==='rejected'&&!local.refunded){
+            const amount=Math.max(0,Number(remote.amount)||0);
+            const u=(db.users||[]).find(x=>String(x.id)===String(remote.userId));
+            if(u)u.chips=Math.max(0,Number(u.chips)||0)+amount;
+            if(currentUser&&String(currentUser.id)===String(remote.userId)&&currentUser!==u){
+              currentUser.chips=Math.max(0,Number(currentUser.chips)||0)+amount;
+            }
+            local.refunded=true;
+          }
         }else{
           const prev=local.status;
           Object.assign(local,remote);
           local.remoteKey=remote._firebaseKey;
           local.remoteUid=remote._firebaseUid;
           if(remote.status==='rejected'&&prev!=='rejected'&&!local.refunded){
-            const u=(db.users||[]).find(x=>x.id===remote.userId);
-            if(u){u.chips=Math.max(0,Number(u.chips)||0)+Math.max(0,Number(remote.amount)||0)}
+            const amount=Math.max(0,Number(remote.amount)||0);
+            const u=(db.users||[]).find(x=>String(x.id)===String(remote.userId));
+            if(u)u.chips=Math.max(0,Number(u.chips)||0)+amount;
+            if(currentUser&&String(currentUser.id)===String(remote.userId)&&currentUser!==u){
+              currentUser.chips=Math.max(0,Number(currentUser.chips)||0)+amount;
+            }
             local.refunded=true;
           }
         }
