@@ -1043,6 +1043,10 @@
 <style id="MP-HAND-CONTROL-GUARANTEE">
 #mpGuaranteedHandControl{display:flex!important;visibility:visible!important;opacity:1!important}
 </style>
+
+<style id="MP-BOT-NO-START-CHIP-INPUT">
+.mpBotStartChipHidden{display:none!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1157,7 +1161,7 @@
 <section id="admin" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Админ</div><button></button></header><div class="admin">
 <div class="adminCard"><h3>Ширээ нээх</h3><div class="field"><label>Төрөл</label><select id="newType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Нэр</label><input id="newName" placeholder="25K ШИРЭЭ"></div><div class="field"><label>SB / BB</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="newSB" type="number" value="500"><input id="newBB" type="number" value="1000"></div></div><div class="field"><label>Орох дүн</label><input id="newBuy" type="number" value="25000"></div><button class="primary" onclick="createTable()">Ширээ нээх</button></div>
 <div class="adminCard"><h3>Хэрэглэгчид chip нэмэх</h3><div class="field"><label>Хэрэглэгчийн ID</label><input id="chipUserId" placeholder="user ID"></div><div class="field"><label>Нэмэх chip</label><input id="chipAmount" type="number" value="25000"></div><button class="primary" onclick="adminAddChips()">Chip нэмэх</button><div id="adminUsers"></div></div>
-<div class="adminCard"><h3>Bot үүсгэх</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Bot төрөл</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Эхлэх chip</label><input id="botChips" type="number" value="25000"></div><button class="primary" onclick="createBot()">Bot үүсгэх</button><div id="adminBots"></div></div>
+<div class="adminCard"><h3>Bot үүсгэх</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Bot төрөл</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><div class="mpBotStartChipHidden" style="display:none!important"><label>Эхлэх chip</label><input id="botChips" type="number" value="25000"></div></div><button class="primary" onclick="createBot()">Bot үүсгэх</button><div id="adminBots"></div></div>
 <div class="adminCard"><h3>Ширээнүүд</h3><div id="adminTables"></div></div>
 <div class="adminCard" id="adminTournamentCard"><h3>🏆 Тэмцээн удирдлага</h3>
 <input id="tourEditId" type="hidden">
@@ -4711,23 +4715,76 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
  function isAdmin(){try{return !!((typeof mpAuth!=='undefined' && mpAuth && mpAuth.currentUser && typeof MP_ADMIN_UID!=='undefined' && mpAuth.currentUser.uid===MP_ADMIN_UID) || (typeof currentUser!=='undefined' && currentUser && currentUser.role==='admin'))}catch(e){return false}}
  function seats(){return Array.from(document.querySelectorAll('#game .pokerTable .seat'))}
  function table(){return document.querySelector('#game .pokerTable')}
- function apply(layout){if(!layout)return;seats().forEach(function(el){var k=Array.from(el.classList).find(function(x){return /^s\d+$/.test(x)}),v=k&&layout[k];if(!v)return;el.style.setProperty('left',v.x+'%','important');el.style.setProperty('top',v.y+'%','important');el.style.setProperty('right','auto','important');el.style.setProperty('bottom','auto','important');el.style.setProperty('transform','none','important')})}
+ function persistCss(layout){
+   var st=document.getElementById('mpSeatSavedLayoutCss');
+   if(!st){st=document.createElement('style');st.id='mpSeatSavedLayoutCss';document.body.appendChild(st)}
+   if(!layout){st.textContent='';return}
+   var css='';
+   Object.keys(layout).forEach(function(k){
+     var v=layout[k]; if(!/^s\d+$/.test(k)||!v)return;
+     css+='#game .pokerTable .seat.'+k+'{left:'+v.x+'%!important;top:'+v.y+'%!important;right:auto!important;bottom:auto!important;transform:none!important;}';
+   });
+   st.textContent=css;
+ }
+ function apply(layout){if(!layout)return;persistCss(layout);seats().forEach(function(el){var k=Array.from(el.classList).find(function(x){return /^s\d+$/.test(x)}),v=k&&layout[k];if(!v)return;el.style.setProperty('left',v.x+'%','important');el.style.setProperty('top',v.y+'%','important');el.style.setProperty('right','auto','important');el.style.setProperty('bottom','auto','important');el.style.setProperty('transform','none','important')})}
  function capture(){var t=table();if(!t)return{};var r=t.getBoundingClientRect(),o={};seats().forEach(function(el){var k=Array.from(el.classList).find(function(x){return /^s\d+$/.test(x)});if(!k)return;var q=el.getBoundingClientRect();o[k]={x:+(((q.left-r.left)/r.width)*100).toFixed(2),y:+(((q.top-r.top)/r.height)*100).toFixed(2)}});return o}
  window.mpStartSeatEdit=function(){if(!isAdmin())return;if(typeof window.mpCloseTableControls==='function')window.mpCloseTableControls();before=capture();editing=true;var g=document.getElementById('game');if(g)g.classList.add('mp-seat-editing');document.getElementById('mpSeatEditBar2').style.display='flex';if(typeof window.toast==='function')window.toast('Суудлаа хуруугаараа чирж байрлуулаарай')}
  function finish(){editing=false;drag=null;start=null;var g=document.getElementById('game');if(g)g.classList.remove('mp-seat-editing');document.getElementById('mpSeatEditBar2').style.display='none'}
- async function save(){var o=capture();try{localStorage.setItem('mpSeatLayout',JSON.stringify(o))}catch(e){}try{if(window.mpRtdb&&isAdmin())await window.mpRtdb.ref('sharedLobby/seatLayout').set(o)}catch(e){}finish();if(typeof window.toast==='function')window.toast('Суудлын байрлал хадгалагдлаа')}
- async function reset(){try{localStorage.removeItem('mpSeatLayout')}catch(e){}try{if(window.mpRtdb&&isAdmin())await window.mpRtdb.ref('sharedLobby/seatLayout').remove()}catch(e){}location.reload()}
+ async function save(){var o=capture();try{localStorage.setItem('mpSeatLayout',JSON.stringify(o))}catch(e){}persistCss(o);apply(o);try{if(window.mpRtdb&&isAdmin())await window.mpRtdb.ref('sharedLobby/seatLayout').set(o)}catch(e){}finish();if(typeof window.toast==='function')window.toast('Суудлын байрлал хадгалагдлаа')}
+ async function reset(){try{localStorage.removeItem('mpSeatLayout')}catch(e){}persistCss(null);try{if(window.mpRtdb&&isAdmin())await window.mpRtdb.ref('sharedLobby/seatLayout').remove()}catch(e){}location.reload()}
  function syncAdminButton(){var b=document.getElementById('mpAdminSeatEditMenu');if(b)b.style.display=isAdmin()?'flex':'none'}
  document.addEventListener('pointerdown',function(e){if(!editing)return;var el=e.target.closest('#game .pokerTable .seat');if(!el)return;e.preventDefault();drag=el;var t=table().getBoundingClientRect(),q=el.getBoundingClientRect();start={dx:e.clientX-q.left,dy:e.clientY-q.top,t:t};try{el.setPointerCapture(e.pointerId)}catch(x){}},{passive:false});
  document.addEventListener('pointermove',function(e){if(!editing||!drag||!start)return;e.preventDefault();var x=(e.clientX-start.dx-start.t.left)/start.t.width*100,y=(e.clientY-start.dy-start.t.top)/start.t.height*100;x=Math.max(-8,Math.min(92,x));y=Math.max(-5,Math.min(92,y));drag.style.setProperty('left',x+'%','important');drag.style.setProperty('top',y+'%','important');drag.style.setProperty('right','auto','important');drag.style.setProperty('bottom','auto','important');drag.style.setProperty('transform','none','important')},{passive:false});
  document.addEventListener('pointerup',function(){drag=null;start=null});
  document.addEventListener('click',function(e){if(e.target.id==='mpSeatSave2')save();if(e.target.id==='mpSeatReset2')reset();if(e.target.id==='mpSeatCancel2'){apply(before);finish()}});
  try{var oldOpen=window.mpOpenTableControls;if(typeof oldOpen==='function')window.mpOpenTableControls=function(){var r=oldOpen.apply(this,arguments);setTimeout(syncAdminButton,0);return r}}catch(e){}
- setInterval(syncAdminButton,600);setTimeout(function(){syncAdminButton();try{var local=JSON.parse(localStorage.getItem('mpSeatLayout')||'null');if(local)apply(local)}catch(e){}},700);
+ setInterval(syncAdminButton,600);
+ try{var local0=JSON.parse(localStorage.getItem('mpSeatLayout')||'null');if(local0)persistCss(local0)}catch(e){}
+ setTimeout(function(){syncAdminButton();try{var local=JSON.parse(localStorage.getItem('mpSeatLayout')||'null');if(local)apply(local)}catch(e){}},700);
  try{if(window.mpRtdb)window.mpRtdb.ref('sharedLobby/seatLayout').on('value',function(s){if(!editing&&s.val()){try{localStorage.setItem('mpSeatLayout',JSON.stringify(s.val()))}catch(e){}apply(s.val())}})}catch(e){}
 })();
 </script>
 
+
+<script id="MP-BOT-AUTO-SEAT-ZERO-EXIT">
+(function(){
+  function n(v){v=Number(v);return isFinite(v)?v:0}
+  function openTables(){
+    try{
+      var a=(typeof tables!=='undefined'&&Array.isArray(tables))?tables:
+            (typeof TABLES!=='undefined'&&Array.isArray(TABLES))?TABLES:[];
+      return a.filter(function(t){return t && t.open!==false && t.closed!==true});
+    }catch(e){return []}
+  }
+  window.mpAutoSeatCreatedBot=function(bot){
+    try{
+      if(!bot)return;
+      var chip=n(bot.chips||bot.chip||bot.balance||bot.stack);
+      if(chip<=0)return;
+      var ts=openTables();
+      if(!ts.length)return;
+      ts.sort(function(a,b){
+        var aa=n(a.buyIn||a.buyin||a.minBuyIn||a.minBuyin||a.bb||0);
+        var bb=n(b.buyIn||b.buyin||b.minBuyIn||b.minBuyin||b.bb||0);
+        return Math.abs(aa-chip)-Math.abs(bb-chip);
+      });
+      var t=ts[0];
+      if(typeof autoSeatBot==='function')return autoSeatBot(bot,t);
+      if(typeof seatBot==='function')return seatBot(bot,t);
+      if(typeof assignBotToTable==='function')return assignBotToTable(bot,t);
+    }catch(e){}
+  };
+  window.mpRemoveZeroChipBot=function(bot){
+    try{
+      if(!bot || n(bot.chips||bot.chip||bot.balance||bot.stack)>0)return false;
+      if(typeof removeBotFromTable==='function')removeBotFromTable(bot);
+      else if(typeof unseatBot==='function')unseatBot(bot);
+      bot.tableId=null; bot.seat=null; bot.seatIndex=null;
+      return true;
+    }catch(e){return false}
+  };
+})();
+</script>
 </body></html>
 
 <style id="mp-plus-seat-visibility-fix">
