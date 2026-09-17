@@ -986,6 +986,60 @@
 .app.myTablesMode #bottom button:first-child{color:#747b7d!important;border-top:0!important}.app.myTablesMode #bottomMyTablesBtn{color:#16c86d!important;border-top:2px solid #16c86d!important}
 @media(max-width:360px){#mytables .mpMyTablesCard{grid-template-columns:52px minmax(0,1fr) auto;padding:9px;gap:8px}#mytables .mpMyTablesCardIcon{width:48px;height:48px;font-size:23px}#mytables .mpMyTablesCardText b{font-size:12px}}
 </style>
+
+<style id="mp-seat-clean-final">
+/* FINAL seat-only cleanup — 9 fixed seats, no player/action/bet overlap. */
+#game .seat{width:76px!important;z-index:28!important}
+#game .s0{left:50%!important;bottom:-8px!important;top:auto!important;transform:translateX(-50%)!important}
+#game .s4{left:4%!important;top:9%!important;bottom:auto!important;transform:none!important}
+#game .s3{left:-2%!important;top:31%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s2{left:-2%!important;top:54%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s1{left:4%!important;top:72%!important;bottom:auto!important;transform:none!important}
+#game .s5{right:4%!important;top:9%!important;bottom:auto!important;transform:none!important}
+#game .s6{right:-2%!important;top:31%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s7{right:-2%!important;top:54%!important;bottom:auto!important;transform:translateY(-50%)!important}
+#game .s8{right:4%!important;top:72%!important;bottom:auto!important;transform:none!important}
+#game .seat .nm{width:76px!important;max-width:76px!important}
+#game .seat .stack{display:block!important;width:max-content!important;min-width:52px!important;margin:2px auto 0!important}
+#game .seatStatus{display:block!important;position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;width:max-content!important;max-width:76px!important;margin:2px auto 0!important;padding:2px 6px!important;z-index:34!important}
+#game .blindTag{top:auto!important;bottom:-18px!important;left:50%!important;right:auto!important;transform:translateX(-50%)!important;z-index:35!important}
+#game .s1 .betTag,#game .s2 .betTag,#game .s3 .betTag,#game .s4 .betTag{left:82px!important;right:auto!important;top:24px!important;transform:none!important;z-index:36!important}
+#game .s5 .betTag,#game .s6 .betTag,#game .s7 .betTag,#game .s8 .betTag{right:82px!important;left:auto!important;top:24px!important;transform:none!important;z-index:36!important}
+#game .s0 .betTag{left:50%!important;right:auto!important;top:-35px!important;transform:translateX(-50%)!important}
+/* Every visual bot seat keeps its own distinct portrait avatar. */
+#game .seat .pic{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}
+@media(max-width:430px){
+ #game .seat{width:72px!important}
+ #game .seat .nm{width:72px!important;max-width:72px!important}
+ #game .seatStatus{max-width:72px!important}
+ #game .s4,#game .s5{top:8%!important}
+ #game .s3,#game .s6{top:30%!important}
+ #game .s2,#game .s7{top:53%!important}
+ #game .s1,#game .s8{top:71%!important}
+ #game .s1 .betTag,#game .s2 .betTag,#game .s3 .betTag,#game .s4 .betTag{left:76px!important}
+ #game .s5 .betTag,#game .s6 .betTag,#game .s7 .betTag,#game .s8 .betTag{right:76px!important}
+}
+</style>
+
+<style id="mpSeatLayoutSingleFix20260917">
+/* ONLY FIX: fixed 9-seat spacing; keep each player's labels together and bets inward. */
+#game .pokerTable .seat{width:72px!important;z-index:28!important}
+#game .pokerTable .seat.s0{left:50%!important;right:auto!important;top:auto!important;bottom:-6px!important;transform:translateX(-50%)!important}
+#game .pokerTable .seat.s4{left:3%!important;right:auto!important;top:7%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat.s3{left:-1%!important;right:auto!important;top:27%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat.s2{left:-1%!important;right:auto!important;top:48%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat.s1{left:3%!important;right:auto!important;top:69%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat.s5{right:3%!important;left:auto!important;top:7%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat.s6{right:-1%!important;left:auto!important;top:27%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat.s7{right:-1%!important;left:auto!important;top:48%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat.s8{right:3%!important;left:auto!important;top:69%!important;bottom:auto!important;transform:none!important}
+#game .pokerTable .seat .nm{display:block!important;position:relative!important;width:72px!important;max-width:72px!important;margin:1px auto 0!important}
+#game .pokerTable .seat .stack{display:block!important;position:relative!important;width:max-content!important;min-width:54px!important;max-width:72px!important;margin:2px auto 0!important}
+#game .pokerTable .seat .seatStatus{display:block!important;position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;width:max-content!important;max-width:76px!important;margin:3px auto 0!important;white-space:nowrap!important}
+#game .pokerTable .seat.s1 .betTag,#game .pokerTable .seat.s2 .betTag,#game .pokerTable .seat.s3 .betTag,#game .pokerTable .seat.s4 .betTag{left:82px!important;right:auto!important;top:30px!important;transform:none!important}
+#game .pokerTable .seat.s5 .betTag,#game .pokerTable .seat.s6 .betTag,#game .pokerTable .seat.s7 .betTag,#game .pokerTable .seat.s8 .betTag{right:82px!important;left:auto!important;top:30px!important;transform:none!important}
+#game .pokerTable .seat.s0 .betTag{left:50%!important;right:auto!important;top:-38px!important;transform:translateX(-50%)!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1100,7 +1154,7 @@
 <section id="admin" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Админ</div><button></button></header><div class="admin">
 <div class="adminCard"><h3>Ширээ нээх</h3><div class="field"><label>Төрөл</label><select id="newType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Нэр</label><input id="newName" placeholder="25K ШИРЭЭ"></div><div class="field"><label>SB / BB</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="newSB" type="number" value="500"><input id="newBB" type="number" value="1000"></div></div><div class="field"><label>Орох дүн</label><input id="newBuy" type="number" value="25000"></div><button class="primary" onclick="createTable()">Ширээ нээх</button></div>
 <div class="adminCard"><h3>Хэрэглэгчид chip нэмэх</h3><div class="field"><label>Хэрэглэгчийн ID</label><input id="chipUserId" placeholder="user ID"></div><div class="field"><label>Нэмэх chip</label><input id="chipAmount" type="number" value="25000"></div><button class="primary" onclick="adminAddChips()">Chip нэмэх</button><div id="adminUsers"></div></div>
-<div class="adminCard"><h3>Bot үүсгэх</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Эхлэх chip</label><input id="botChips" type="number" value="25000"></div><button class="primary" onclick="createBot()">Bot үүсгэх</button><div id="adminBots"></div></div>
+<div class="adminCard"><h3>Bot үүсгэх</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Bot төрөл</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Эхлэх chip</label><input id="botChips" type="number" value="25000"></div><button class="primary" onclick="createBot()">Bot үүсгэх</button><div id="adminBots"></div></div>
 <div class="adminCard"><h3>Ширээнүүд</h3><div id="adminTables"></div></div>
 <div class="adminCard" id="adminTournamentCard"><h3>🏆 Тэмцээн удирдлага</h3>
 <input id="tourEditId" type="hidden">
@@ -1232,7 +1286,7 @@ function mpSharedLobbyPayload(){
   return {
     _type:'sharedLobby',
     tables:(db?.tables||[]).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false})),
-    bots:(db?.bots||[]).filter(isAdminCreatedBot).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true})),
+    bots:(db?.bots||[]).filter(isAdminCreatedBot).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true,tableId:String(b.tableId||'')})),
     promotions:(db?.promotions||[]).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)})),
     tournaments:(db?.tournaments||[]).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)})),
     rakePercent:Number(db?.rake?.percent??1),
@@ -1269,7 +1323,7 @@ async function mpStartSharedLobby(opts={}){
       if(v.tables!==undefined){
         db.tables=remoteTables.filter(Boolean).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
       }
-      db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
+      db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true,tableId:String(b.tableId||'')}));
       if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
       if(v.tournaments!==undefined){const rt=Array.isArray(v.tournaments)?v.tournaments:Object.values(v.tournaments||{});db.tournaments=rt.filter(Boolean).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)}));}
       db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
@@ -1695,7 +1749,7 @@ async function mpRefreshSharedLobbyOnce(){
       db.tables=remoteTables.filter(Boolean).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
     }
     if(v.bots!==undefined){
-      db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true}));
+      db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true,tableId:String(b.tableId||'')}));
     }
     if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
     if(v.tournaments!==undefined){const rt=Array.isArray(v.tournaments)?v.tournaments:Object.values(v.tournaments||{});db.tournaments=rt.filter(Boolean).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)}));}
@@ -1884,11 +1938,51 @@ function takeRakeFromPot(){
 }
 function createTable(){if(currentUser?.role!=='admin')return;let type=$('newType').value,name=$('newName').value.trim(),sb=+$('newSB').value,bb=+$('newBB').value,buy=+$('newBuy').value;if(!name||sb<=0||bb<=sb||buy<=0)return toast('Утгаа шалгана уу');if(type==='omaha'&&!/OMAHA|ОМАХА/i.test(name))name='OMAHA '+name;db.tables.push({id:'t'+Date.now(),name,type,sb,bb,buy,color:['gold','blue','green'][db.tables.length%3],open:true});save();mpPublishSharedLobby();$('newName').value='';renderAdmin();toast((type==='omaha'?'Omaha':'Holdem')+' ширээ нээгдлээ')}
 function adminAddChips(){if(currentUser?.role!=='admin')return;let id=$('chipUserId').value.trim(),a=+$('chipAmount').value,u=db.users.find(x=>x.id===id);if(!u)return toast('Хэрэглэгч олдсонгүй');if(a<=0)return toast('Chip дүнгээ шалгана уу');u.chips+=a;save();renderAdmin();renderHome();toast(fmt(a)+' chip нэмэгдлээ')}
-function createBot(){if(currentUser?.role!=='admin')return;let name=$('botName').value.trim(),chips=+$('botChips').value;if(!name||chips<=0)return toast('Bot мэдээллээ шалгана уу');db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true});save();mpPublishSharedLobby();$('botName').value='';renderAdmin();toast('Bot үүсгэлээ')}
+function mpBotGameType(b){return String(b?.gameType||b?.type||'holdem').toLowerCase()==='omaha'?'omaha':'holdem'}
+function mpAssignBotsEvenly(){
+  const tables=(db.tables||[]).filter(t=>t&&t.open!==false);
+  if(!tables.length)return false;
+  let changed=false;
+  ['holdem','omaha'].forEach(gameType=>{
+    const gtables=tables.filter(t=>String(t.type||'holdem').toLowerCase()===gameType);
+    if(!gtables.length)return;
+    const valid=new Set(gtables.map(t=>String(t.id)));
+    const counts=Object.fromEntries(gtables.map(t=>[String(t.id),0]));
+    const bots=(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&mpBotGameType(b)===gameType);
+    bots.forEach(b=>{if(valid.has(String(b.tableId||'')))counts[String(b.tableId)]++});
+    bots.forEach(b=>{
+      if(valid.has(String(b.tableId||'')))return;
+      const target=gtables.slice().sort((a,z)=>counts[String(a.id)]-counts[String(z.id)])[0];
+      b.tableId=String(target.id);counts[String(target.id)]++;changed=true;
+    });
+  });
+  return changed;
+}
+function mpBotsForTable(tableId,limit=8){
+  mpAssignBotsEvenly();
+  const t=(db.tables||[]).find(x=>String(x.id)===String(tableId));
+  const gameType=String(t?.type||'holdem').toLowerCase();
+  return (db.bots||[]).filter(b=>isAdminCreatedBot(b)&&mpBotGameType(b)===gameType&&String(b.tableId||'')===String(tableId||'')).slice(0,limit);
+}
+function createBot(){
+  if(currentUser?.role!=='admin')return;
+  let name=$('botName').value.trim(),chips=+$('botChips').value;
+  const gameType=String($('botGameType')?.value||'holdem').toLowerCase()==='omaha'?'omaha':'holdem';
+  if(!name||chips<=0)return toast('Bot мэдээллээ шалгана уу');
+  const tables=(db.tables||[]).filter(t=>t&&t.open!==false&&String(t.type||'holdem').toLowerCase()===gameType);
+  let tableId='';
+  if(tables.length){
+    const counts=Object.fromEntries(tables.map(t=>[String(t.id),0]));
+    (db.bots||[]).filter(b=>isAdminCreatedBot(b)&&mpBotGameType(b)===gameType).forEach(b=>{if(counts[String(b.tableId)]!==undefined)counts[String(b.tableId)]++});
+    tableId=String(tables.slice().sort((a,z)=>counts[String(a.id)]-counts[String(z.id)])[0].id);
+  }
+  db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true,gameType,tableId});
+  mpAssignBotsEvenly();save();mpPublishSharedLobby();$('botName').value='';renderAdmin();toast((gameType==='omaha'?'Omaha':'Texas')+' bot үүсгэлээ');
+}
 function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
 function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();mpPublishSharedLobby();renderAdmin()}
-function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=db.bots.filter(isAdminCreatedBot).slice(0,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
+function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=mpBotsForTable(t.id,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
 function leaveTable(){let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
 function makeDeck(){
   const s=['♠','♥','♦','♣'],r=[2,3,4,5,6,7,8,9,10,11,12,13,14],d=[];
@@ -1934,7 +2028,7 @@ function chooseSeat(slot){
   const seatEl=document.querySelector('#seats .emptySeat.s'+slot);if(!seatEl)return toast('Энэ суудал эзэнтэй байна');
   currentUser.chips-=currentTable.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;
   const emos=['🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','🧑‍🦱'];
-  const botPlayers=db.bots.filter(isAdminCreatedBot).slice(0,8).map((b,i)=>({name:b.name,chips:Math.max(currentTable.buy,Number(b.chips)||currentTable.buy),emoji:emos[i]||'🙂',botId:b.id}));
+  const botPlayers=mpBotsForTable(currentTable.id,8).map((b,i)=>({name:b.name,chips:Math.max(currentTable.buy,Number(b.chips)||currentTable.buy),emoji:emos[i]||'🙂',botId:b.id}));
   players=[{name:currentUser.name,chips:currentTable.buy,emoji:'😎',user:true},...botPlayers];
   userSeatedAtTable=true;userSeatSlot=slot;spectator=false;handNo=0;
   if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand='';}
@@ -2441,7 +2535,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     liveDealer=-1;liveSB=-1;liveBB=-1;liveTurn=-1;liveRoundBusy=false;finished=false;
     db.bots=db.bots.filter(isAdminCreatedBot);save();
     const emos=['🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','🧑‍🦱','🐺'];
-    const bots8=db.bots.filter(isAdminCreatedBot).slice(0,8);
+    const bots8=mpBotsForTable(t.id,8);
     players=bots8.map((b,i)=>({name:b.name,chips:Math.max(t.buy,Number(b.chips)||t.buy),emoji:emos[i]||'🙂',botId:b.id}));
     deck=makeDeck();burnedCards=[];boardCards=[];street=0;potAmt=0;holes=players.map(()=>[]);folded=players.map(()=>false);liveSeatBets=players.map(()=>0);liveSeatStatus=players.map(()=>'');
     // Give the preview a live-table look without charging or seating the viewer.
