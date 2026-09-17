@@ -4557,3 +4557,13 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   bottom:10px!important;
 }
 </style>
+
+<style id="mp-upper-four-seat-only-final">
+/* ONLY FIX: upper-left 2 + upper-right 2 seats. Nothing else. */
+@media (max-width:700px){
+  #game .pokerTable .seat.s4{left:2%!important;right:auto!important;top:8%!important;bottom:auto!important;transform:none!important}
+  #game .pokerTable .seat.s3{left:-7%!important;right:auto!important;top:38%!important;bottom:auto!important;transform:translateY(-50%)!important}
+  #game .pokerTable .seat.s5{right:2%!important;left:auto!important;top:8%!important;bottom:auto!important;transform:none!important}
+  #game .pokerTable .seat.s6{right:-7%!important;left:auto!important;top:38%!important;bottom:auto!important;transform:translateY(-50%)!important}
+}
+</style>
