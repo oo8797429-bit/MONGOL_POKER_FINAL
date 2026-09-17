@@ -1508,6 +1508,36 @@ function mpStopAdminRegistrationListener(){
   mpRemoteRegistrations=[];
   mpRemoteRakeEvents=[];
 }
+/* Withdrawal voice alert: admin only, new pending requests only. */
+let mpWithdrawalVoiceReady=false;
+let mpWithdrawalVoiceSeen=new Set();
+function mpWithdrawalVoiceKey(w){return String(w?._firebaseUid||'')+'|'+String(w?._firebaseKey||'')}
+function mpSpeakWithdrawalRequest(w){
+  if(currentUser?.role!=='admin'||!w||String(w.status)!=='pending')return;
+  try{
+    if(!('speechSynthesis' in window))return;
+    const name=String(w.userName||w.userId||'Тоглогч').trim();
+    const amount=Math.max(0,Math.floor(Number(w.amount)||0)).toLocaleString('mn-MN');
+    const u=new SpeechSynthesisUtterance(`${name}, ${amount} төгрөгийн таталтын хүсэлт ирлээ.`);
+    u.lang='mn-MN'; u.rate=0.92; u.pitch=1; u.volume=1;
+    const voices=window.speechSynthesis.getVoices();
+    const mn=voices.find(v=>/^mn([-_]|$)/i.test(v.lang||''));
+    if(mn)u.voice=mn;
+    window.speechSynthesis.speak(u);
+  }catch(e){console.warn('Withdrawal voice alert failed',e)}
+}
+function mpCheckNewWithdrawalVoices(list){
+  const pending=(list||[]).filter(w=>String(w.status)==='pending');
+  if(!mpWithdrawalVoiceReady){
+    pending.forEach(w=>mpWithdrawalVoiceSeen.add(mpWithdrawalVoiceKey(w)));
+    mpWithdrawalVoiceReady=true;
+    return;
+  }
+  pending.slice().sort((a,b)=>Number(a.createdAt||0)-Number(b.createdAt||0)).forEach(w=>{
+    const k=mpWithdrawalVoiceKey(w); if(!k||k==='|')return;
+    if(!mpWithdrawalVoiceSeen.has(k)){mpWithdrawalVoiceSeen.add(k);mpSpeakWithdrawalRequest(w)}
+  });
+}
 function mpStartAdminRegistrationListener(){
   if(!mpRtdb||!mpAuth?.currentUser||mpAuth.currentUser.uid!==MP_ADMIN_UID)return;
   mpStopAdminRegistrationListener();
@@ -1516,6 +1546,7 @@ function mpStartAdminRegistrationListener(){
     const raw=snap.val();
     mpRemoteRegistrations=mpFlattenRegistrations(raw);
     mpRemoteWithdrawals=mpFlattenWithdrawals(raw);
+    mpCheckNewWithdrawalVoices(mpRemoteWithdrawals);
     mpRemoteRakeEvents=mpFlattenRakeEvents(raw);
     mpApplyRemoteRake();
     try{
