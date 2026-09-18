@@ -1980,10 +1980,18 @@ function mpAssignBotsEvenly(){
   return changed;
 }
 function mpBotsForTable(tableId,limit=8){
-  mpAssignBotsEvenly();
+  /* SEAT SYNC FIX: sharedLobby already contains the admin-confirmed tableId.
+     A viewer must NEVER run mpAssignBotsEvenly(), because remote bot records do
+     not contain the admin-only assignedTableId/selectedTableId fields and that
+     function would clear the valid shared tableId before rendering the table. */
   const t=(db.tables||[]).find(x=>String(x.id)===String(tableId));
   const gameType=String(t?.type||'holdem').toLowerCase();
-  return (db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&mpBotGameType(b)===gameType&&String(b.tableId||'')===String(tableId||'')).slice(0,limit);
+  return (db.bots||[]).filter(b=>
+    isAdminCreatedBot(b)&&
+    Number(b.chips||0)>0&&
+    mpBotGameType(b)===gameType&&
+    String(b.tableId||'')===String(tableId||'')
+  ).slice(0,limit);
 }
 function createBot(){
   if(currentUser?.role!=='admin')return;
