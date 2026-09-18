@@ -1971,14 +1971,16 @@ function mpAssignBotsEvenly(){
       if(counts[String(b.tableId)]!==undefined)counts[String(b.tableId)]++;
     });
     bots.forEach(b=>{
-      if(Number(b.chips||0)<=0)return;
+      const chips=Math.max(0,Number(b.chips)||0);
+      if(chips<=0)return;
       const cur=gtables.find(t=>String(t.id)===String(b.tableId||''));
-      if(cur)return;
-      /* Admin gives a bot N chips -> seat it only at an open table whose buy-in is exactly N. */
-      const targetBuyIn=Number(b.assignedBuyIn||b.chips||0);
-      const eligible=gtables.filter(t=>Number(t.buy||0)===targetBuyIn && counts[String(t.id)]<8);
+      if(cur)return; // seated bot keeps playing its real stack until it reaches 0
+      if(b.manualUnseated===true)return;
+      /* AUTO RULE: 5k/10k are human-only. From 15k upward choose the highest open table the bot's ADMIN-GIVEN starting stack can afford. */
+      const startStack=Math.max(0,Number(b.startingChips||b.assignedBuyIn||b.chips)||0);
+      const eligible=gtables.filter(t=>{const buy=Number(t.buy||0);return buy>=15000 && buy<=startStack && counts[String(t.id)]<8;});
       if(!eligible.length){if(b.tableId){b.tableId='';changed=true;}return;}
-      eligible.sort((a,z)=>counts[String(a.id)]-counts[String(z.id)] || String(a.id).localeCompare(String(z.id)));
+      eligible.sort((a,z)=>Number(z.buy||0)-Number(a.buy||0) || counts[String(a.id)]-counts[String(z.id)] || String(a.id).localeCompare(String(z.id)));
       b.tableId=String(eligible[0].id);counts[String(eligible[0].id)]++;changed=true;
     });
   });
@@ -1995,7 +1997,7 @@ function createBot(){
   let name=$('botName').value.trim(),chips=+$('botChips').value;
   const gameType=String($('botGameType')?.value||'holdem').toLowerCase()==='omaha'?'omaha':'holdem';
   if(!name||chips<=0)return toast('Bot мэдээллээ шалгана уу');
-  db.bots.push({id:'b'+Date.now(),name,chips,assignedBuyIn:chips,adminCreated:true,gameType,tableId:''});
+  db.bots.push({id:'b'+Date.now(),name,chips,startingChips:chips,assignedBuyIn:chips,adminCreated:true,gameType,tableId:'',manualUnseated:false});
   mpAssignBotsEvenly();save();mpPublishSharedLobby();$('botName').value='';renderAdmin();
   const nb=db.bots[db.bots.length-1],nt=(db.tables||[]).find(t=>String(t.id)===String(nb.tableId||''));
   toast((gameType==='omaha'?'Omaha':'Texas')+' bot үүсгэлээ'+(nt?' • '+fmt(chips)+' орох дүнтэй '+nt.name+' ширээнд суулаа':' • '+fmt(chips)+' орох дүнтэй ширээ алга'));
@@ -4767,11 +4769,11 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       if(chip<=0)return;
       var ts=openTables();
       if(!ts.length)return;
-      /* Exact only: a bot may sit only where table buy-in equals its assigned starting chips. */
-      var target=n(bot.assignedBuyIn||chip);
-      var t=ts.find(function(x){
-        return n(x.buy||x.buyIn||x.buyin||x.minBuyIn||x.minBuyin||0)===target;
-      });
+      /* 5k/10k are human-only; from 15k upward use the highest table the admin-given starting stack can afford. */
+      var target=n(bot.startingChips||bot.assignedBuyIn||chip);
+      var eligible=ts.filter(function(x){var buy=n(x.buy||x.buyIn||x.buyin||x.minBuyIn||x.minBuyin||0);return buy>=15000&&buy<=target;});
+      eligible.sort(function(a,b){return n(b.buy||b.buyIn||b.buyin)-n(a.buy||a.buyIn||a.buyin);});
+      var t=eligible[0];
       if(!t)return;
       if(typeof autoSeatBot==='function')return autoSeatBot(bot,t);
       if(typeof seatBot==='function')return seatBot(bot,t);
@@ -4865,6 +4867,21 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 </script>
 
 
+
+
+<script id="MP-BOT-ADMIN-MANUAL-CONTROL-V2">
+(function(){
+  function bot(id){return (db.bots||[]).find(b=>String(b.id)===String(id));}
+  function table(id){return (db.tables||[]).find(t=>String(t.id)===String(id));}
+  window.mpBotUnseat=function(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let b=bot(id);if(!b)return;b.tableId='';b.manualUnseated=true;save();mpPublishSharedLobby();renderAdmin();toast(b.name+' ширээнээс гарлаа');};
+  window.mpBotAutoSeat=function(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let b=bot(id);if(!b)return;b.manualUnseated=false;b.tableId='';mpAssignBotsEvenly();save();mpPublishSharedLobby();renderAdmin();let t=table(b.tableId);toast(t?b.name+' → '+t.name:'15k+ тохирох ширээ алга');};
+  window.mpBotSeatTo=function(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let b=bot(id);if(!b)return;let opts=(db.tables||[]).filter(t=>t&&t.open!==false&&String(t.type||'holdem').toLowerCase()===mpBotGameType(b)&&Number(t.buy||0)>=15000&&Number(t.buy||0)<=Number(b.startingChips||b.assignedBuyIn||b.chips||0));if(!opts.length)return toast('15k+ тохирох ширээ алга');let names=opts.map((t,i)=>(i+1)+'. '+t.name+' ('+fmt(t.buy)+')').join('\n');let pick=Number(prompt('Суулгах ширээний дугаар:\n'+names));let t=opts[pick-1];if(!t)return;b.tableId=String(t.id);b.manualUnseated=false;save();mpPublishSharedLobby();renderAdmin();toast(b.name+' → '+t.name);};
+  const oldRender=window.renderAdmin||renderAdmin;
+  window.renderAdmin=renderAdmin=function(){oldRender();if(currentUser?.role!=='admin')return;let box=document.getElementById('adminBots');if(!box)return;box.innerHTML=(db.bots||[]).filter(isAdminCreatedBot).map(b=>{let t=table(b.tableId);return `<div style="padding:9px 0;border-top:1px solid #343a3d;font-size:10px"><div style="display:flex;justify-content:space-between;gap:8px"><span>🤖 <b>${b.name}</b> — ${fmt(b.chips)} chip<br><small style="color:#aab0b2">${t?'🟢 '+t.name:'⚪ Ширээнд суугаагүй'} • Эхлэх ${fmt(b.startingChips||b.assignedBuyIn||b.chips)}</small></span></div><div class="rowBtns" style="margin-top:7px;display:flex;gap:5px;flex-wrap:wrap"><button class="smallBtn" onclick="mpBotAutoSeat('${b.id}')">Авто суулгах</button><button class="smallBtn" onclick="mpBotSeatTo('${b.id}')">Гар суулгах</button><button class="smallBtn" onclick="mpBotUnseat('${b.id}')">Гаргах</button><button class="smallBtn red" onclick="deleteBot('${b.id}')">Устгах</button></div></div>`}).join('');};
+  const oldSync=window.syncUser||syncUser;
+  window.syncUser=syncUser=function(){oldSync();let changed=false;(db.bots||[]).forEach(b=>{if(!isAdminCreatedBot(b))return;if(Number(b.chips||0)<=0){b.chips=0;if(b.tableId){b.tableId='';changed=true;}b.manualUnseated=true;}});if(changed){save();if(currentUser?.role==='admin')mpPublishSharedLobby();}};
+})();
+</script>
 
 </body></html>
 
