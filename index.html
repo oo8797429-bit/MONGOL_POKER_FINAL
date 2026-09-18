@@ -4865,7 +4865,80 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 
 
 
-\n<script id="mp-reentry-firebase-authoritative-v3">\n(function(){\n  if(window.__MP_REENTRY_FIREBASE_V3__) return; window.__MP_REENTRY_FIREBASE_V3__=true;\n  let busy=false;\n  const cp=v=>{try{return structuredClone(v)}catch(e){return JSON.parse(JSON.stringify(v))}};\n  const ref=id=>{try{return mpRtdb.ref('sharedGames/'+String(id))}catch(e){return null}};\n  async function ready(){\n    try{ if(typeof mpEnsureWriter==='function') await mpEnsureWriter(); return !!mpRtdb; }\n    catch(e){ console.warn('game auth failed',e); return false; }\n  }\n  async function put(s){\n    if(!s||!s.currentTable||!(await ready())) return false;\n    const r=ref(s.currentTable.id); if(!r)return false;\n    const x=cp(s); x.tableId=String(s.currentTable.id); x.savedAt=Date.now(); x.savedBy=String(currentUser?.id||currentUser?.name||'guest');\n    try{ await r.set(x); return true }catch(e){ console.warn('game save failed',e); return false }\n  }\n  async function get(id){\n    if(!(await ready()))return null; const r=ref(id); if(!r)return null;\n    try{const sn=await r.once('value');return sn.val()||null}catch(e){console.warn('game read failed',e);return null}\n  }\n  const baseJoin=window.join;\n  window.join=async function(id){\n    if(busy)return; busy=true;\n    try{\n      const t=(db.tables||[]).find(x=>String(x.id)===String(id)&&x.open); if(!t)return;\n      const s=await get(t.id);\n      if(s&&s.currentTable&&String(s.tableId||s.currentTable.id)===String(t.id)&&Date.now()-Number(s.savedAt||0)<43200000){\n        window.mpRestorePokerSession(cp(s));\n        toast('Явж байсан тоглолт үргэлжиллээ');\n        return;\n      }\n      return await baseJoin.apply(this,arguments);\n    } finally {busy=false}\n  };\n  window.leaveTable=async function(){\n    if(currentTable&&tableSession&&typeof window.mpCapturePokerSession==='function'){\n      const s=window.mpCapturePokerSession();\n      await put(s);\n      try{window.mpSuspendPokerSession()}catch(e){}\n      try{closeSide()}catch(e){}\n      show('tables');\n      return;\n    }\n    show('tables');\n  };\n  let timer=0;\n  function queue(){clearTimeout(timer);timer=setTimeout(async()=>{\n    if(currentTable&&tableSession&&userSeatedAtTable&&!busy&&typeof window.mpCapturePokerSession==='function') await put(window.mpCapturePokerSession());\n  },120)}\n  const baseRender=window.renderGame;\n  window.renderGame=function(){const r=baseRender.apply(this,arguments);queue();return r};\n  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')queue()});\n})();\n</script>\n</body></html>
+
+<!-- MP SHARED TABLE ENGINE V5: one Firebase state per table; no UI changes -->
+<script id="mp-shared-table-engine-v5">
+(function(){
+  if(window.__MP_SHARED_TABLE_ENGINE_V5__) return;
+  window.__MP_SHARED_TABLE_ENGINE_V5__=true;
+  const OWNER_MS=4500, TICK_MS=700;
+  const clientId=(sessionStorage.mpSharedClientId||(sessionStorage.mpSharedClientId='c_'+Math.random().toString(36).slice(2)+Date.now().toString(36)));
+  let tableId='', ref=null, ownerRef=null, timer=null, applying=false, owner=false, lastRemote=0;
+  const clone=v=>{try{return structuredClone(v)}catch(e){return JSON.parse(JSON.stringify(v))}};
+  function stateRef(id){return window.mpRtdb&&window.mpRtdb.ref('sharedGames/'+String(id).replace(/[.#$\[\]]/g,'_'))}
+  function cleanState(s){
+    if(!s)return null; const x=clone(s);
+    delete x.currentTable?.__proto__;
+    return x;
+  }
+  async function claimOwner(){
+    if(!ownerRef)return false; const now=Date.now();
+    try{
+      const tr=await ownerRef.transaction(v=>{
+        if(v&&v.id!==clientId&&Number(v.until)>now)return;
+        return {id:clientId,until:now+OWNER_MS,at:firebase.database.ServerValue.TIMESTAMP};
+      },undefined,false);
+      owner=!!(tr.committed&&tr.snapshot.val()?.id===clientId); return owner;
+    }catch(e){owner=false;return false}
+  }
+  async function publish(){
+    if(!owner||applying||!ref||typeof window.mpCapturePokerSession!=='function')return;
+    const s=window.mpCapturePokerSession(); if(!s?.currentTable||String(s.currentTable.id)!==String(tableId))return;
+    try{await ref.child('state').set({data:cleanState(s),updatedAt:firebase.database.ServerValue.TIMESTAMP,owner:clientId})}catch(e){}
+  }
+  function applyRemote(v){
+    if(!v?.data||v.owner===clientId||owner)return;
+    const stamp=Number(v.updatedAt)||0;if(stamp&&stamp<lastRemote)return;lastRemote=stamp;
+    applying=true;try{window.mpRestorePokerSession&&window.mpRestorePokerSession(v.data)}finally{setTimeout(()=>applying=false,80)}
+  }
+  async function attach(id,seed){
+    tableId=String(id); ref=stateRef(tableId); if(!ref)return;
+    ownerRef=ref.child('owner');
+    try{
+      const snap=await ref.child('state').once('value'); const remote=snap.val();
+      if(remote?.data){ applyRemote(remote); }
+      else { owner=await claimOwner(); if(owner){ await ref.child('state').set({data:cleanState(seed),updatedAt:firebase.database.ServerValue.TIMESTAMP,owner:clientId}); } }
+      ref.child('state').off('value'); ref.child('state').on('value',s=>applyRemote(s.val()));
+    }catch(e){console.warn('shared table attach',e)}
+    clearInterval(timer);timer=setInterval(async()=>{
+      const was=owner; await claimOwner();
+      if(owner){ if(!was){try{const s=(await ref.child('state').once('value')).val();if(s?.data){applying=true;window.mpRestorePokerSession&&window.mpRestorePokerSession(s.data);applying=false}}catch(e){}} await publish(); }
+      else {try{const s=(await ref.child('state').once('value')).val();applyRemote(s)}catch(e){}}
+    },TICK_MS);
+  }
+  const oldJoin=window.join;
+  if(typeof oldJoin==='function') window.join=async function(id){
+    const r=await oldJoin.apply(this,arguments);
+    const seed=window.mpCapturePokerSession&&window.mpCapturePokerSession();
+    if(seed?.currentTable){
+      /* Stop the per-device preview before deciding who owns the shared engine. */
+      window.mpSuspendPokerSession&&window.mpSuspendPokerSession();
+      await attach(seed.currentTable.id,seed);
+      if(owner) window.mpRestorePokerSession&&window.mpRestorePokerSession(seed);
+    }
+    return r;
+  };
+  const oldLeave=window.leaveTable;
+  if(typeof oldLeave==='function') window.leaveTable=function(){
+    clearInterval(timer);timer=null;
+    if(ownerRef&&owner){ownerRef.transaction(v=>v?.id===clientId?null:v).catch(()=>{})}
+    if(ref)ref.child('state').off('value'); owner=false;ref=null;ownerRef=null;tableId='';
+    return oldLeave.apply(this,arguments);
+  };
+  window.addEventListener('pagehide',()=>{try{if(ownerRef&&owner)ownerRef.transaction(v=>v?.id===clientId?null:v)}catch(e){}});
+})();
+</script>
+</body></html>
 
 <style id="mp-plus-seat-visibility-fix">
 /* Only restore the spectator + seat button visibility. */
