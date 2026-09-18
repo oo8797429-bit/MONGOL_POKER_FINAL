@@ -4512,6 +4512,20 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
         rememberedActions={};
       }
 
+      // Hand-finished UI cleanup: while the winner/POT overlay is shown, old
+      // betting controls and per-seat action/bet labels must not remain visible.
+      const handFinished=(typeof finished!=='undefined' && !!finished);
+      const actionBar=document.querySelector('#game .actionBar');
+      if(actionBar) actionBar.style.display=handFinished?'none':'';
+      if(handFinished){
+        rememberedActions={};
+        document.querySelectorAll('#game .mpActionBadge,#game .mpBetBubble').forEach(el=>el.remove());
+        const rp=document.getElementById('raisePanel');
+        const ba=document.getElementById('baseActions');
+        if(rp) rp.classList.add('hidden');
+        if(ba) ba.classList.remove('hidden');
+      }
+
       const seatEls=document.querySelectorAll('#game #seats .seat[data-seat-index]');
       seatEls.forEach(el=>{
         const i=Number(el.getAttribute('data-seat-index'));
