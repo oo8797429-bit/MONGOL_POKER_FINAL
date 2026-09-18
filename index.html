@@ -2613,9 +2613,6 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
 
   let spectatorBotLoopRunning=false;
   function spectatorModeActive(){
-    /* Shared table: only the Firebase lease owner may advance bot gameplay.
-       Other phones are render-only followers of the same hand. */
-    if(window.__mpSharedActive && !window.__mpSharedOwner)return false;
     return !!(tableSession&&currentTable&&spectator&&!userSeatedAtTable&&players.length>=2);
   }
   function spectatorAliveSeats(){
@@ -4869,7 +4866,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 
 
 
-<!-- MP SHARED TABLE ENGINE V5.1 BOT-OWNER FIX 20260918_2358: one Firebase state per table; no UI changes -->
+<!-- MP SHARED TABLE ENGINE V5: one Firebase state per table; no UI changes -->
 <script id="mp-shared-table-engine-v5">
 (function(){
   if(window.__MP_SHARED_TABLE_ENGINE_V5__) return;
@@ -4877,8 +4874,6 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   const OWNER_MS=4500, TICK_MS=700;
   const clientId=(sessionStorage.mpSharedClientId||(sessionStorage.mpSharedClientId='c_'+Math.random().toString(36).slice(2)+Date.now().toString(36)));
   let tableId='', ref=null, ownerRef=null, timer=null, applying=false, owner=false, lastRemote=0;
-  window.__mpSharedActive=false;
-  window.__mpSharedOwner=false;
   const clone=v=>{try{return structuredClone(v)}catch(e){return JSON.parse(JSON.stringify(v))}};
   function stateRef(id){return window.mpRtdb&&window.mpRtdb.ref('sharedGames/'+String(id).replace(/[.#$\[\]]/g,'_'))}
   function cleanState(s){
@@ -4893,8 +4888,8 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
         if(v&&v.id!==clientId&&Number(v.until)>now)return;
         return {id:clientId,until:now+OWNER_MS,at:firebase.database.ServerValue.TIMESTAMP};
       },undefined,false);
-      owner=!!(tr.committed&&tr.snapshot.val()?.id===clientId); window.__mpSharedOwner=owner; return owner;
-    }catch(e){owner=false;window.__mpSharedOwner=false;return false}
+      owner=!!(tr.committed&&tr.snapshot.val()?.id===clientId); return owner;
+    }catch(e){owner=false;return false}
   }
   async function publish(){
     if(!owner||applying||!ref||typeof window.mpCapturePokerSession!=='function')return;
@@ -4907,11 +4902,11 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     applying=true;try{window.mpRestorePokerSession&&window.mpRestorePokerSession(v.data)}finally{setTimeout(()=>applying=false,80)}
   }
   async function attach(id,seed){
-    tableId=String(id); window.__mpSharedActive=true; window.__mpSharedOwner=false; ref=stateRef(tableId); if(!ref){window.__mpSharedActive=false;return;}
+    tableId=String(id); ref=stateRef(tableId); if(!ref)return;
     ownerRef=ref.child('owner');
     try{
       const snap=await ref.child('state').once('value'); const remote=snap.val();
-      if(remote?.data){ owner=false;window.__mpSharedOwner=false;applyRemote(remote); }
+      if(remote?.data){ applyRemote(remote); }
       else { owner=await claimOwner(); if(owner){ await ref.child('state').set({data:cleanState(seed),updatedAt:firebase.database.ServerValue.TIMESTAMP,owner:clientId}); } }
       ref.child('state').off('value'); ref.child('state').on('value',s=>applyRemote(s.val()));
     }catch(e){console.warn('shared table attach',e)}
@@ -4923,7 +4918,6 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   }
   const oldJoin=window.join;
   if(typeof oldJoin==='function') window.join=async function(id){
-    window.__mpSharedActive=true;window.__mpSharedOwner=false;
     const r=await oldJoin.apply(this,arguments);
     const seed=window.mpCapturePokerSession&&window.mpCapturePokerSession();
     if(seed?.currentTable){
@@ -4938,7 +4932,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   if(typeof oldLeave==='function') window.leaveTable=function(){
     clearInterval(timer);timer=null;
     if(ownerRef&&owner){ownerRef.transaction(v=>v?.id===clientId?null:v).catch(()=>{})}
-    if(ref)ref.child('state').off('value'); owner=false;window.__mpSharedOwner=false;window.__mpSharedActive=false;ref=null;ownerRef=null;tableId='';
+    if(ref)ref.child('state').off('value'); owner=false;ref=null;ownerRef=null;tableId='';
     return oldLeave.apply(this,arguments);
   };
   window.addEventListener('pagehide',()=>{try{if(ownerRef&&owner)ownerRef.transaction(v=>v?.id===clientId?null:v)}catch(e){}});
