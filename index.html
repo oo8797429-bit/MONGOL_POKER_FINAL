@@ -4946,7 +4946,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(!name||chips<=0)return toast('Bot нэр, chip-ээ шалгана уу');
     if(!t||t.open===false||gt(t)!==game)return toast('Суулгах ширээгээ сонгоно уу');
     var b={id:'b'+Date.now(),name:name,chips:chips,startingChips:chips,assignedBuyIn:chips,adminCreated:true,gameType:game,assignedTableId:String(t.id),selectedTableId:String(t.id),tableId:String(t.id),manualUnseated:false};
-    db.bots.push(b); save(); if(typeof mpPublishSharedLobby==='function')mpPublishSharedLobby(); renderAdmin(); toast(name+' → '+t.name);
+    db.bots.push(b); save(); if(typeof mpPublishSharedLobby==='function')mpPublishSharedLobby(); renderAdmin(); toast('✅ '+name+' bot үүслээ • '+t.name);
   };
   window.mpBotAutoSeat=function(id){
     if(!adminOK())return toast('Зөвхөн админ'); var b=byBot(id); if(!b)return;
@@ -4968,6 +4968,25 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   window.renderAdmin=function(){var r=oldRender&&oldRender.apply(this,arguments);try{var s=document.getElementById('botAllowedBuyIn');if(s){var auto=document.getElementById('botAutoSeatToggle');if(auto){auto.checked=true;auto.disabled=true;}window.mpRefreshBotTableChoices();var note=s.closest('.adminCard');if(note){var w=note.querySelector('.mpbd-warn');if(w)w.textContent='✓ Bot зөвхөн админы сонгосон ширээнд сууна. Chip хүрэх эсэхээр өөр ширээ рүү шилжихгүй.';var n=note.querySelector('.mpbd-note');if(n)n.innerHTML='ℹ️ Сонгосон ширээ нь bot-д түгжигдэнэ. Өөр ширээнд автоматаар суухгүй. <b>Админы өгсөн chip 0 болмогц шууд гарч, өөрөө дахиж суухгүй.</b>';}}}catch(e){}return r};
   document.addEventListener('change',function(e){if(e.target&&e.target.id==='botGameType')window.mpRefreshBotTableChoices()});
   setTimeout(function(){try{window.mpRefreshBotTableChoices()}catch(e){}},700);
+})();
+</script>
+
+<script id="mp-bot-create-delete-confirm-v1">
+(function(){
+  window.deleteBot=function(id){
+    try{
+      if(!(typeof currentUser!=="undefined" && currentUser && currentUser.role==="admin")) return toast('Зөвхөн админ');
+      var list=(db.bots||[]), b=list.find(function(x){return String(x.id)===String(id)});
+      if(!b)return toast('Bot олдсонгүй');
+      var name=b.name||'Bot';
+      db.bots=list.filter(function(x){return String(x.id)!==String(id)});
+      if(typeof players!=="undefined" && Array.isArray(players)) players=players.filter(function(p){return !p || String(p.botId||'')!==String(id)});
+      save();
+      try{if(typeof mpPublishSharedLobby==='function')mpPublishSharedLobby()}catch(e){}
+      try{renderAdmin()}catch(e){}
+      toast('✅ '+name+' bot устгагдлаа');
+    }catch(e){toast('Bot устгахад алдаа гарлаа')}
+  };
 })();
 </script>
 </body></html>
