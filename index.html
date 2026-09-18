@@ -2896,55 +2896,6 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     toCall=0;
     setTimeout(nextStreet,450);
   };
-  async function runRaiseCallToShowdown(targetBet){
-    stopUserTurnClock();
-    liveRoundBusy=true;
-    liveTurn=-1;
-    targetBet=Math.max(0,Number(targetBet)||0);
-
-    // A raise locks the remaining players into the hand: everybody matches
-    // the raise, then the board runs out to showdown with no random folds.
-    for(let i=1;i<players.length;i++){
-      if(!tableSession||finished)return;
-      if(folded[i])continue;
-      const need=owedToTarget(i,targetBet);
-      const paid=pay(i,need);
-      liveSeatStatus[i]=(players[i].chips<=0&&need>0)?'БҮГДИЙГ НЬ':'CALL '+fmt(liveSeatBets[i]||paid);
-      setStatus(players[i].name+' • Call '+fmt(paid));
-      renderGame();
-      await wait(420);
-    }
-
-    toCall=0;
-    const alive=aliveSeats();
-    if(alive.length<=1){
-      liveRoundBusy=false;
-      finishSingleWinner(alive[0]);
-      return;
-    }
-
-    async function runStreet(label,nextStreetNo,dealCount){
-      liveSeatBets=players.map(()=>0);
-      liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'CALL');
-      liveSeatStatus[0]='RAISE';
-      burnOne();
-      for(let n=0;n<dealCount;n++)if(deck.length)boardCards.push(deck.pop());
-      street=nextStreetNo;
-      setStatus(label+' • Бүгд CALL');
-      $('game')?.classList.add('boardAnim');
-      renderGame();
-      setTimeout(()=>$('game')?.classList.remove('boardAnim'),450);
-      await wait(700);
-    }
-
-    if(street===0)await runStreet('Flop',1,3);
-    if(street===1)await runStreet('Turn',2,1);
-    if(street===2)await runStreet('River',3,1);
-
-    liveRoundBusy=false;
-    showdown();
-  }
-
   confirmRaise=async function(){
     if(!adminAllows('gameplay'))return;
     if(finished||spectator||liveRoundBusy||liveTurn!==0)return;
