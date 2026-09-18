@@ -2956,7 +2956,11 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     $('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');
     setStatus('Та '+fmt(raiseTo)+' хүртэл Raise хийлээ');
     renderGame();
-    await runRaiseCallToShowdown(raiseTo);
+    // Standard betting flow: after a raise, the remaining players get their
+    // normal action for this street. Do not force CALL and run straight to showdown.
+    await botRound(raiseTo);
+    toCall=0;
+    setTimeout(nextStreet,450);
   };
 
   nextStreet=function(){
