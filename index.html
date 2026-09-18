@@ -1303,6 +1303,35 @@ async function mpEnsureWriter(){
 }
 
 let mpSharedLobbyRef=null;
+/* REAL MULTI-TABLE PRESENCE: keeps a user's seats visible on every table they joined. */
+let mpTablePresenceRef=null,mpTablePresence={};
+function mpPresenceUserKey(){
+  const raw=String(currentUser?.id||currentUser?.name||mpAuth?.currentUser?.uid||'guest');
+  return raw.replace(/[.#$\[\]\/]/g,'_').slice(0,120)||'guest';
+}
+async function mpStartTablePresence(){
+  if(!mpRtdb)return false;
+  try{if(!mpAuth?.currentUser)try{await mpEnsureWriter()}catch(e){}
+    if(mpTablePresenceRef)try{mpTablePresenceRef.off()}catch(e){}
+    mpTablePresenceRef=mpRtdb.ref('tablePresence');
+    mpTablePresenceRef.on('value',snap=>{mpTablePresence=snap.val()||{};try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}});
+    return true;
+  }catch(e){console.warn('Table presence listener failed',e);return false}
+}
+async function mpSetTablePresence(table,seated=true,stack=0){
+  if(!mpRtdb||!table||!currentUser)return false;
+  try{if(!mpAuth?.currentUser)await mpEnsureWriter();
+    const tk=String(table.id||'').replace(/[.#$\[\]\/]/g,'_'),uk=mpPresenceUserKey();
+    const ref=mpRtdb.ref('tablePresence/'+tk+'/'+uk);
+    if(!seated){await ref.remove();return true}
+    await ref.set({userId:String(currentUser.id||''),name:String(currentUser.name||currentUser.id||'Тоглогч'),tableId:String(table.id||''),stack:Math.max(0,Number(stack)||0),updatedAt:firebase.database.ServerValue.TIMESTAMP});return true;
+  }catch(e){console.warn('Table presence write failed',e);return false}
+}
+function mpHumanCountForTable(tableId){
+  const tk=String(tableId||'').replace(/[.#$\[\]\/]/g,'_'),v=mpTablePresence?.[tk]||{};
+  return Object.values(v).filter(Boolean).length;
+}
+
 function mpSharedLobbyPayload(){
   return {
     _type:'sharedLobby',
@@ -1326,6 +1355,7 @@ function mpStopSharedLobby(){
 }
 async function mpStartSharedLobby(opts={}){
   if(!mpRtdb)return false;
+  mpStartTablePresence();
   try{
     /* SERVER-FIRST SYNC: opening/login must never overwrite Firebase with this browser's old localStorage.
        Admin changes are published only from explicit admin actions (create/delete/toggle/save). */
@@ -1843,7 +1873,7 @@ function renderTables(){
     const game=t.type==='omaha'?'OMAHA':"HOLD’EM";
     return `<div class="tableRow premiumTableCard tone-${tone}" onclick="join('${t.id}')" role="button" aria-label="${t.name} ширээ үзэх">
       <div class="premiumTableArt" style="background-image:url('${thumb}')"><span class="premiumTableBadge">MP<br><small>${suit} ${game}</small></span></div>
-      <div class="tableMain"><div class="tableName">${t.name} - ${suit} ${game}</div><div class="rakeLine">🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta"><span>👥 ${Math.min(10,(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&String(b.tableId||'')===String(t.id||'')).length)}/10</span><span>🪙 ${fmt(t.sb)}/${fmt(t.bb)}</span><br><span>Дундаж бооцоо: ${avg}</span></div></div>
+      <div class="tableMain"><div class="tableName">${t.name} - ${suit} ${game}</div><div class="rakeLine">🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta"><span>👥 ${Math.min(10,(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&String(b.tableId||'')===String(t.id||'')).length+mpHumanCountForTable(t.id))}/10</span><span>🪙 ${fmt(t.sb)}/${fmt(t.bb)}</span><br><span>Дундаж бооцоо: ${avg}</span></div></div>
       <div class="join"><button ${t.open?'':'disabled'} onclick="event.stopPropagation();join('${t.id}')">Орох дүн<br><b>${fmt(t.buy)}</b></button></div>
     </div>`;
   }).join('')||'<div class="empty">Тохирох ширээ алга</div>';
@@ -1998,8 +2028,8 @@ function createBot(){
 function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
 function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();mpPublishSharedLobby();renderAdmin()}
-function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=mpBotsForTable(t.id,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(0,Number(b.chips)||0),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
-function leaveTable(){let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
+function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=mpBotsForTable(t.id,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(0,Number(b.chips)||0),emoji:emos[i+1],botId:b.id}))];save();mpSetTablePresence(t,true,t.buy);$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
+function leaveTable(){let leavingTable=currentTable,me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable&&leavingTable)mpSetTablePresence(leavingTable,false);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
 function makeDeck(){
   const s=['♠','♥','♦','♣'],r=[2,3,4,5,6,7,8,9,10,11,12,13,14],d=[];
   for(const a of s)for(const b of r)d.push({s:a,r:b});
@@ -3089,7 +3119,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     burnedCards=cp(s.burnedCards||[]);showdownInfo=cp(s.showdownInfo||[]);showdownWinners=cp(s.showdownWinners||[]);dealSessionToken=(Number(s.dealSessionToken)||0)+1;
     if($('gameName'))$('gameName').textContent=currentTable.name+' • '+(currentTable.type==='omaha'?'OMAHA':'HOLDEM');
     if($('gameBlind'))$('gameBlind').textContent=fmt(currentTable.sb)+'/'+fmt(currentTable.bb)+' • 9 MAX';
-    show('game');if(s.statusText)setStatus(s.statusText);renderGame();
+    show('game');if(userSeatedAtTable){const me=players.find(p=>p&&p.user);mpSetTablePresence(currentTable,true,Number(me?.chips||0));}if(s.statusText)setStatus(s.statusText);renderGame();
     if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
     return true;
   };
@@ -3999,7 +4029,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   window.mpCtlWatch=function(){window.mpCloseTableControls();spectate();mpSfx('check')};
   window.mpCtlSeatSwitch=function(){window.mpCloseTableControls();window.mpStartSeatSwitch?.()};
   window.mpCtlAddMoney=function(){window.mpCloseTableControls();openAddMoney()};
-  function captureCurrent(){if(!currentTable||!tableSession||!window.mpCapturePokerSession)return null;const s=window.mpCapturePokerSession();sessions[String(currentTable.id)]=s;safeSaveSessions();return s}
+  function captureCurrent(){if(!currentTable||!tableSession||!window.mpCapturePokerSession)return null;const s=window.mpCapturePokerSession();sessions[String(currentTable.id)]=s;safeSaveSessions();const me=(s.players||[]).find(p=>p&&p.user);if(s.userSeatedAtTable!==false)mpSetTablePresence(currentTable,true,Number(me?.chips||0));return s}
   let saveTimer=0;function scheduleCapture(){if(!currentTable||!tableSession||!userSeatedAtTable)return;clearTimeout(saveTimer);saveTimer=setTimeout(captureCurrent,700)}
   window.mpCtlDoubleSit=function(){
     if(!currentTable||!userSeatedAtTable){toast('Эхлээд одоогийн ширээнд сууна уу');return}
