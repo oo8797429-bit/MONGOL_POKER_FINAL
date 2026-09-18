@@ -3132,13 +3132,13 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     deck=cp(s.deck||[]);holes=cp(s.holes||[]);boardCards=cp(s.boardCards||[]);players=cp(s.players||[]);folded=cp(s.folded||[]);
     street=Number(s.street)||0;potAmt=Number(s.potAmt)||0;toCall=Number(s.toCall)||0;finished=!!s.finished;handNo=Number(s.handNo)||0;
     liveDealer=Number.isFinite(Number(s.liveDealer))?Number(s.liveDealer):-1;liveSB=Number.isFinite(Number(s.liveSB))?Number(s.liveSB):-1;liveBB=Number.isFinite(Number(s.liveBB))?Number(s.liveBB):-1;
-    liveTurn=userSeatedAtTable&&!finished?0:(Number.isFinite(Number(s.liveTurn))?Number(s.liveTurn):-1);liveWinner=Number.isFinite(Number(s.liveWinner))?Number(s.liveWinner):-1;
-    liveSeatBets=cp(s.liveSeatBets||players.map(()=>0));liveSeatStatus=cp(s.liveSeatStatus||players.map(()=>''));liveRoundBusy=false;turnLeft=TURN_SECONDS;
+    liveTurn=Number.isFinite(Number(s.liveTurn))?Number(s.liveTurn):-1;liveWinner=Number.isFinite(Number(s.liveWinner))?Number(s.liveWinner):-1;
+    liveSeatBets=cp(s.liveSeatBets||players.map(()=>0));liveSeatStatus=cp(s.liveSeatStatus||players.map(()=>''));liveRoundBusy=!!s.liveRoundBusy;turnLeft=Math.max(0,Number.isFinite(Number(s.turnLeft))?Number(s.turnLeft):TURN_SECONDS);
     burnedCards=cp(s.burnedCards||[]);showdownInfo=cp(s.showdownInfo||[]);showdownWinners=cp(s.showdownWinners||[]);dealSessionToken=(Number(s.dealSessionToken)||0)+1;
     if($('gameName'))$('gameName').textContent=currentTable.name+' • '+(currentTable.type==='omaha'?'OMAHA':'HOLDEM');
     if($('gameBlind'))$('gameBlind').textContent=fmt(currentTable.sb)+'/'+fmt(currentTable.bb)+' • 9 MAX';
     show('game');if(s.statusText)setStatus(s.statusText);renderGame();
-    if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
+    if(!finished){if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&liveTurn===0)setTimeout(startUserTurn,450);}
     return true;
   };
 
