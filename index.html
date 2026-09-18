@@ -1962,27 +1962,20 @@ function mpBotGameType(b){return String(b?.gameType||b?.type||'holdem').toLowerC
 function mpAssignBotsEvenly(){
   const tables=(db.tables||[]).filter(t=>t&&t.open!==false);
   let changed=false;
-  ['holdem','omaha'].forEach(gameType=>{
-    const gtables=tables.filter(t=>String(t.type||'holdem').toLowerCase()===gameType);
-    const bots=(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&mpBotGameType(b)===gameType);
-    const counts=Object.fromEntries(gtables.map(t=>[String(t.id),0]));
-    bots.forEach(b=>{
-      if(Number(b.chips||0)<=0){if(b.tableId){b.tableId='';changed=true;}return;}
-      if(counts[String(b.tableId)]!==undefined)counts[String(b.tableId)]++;
-    });
-    bots.forEach(b=>{
-      const chips=Math.max(0,Number(b.chips)||0);
-      if(chips<=0)return;
-      const cur=gtables.find(t=>String(t.id)===String(b.tableId||''));
-      if(cur)return; // seated bot keeps playing its real stack until it reaches 0
-      if(b.manualUnseated===true)return;
-      /* AUTO RULE: admin-created bots may use 5k–500k tables; choose the highest open table the ADMIN-GIVEN starting stack can afford. */
-      const startStack=Math.max(0,Number(b.startingChips||b.assignedBuyIn||b.chips)||0);
-      const eligible=gtables.filter(t=>{const buy=Number(t.buy||0);return buy>=5000 && buy<=500000 && buy<=startStack && counts[String(t.id)]<8;});
-      if(!eligible.length){if(b.tableId){b.tableId='';changed=true;}return;}
-      eligible.sort((a,z)=>Number(z.buy||0)-Number(a.buy||0) || counts[String(a.id)]-counts[String(z.id)] || String(a.id).localeCompare(String(z.id)));
-      b.tableId=String(eligible[0].id);counts[String(eligible[0].id)]++;changed=true;
-    });
+  (db.bots||[]).filter(isAdminCreatedBot).forEach(b=>{
+    const chips=Math.max(0,Number(b.chips)||0);
+    if(chips<=0){
+      if(b.tableId){b.tableId='';changed=true;}
+      b.manualUnseated=true;
+      return;
+    }
+    if(b.manualUnseated===true)return;
+    /* LOCKED TABLE RULE: a bot may sit ONLY at the exact table selected by admin. */
+    const lockedId=String(b.assignedTableId||b.selectedTableId||'');
+    if(!lockedId){ if(b.tableId){b.tableId='';changed=true;} return; }
+    const target=tables.find(t=>String(t.id)===lockedId && mpBotGameType(t)===mpBotGameType(b));
+    if(!target){ if(b.tableId){b.tableId='';changed=true;} return; }
+    if(String(b.tableId||'')!==lockedId){b.tableId=lockedId;changed=true;}
   });
   return changed;
 }
@@ -4929,7 +4922,55 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
  var prev=window.renderAdmin;window.renderAdmin=function(){var r=prev&&prev.apply(this,arguments);try{renderDash()}catch(e){console.error('bot dashboard',e)}return r};
  setTimeout(function(){try{renderDash()}catch(e){}},400);
 })();
-</script>\n</body></html>
+</script>\n
+<script id="mp-bot-locked-selected-table-v3">
+(function(){
+  function adminOK(){try{return !!((typeof mpAuth!=='undefined'&&mpAuth&&mpAuth.currentUser&&typeof MP_ADMIN_UID!=='undefined'&&mpAuth.currentUser.uid===MP_ADMIN_UID)||(typeof currentUser!=='undefined'&&currentUser&&currentUser.role==='admin'))}catch(e){return false}}
+  function byBot(id){return (db.bots||[]).find(function(b){return String(b.id)===String(id)})}
+  function byTable(id){return (db.tables||[]).find(function(t){return String(t.id)===String(id)})}
+  function gt(x){return String((x&&x.gameType)||(x&&x.type)||'holdem').toLowerCase()==='omaha'?'omaha':'holdem'}
+  function openChoices(game){return (db.tables||[]).filter(function(t){return t&&t.open!==false&&gt(t)===game}).sort(function(a,z){return Number(a.buy||0)-Number(z.buy||0)})}
+  window.mpRefreshBotTableChoices=function(){
+    var game=(document.getElementById('botGameType')||{}).value||'holdem', sel=document.getElementById('botAllowedBuyIn'); if(!sel)return;
+    var prev=sel.value, ts=openChoices(game);
+    sel.innerHTML='<option value="">— Ширээ сонгоно уу —</option>'+ts.map(function(t){return '<option value="'+String(t.id)+'">'+t.name+' — '+fmt(Number(t.buy||0))+' ('+fmt(t.sb)+'/'+fmt(t.bb)+')</option>'}).join('');
+    if(Array.from(sel.options).some(function(o){return o.value===prev}))sel.value=prev;
+  };
+  window.mpBotDashboardCreate=function(){
+    if(!adminOK())return toast('Зөвхөн админ');
+    var name=((document.getElementById('botName')||{}).value||'').trim();
+    var chips=Number((document.getElementById('botChips')||{}).value||0);
+    var game=(document.getElementById('botGameType')||{}).value||'holdem';
+    var tid=(document.getElementById('botAllowedBuyIn')||{}).value||'';
+    var t=byTable(tid);
+    if(!name||chips<=0)return toast('Bot нэр, chip-ээ шалгана уу');
+    if(!t||t.open===false||gt(t)!==game)return toast('Суулгах ширээгээ сонгоно уу');
+    var b={id:'b'+Date.now(),name:name,chips:chips,startingChips:chips,assignedBuyIn:chips,adminCreated:true,gameType:game,assignedTableId:String(t.id),selectedTableId:String(t.id),tableId:String(t.id),manualUnseated:false};
+    db.bots.push(b); save(); if(typeof mpPublishSharedLobby==='function')mpPublishSharedLobby(); renderAdmin(); toast(name+' → '+t.name);
+  };
+  window.mpBotAutoSeat=function(id){
+    if(!adminOK())return toast('Зөвхөн админ'); var b=byBot(id); if(!b)return;
+    if(Number(b.chips||0)<=0)return toast('Bot chip дууссан');
+    var t=byTable(b.assignedTableId||b.selectedTableId);
+    if(!t||t.open===false||gt(t)!==gt(b))return toast('Сонгосон ширээ нээлттэй биш байна');
+    b.tableId=String(t.id); b.manualUnseated=false; save(); if(typeof mpPublishSharedLobby==='function')mpPublishSharedLobby(); renderAdmin(); toast(b.name+' → '+t.name);
+  };
+  window.mpBotSeatTo=function(id){
+    if(!adminOK())return toast('Зөвхөн админ'); var b=byBot(id); if(!b)return;
+    var ts=openChoices(gt(b)); if(!ts.length)return toast('Нээлттэй ширээ алга');
+    var msg=ts.map(function(t,i){return (i+1)+'. '+t.name+' ('+fmt(Number(t.buy||0))+')'}).join('\\n');
+    var pick=Number(prompt('Суулгах ширээ:\\n'+msg)), t=ts[pick-1]; if(!t)return;
+    b.assignedTableId=String(t.id); b.selectedTableId=String(t.id); b.tableId=String(t.id); b.manualUnseated=false;
+    save(); if(typeof mpPublishSharedLobby==='function')mpPublishSharedLobby(); renderAdmin(); toast(b.name+' → '+t.name);
+  };
+  /* Re-apply choices after admin rendering because the dashboard rebuilds its select. */
+  var oldRender=window.renderAdmin;
+  window.renderAdmin=function(){var r=oldRender&&oldRender.apply(this,arguments);try{var s=document.getElementById('botAllowedBuyIn');if(s){var auto=document.getElementById('botAutoSeatToggle');if(auto){auto.checked=true;auto.disabled=true;}window.mpRefreshBotTableChoices();var note=s.closest('.adminCard');if(note){var w=note.querySelector('.mpbd-warn');if(w)w.textContent='✓ Bot зөвхөн админы сонгосон ширээнд сууна. Chip хүрэх эсэхээр өөр ширээ рүү шилжихгүй.';var n=note.querySelector('.mpbd-note');if(n)n.innerHTML='ℹ️ Сонгосон ширээ нь bot-д түгжигдэнэ. Өөр ширээнд автоматаар суухгүй. <b>Админы өгсөн chip 0 болмогц шууд гарч, өөрөө дахиж суухгүй.</b>';}}}catch(e){}return r};
+  document.addEventListener('change',function(e){if(e.target&&e.target.id==='botGameType')window.mpRefreshBotTableChoices()});
+  setTimeout(function(){try{window.mpRefreshBotTableChoices()}catch(e){}},700);
+})();
+</script>
+</body></html>
 
 <style id="mp-plus-seat-visibility-fix">
 /* Only restore the spectator + seat button visibility. */
