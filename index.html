@@ -1047,6 +1047,20 @@
 <style id="MP-BOT-NO-START-CHIP-INPUT">
 .mpBotStartChipHidden{display:none!important}
 </style>
+<style id="MP-BB-SB-LONG-SHADOW-FIX">
+#game .seat .blind,#game .seat .blindBadge,#game .seat .positionBadge{
+ min-height:0!important;max-height:38px!important;
+}
+#game .seat .blind::before,#game .seat .blind::after,
+#game .seat .blindBadge::before,#game .seat .blindBadge::after,
+#game .seat .positionBadge::before,#game .seat .positionBadge::after{
+ height:auto!important;max-height:38px!important;bottom:auto!important;
+}
+</style>
+<style id="MP-SHADOW-ONE-FIX">
+#game .pokerTable .seat .seatStatus,#game .pokerTable .seat .blindTag{height:18px!important;min-height:18px!important;max-height:18px!important;line-height:12px!important;padding:2px 6px!important;box-sizing:border-box!important;overflow:hidden!important;writing-mode:horizontal-tb!important}
+#game .pokerTable .seat .seatStatus::before,#game .pokerTable .seat .seatStatus::after,#game .pokerTable .seat .blindTag::before,#game .pokerTable .seat .blindTag::after{height:0!important;max-height:0!important;box-shadow:none!important}
+</style>
 </head>
 <body>
 <div class="app">
@@ -1161,7 +1175,7 @@
 <section id="admin" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Админ</div><button></button></header><div class="admin">
 <div class="adminCard"><h3>Ширээ нээх</h3><div class="field"><label>Төрөл</label><select id="newType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Нэр</label><input id="newName" placeholder="25K ШИРЭЭ"></div><div class="field"><label>SB / BB</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="newSB" type="number" value="500"><input id="newBB" type="number" value="1000"></div></div><div class="field"><label>Орох дүн</label><input id="newBuy" type="number" value="25000"></div><button class="primary" onclick="createTable()">Ширээ нээх</button></div>
 <div class="adminCard"><h3>Хэрэглэгчид chip нэмэх</h3><div class="field"><label>Хэрэглэгчийн ID</label><input id="chipUserId" placeholder="user ID"></div><div class="field"><label>Нэмэх chip</label><input id="chipAmount" type="number" value="25000"></div><button class="primary" onclick="adminAddChips()">Chip нэмэх</button><div id="adminUsers"></div></div>
-<div class="adminCard"><h3>Bot үүсгэх</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Bot төрөл</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><div class="mpBotStartChipHidden" style="display:none!important"><label>Эхлэх chip</label><input id="botChips" type="number" value="25000"></div></div><button class="primary" onclick="createBot()">Bot үүсгэх</button><div id="adminBots"></div></div>
+<div class="adminCard"><h3>Bot үүсгэх</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Bot төрөл</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><div class="mpBotStartChipHidden"><label>Эхлэх chip</label><input id="botChips" type="number" value="30000"></div></div><button class="primary" onclick="createBot()">Bot үүсгэх</button><div id="adminBots"></div></div>
 <div class="adminCard"><h3>Ширээнүүд</h3><div id="adminTables"></div></div>
 <div class="adminCard" id="adminTournamentCard"><h3>🏆 Тэмцээн удирдлага</h3>
 <input id="tourEditId" type="hidden">
@@ -1952,7 +1966,6 @@ function mpAssignBotsEvenly(){
     const gtables=tables.filter(t=>String(t.type||'holdem').toLowerCase()===gameType);
     const bots=(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&mpBotGameType(b)===gameType);
     const counts=Object.fromEntries(gtables.map(t=>[String(t.id),0]));
-    // A busted bot leaves its seat and stays in Admin until chips are added manually.
     bots.forEach(b=>{
       if(Number(b.chips||0)<=0){if(b.tableId){b.tableId='';changed=true;}return;}
       if(counts[String(b.tableId)]!==undefined)counts[String(b.tableId)]++;
@@ -1961,14 +1974,11 @@ function mpAssignBotsEvenly(){
       if(Number(b.chips||0)<=0)return;
       const cur=gtables.find(t=>String(t.id)===String(b.tableId||''));
       if(cur)return;
-      // Prefer a table whose buy-in fits this bot's chips; among those use the closest buy-in,
-      // then the least occupied table. If none fit, keep the bot unseated until Admin adds chips.
-      const eligible=gtables.filter(t=>Number(t.buy||0)<=Number(b.chips||0) && counts[String(t.id)]<8);
+      /* Admin gives a bot N chips -> seat it only at an open table whose buy-in is exactly N. */
+      const targetBuyIn=Number(b.assignedBuyIn||b.chips||0);
+      const eligible=gtables.filter(t=>Number(t.buy||0)===targetBuyIn && counts[String(t.id)]<8);
       if(!eligible.length){if(b.tableId){b.tableId='';changed=true;}return;}
-      eligible.sort((a,z)=>{
-        const da=Math.abs(Number(b.chips)-Number(a.buy||0)), dz=Math.abs(Number(b.chips)-Number(z.buy||0));
-        return da-dz || counts[String(a.id)]-counts[String(z.id)] || Number(a.buy||0)-Number(z.buy||0);
-      });
+      eligible.sort((a,z)=>counts[String(a.id)]-counts[String(z.id)] || String(a.id).localeCompare(String(z.id)));
       b.tableId=String(eligible[0].id);counts[String(eligible[0].id)]++;changed=true;
     });
   });
@@ -1985,15 +1995,10 @@ function createBot(){
   let name=$('botName').value.trim(),chips=+$('botChips').value;
   const gameType=String($('botGameType')?.value||'holdem').toLowerCase()==='omaha'?'omaha':'holdem';
   if(!name||chips<=0)return toast('Bot мэдээллээ шалгана уу');
-  const tables=(db.tables||[]).filter(t=>t&&t.open!==false&&String(t.type||'holdem').toLowerCase()===gameType);
-  let tableId='';
-  if(tables.length){
-    const counts=Object.fromEntries(tables.map(t=>[String(t.id),0]));
-    (db.bots||[]).filter(b=>isAdminCreatedBot(b)&&mpBotGameType(b)===gameType).forEach(b=>{if(counts[String(b.tableId)]!==undefined)counts[String(b.tableId)]++});
-    tableId=String(tables.slice().sort((a,z)=>counts[String(a.id)]-counts[String(z.id)])[0].id);
-  }
-  db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true,gameType,tableId});
-  mpAssignBotsEvenly();save();mpPublishSharedLobby();$('botName').value='';renderAdmin();const nb=db.bots[db.bots.length-1],nt=(db.tables||[]).find(t=>String(t.id)===String(nb.tableId||''));toast((gameType==='omaha'?'Omaha':'Texas')+' bot үүсгэлээ'+(nt?' • '+nt.name+' ширээнд суулаа':' • chip хүрэх ширээ алга'));
+  db.bots.push({id:'b'+Date.now(),name,chips,assignedBuyIn:chips,adminCreated:true,gameType,tableId:''});
+  mpAssignBotsEvenly();save();mpPublishSharedLobby();$('botName').value='';renderAdmin();
+  const nb=db.bots[db.bots.length-1],nt=(db.tables||[]).find(t=>String(t.id)===String(nb.tableId||''));
+  toast((gameType==='omaha'?'Omaha':'Texas')+' bot үүсгэлээ'+(nt?' • '+fmt(chips)+' орох дүнтэй '+nt.name+' ширээнд суулаа':' • '+fmt(chips)+' орох дүнтэй ширээ алга'));
 }
 function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
@@ -2020,7 +2025,7 @@ function pay(i,n){let x=Math.min(players[i].chips,Math.max(0,n));players[i].chip
 function setStatus(s){$('status').textContent=s}
 function renderGame(){$('pot').textContent='Pot: '+fmt(potAmt);$('board').innerHTML=[0,1,2,3,4].map(i=>card(boardCards[i]||null)).join('');$('seats').innerHTML=players.map((p,i)=>`<div class="seat s${i}" style="opacity:${folded[i]?'.45':'1'}"><div class="pic">${p.emoji}</div><div class="nm">${p.name}</div><div class="stack">${fmt(p.chips)}</div></div>`).join('');$('mycards').innerHTML=spectator?'':(holes[0]||[]).map(card).join('');$('checkBtn').disabled=toCall>0;$('checkBtn').style.opacity=toCall>0?'.35':'1';$('callBtn').textContent=toCall>0?'CALL '+fmt(Math.min(toCall,players[0].chips)):'CHECK';$('callBtn').style.opacity=toCall>0?'1':'.5'}
 function bots(amount=0){for(let i=1;i<players.length;i++){if(folded[i])continue;if(Math.random()<.12)folded[i]=true;else pay(i,amount)}}
-function fold(){if(!adminAllows('gameplay'))return;if(finished||spectator)return;folded[0]=true;let alive=[1,2,3,4,5].filter(i=>!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;save();setStatus('Та Fold хийлээ • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');renderGame();setTimeout(newHand,1200)}
+function fold(){if(!adminAllows('gameplay'))return;if(finished||spectator)return;folded[0]=true;let alive=[1,2,3,4,5].filter(i=>!folded[i]);let w=alive[Math.floor(Math.random()*alive.length)]||1;let p=takeRakeFromPot();players[w].chips+=p.net;potAmt=0;finished=true;setStatus('Та Fold хийлээ • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');renderGame();syncUser();setTimeout(newHand,1200)}
 function checkCall(){if(!adminAllows('gameplay'))return;if(finished||spectator)return;pay(0,toCall);bots(street===0?currentTable.bb:0);toCall=0;setTimeout(nextStreet,300)}
 function nextStreet(){if(street===0){boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop')}else if(street===1){boardCards.push(deck.pop());street=2;setStatus('Turn')}else if(street===2){boardCards.push(deck.pop());street=3;setStatus('River — Таны ээлж')}else{return showdown()}renderGame()}
 function showRaise(){if(!adminAllows('gameplay'))return;if(finished||spectator)return;$('baseActions').classList.add('hidden');$('raisePanel').classList.remove('hidden');let min=Math.max(currentTable.bb*2,toCall+currentTable.bb),max=Math.max(min,players[0].chips);$('raiseSlider').min=min;$('raiseSlider').max=max;$('raiseSlider').step=currentTable.bb;$('raiseSlider').value=Math.min(max,Math.max(min,currentTable.bb*3));updateRaise()}
@@ -2044,7 +2049,7 @@ function chooseSeat(slot){
   const seatEl=document.querySelector('#seats .emptySeat.s'+slot);if(!seatEl)return toast('Энэ суудал эзэнтэй байна');
   currentUser.chips-=currentTable.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;
   const emos=['🧔','👩','🤠','🧑','👨','🧕','👩‍🦰','🧑‍🦱'];
-  const botPlayers=mpBotsForTable(currentTable.id,8).map((b,i)=>({name:b.name,chips:Math.max(currentTable.buy,Number(b.chips)||currentTable.buy),emoji:emos[i]||'🙂',botId:b.id}));
+  const botPlayers=mpBotsForTable(currentTable.id,8).map((b,i)=>({name:b.name,chips:Math.max(0,Number(b.chips)||0),emoji:emos[i]||'🙂',botId:b.id}));
   players=[{name:currentUser.name,chips:currentTable.buy,emoji:'😎',user:true},...botPlayers];
   userSeatedAtTable=true;userSeatSlot=slot;spectator=false;handNo=0;
   if($('mycards')){$('mycards').innerHTML='';$('mycards').dataset.hand='';}
@@ -4762,12 +4767,12 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       if(chip<=0)return;
       var ts=openTables();
       if(!ts.length)return;
-      ts.sort(function(a,b){
-        var aa=n(a.buyIn||a.buyin||a.minBuyIn||a.minBuyin||a.bb||0);
-        var bb=n(b.buyIn||b.buyin||b.minBuyIn||b.minBuyin||b.bb||0);
-        return Math.abs(aa-chip)-Math.abs(bb-chip);
+      /* Exact only: a bot may sit only where table buy-in equals its assigned starting chips. */
+      var target=n(bot.assignedBuyIn||chip);
+      var t=ts.find(function(x){
+        return n(x.buy||x.buyIn||x.buyin||x.minBuyIn||x.minBuyin||0)===target;
       });
-      var t=ts[0];
+      if(!t)return;
       if(typeof autoSeatBot==='function')return autoSeatBot(bot,t);
       if(typeof seatBot==='function')return seatBot(bot,t);
       if(typeof assignBotToTable==='function')return assignBotToTable(bot,t);
@@ -4784,6 +4789,83 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   };
 })();
 </script>
+
+<script id="MP-DEVICE-SEAT-SYNC">
+(function(){
+  var applying=false,lastSent='',boundTable='';
+  function tid(){
+    try{return String((window.currentTable&&(currentTable.id||currentTable.name))||window.currentTableId||'');}
+    catch(e){return ''}
+  }
+  function ref(){
+    try{
+      var id=tid(); if(!id||!window.mpRtdb)return null;
+      return window.mpRtdb.ref('sharedLobby/tableSeats/'+id);
+    }catch(e){return null}
+  }
+  function els(){
+    var root=document.querySelector('#game .pokerTable')||document.querySelector('.pokerTable');
+    return root?Array.from(root.querySelectorAll('.seat')):[];
+  }
+  function snap(){
+    var a=[];
+    els().forEach(function(el,i){
+      var empty=/^\s*СУУХ\s*$/i.test(el.textContent||'')||el.classList.contains('empty');
+      var nameEl=el.querySelector('.name,.playerName,[class*="name"]');
+      var chipEl=el.querySelector('.chips,.chip,.stack,[class*="chip"]');
+      var av=el.querySelector('img');
+      a[i]={
+        empty:empty,
+        html:empty?'':el.innerHTML,
+        name:nameEl?(nameEl.textContent||''):'',
+        chips:chipEl?(chipEl.textContent||''):'',
+        avatar:av?(av.getAttribute('src')||''):''
+      };
+    });
+    return a;
+  }
+  function publish(){
+    if(applying)return;
+    var r=ref(); if(!r)return;
+    var a=snap(),j=JSON.stringify(a);
+    if(!a.length||j===lastSent)return;
+    lastSent=j;
+    try{r.set({seats:a,updatedAt:Date.now()})}catch(e){}
+  }
+  function apply(v){
+    if(!v||!Array.isArray(v.seats))return;
+    var ss=els(); if(!ss.length)return;
+    applying=true;
+    v.seats.forEach(function(p,i){
+      var el=ss[i]; if(!el||!p)return;
+      if(p.empty){
+        if(!/СУУХ/i.test(el.textContent||'')){
+          el.innerHTML='<button class="sitBtn">СУУХ</button>';
+          el.classList.add('empty');
+        }
+      }else if(p.html){
+        el.innerHTML=p.html;
+        el.classList.remove('empty');
+      }
+    });
+    setTimeout(function(){applying=false},80);
+  }
+  function bind(){
+    var id=tid(); if(!id||id===boundTable||!window.mpRtdb)return;
+    boundTable=id;
+    try{
+      window.mpRtdb.ref('sharedLobby/tableSeats/'+id).on('value',function(s){
+        try{apply(s.val())}catch(e){}
+      });
+    }catch(e){}
+  }
+  setInterval(function(){bind();publish()},900);
+  document.addEventListener('DOMContentLoaded',bind);
+})();
+</script>
+
+
+
 </body></html>
 
 <style id="mp-plus-seat-visibility-fix">
