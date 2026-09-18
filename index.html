@@ -2925,7 +2925,9 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     renderGame();
     await botRound(targetBet);
     toCall=0;
-    setTimeout(nextStreet,450);
+    // Betting round is complete: advance immediately so the table cannot remain
+    // stuck showing CALL/BB statuses with a fresh 20-second timer.
+    if(tableSession&&!finished) nextStreet();
   };
   confirmRaise=async function(){
     if(!adminAllows('gameplay'))return;
@@ -2942,7 +2944,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     // normal action for this street. Do not force CALL and run straight to showdown.
     await botRound(raiseTo);
     toCall=0;
-    setTimeout(nextStreet,450);
+    // All remaining players have answered the raise; move to the next street now.
+    if(tableSession&&!finished) nextStreet();
   };
 
   nextStreet=function(){
