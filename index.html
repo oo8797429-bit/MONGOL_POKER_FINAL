@@ -2824,8 +2824,9 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       .map(slot=>{const waiting=!!(pendingSeatJoin&&pendingSeatJoin.slot===slot);return `<div class="seat s${slot} emptySeat${spectator&&!userSeatedAtTable&&!waiting?' chooseable':''}${waiting?' pendingSeat':''}" ${spectator&&!userSeatedAtTable&&!waiting?`onclick="chooseSeat(${slot})" role="button"`:''}><div class="pic">${waiting?'⏳':'＋'}</div><div class="nm"><span>${waiting?'ДАРААГИЙН ГАР':(spectator&&!userSeatedAtTable?'СУУХ':'СУЛ')}</span></div><div class="stack">${waiting?'ХҮЛЭЭЖ БАЙНА':'—'}</div></div>`})
       .join('');
     $('seats').innerHTML=players.map((p,i)=>{
-      let blind=renderBlindTag(i),bet=liveSeatBets[i]||0,active=i===liveTurn&&!finished;
-      let seatStatus=liveSeatStatus[i]||(folded[i]?'FOLD':'');
+      // A finished hand must not repaint stale action/bet labels behind the winner banner.
+      let blind=renderBlindTag(i),bet=finished?0:(liveSeatBets[i]||0),active=i===liveTurn&&!finished;
+      let seatStatus=finished?'':(liveSeatStatus[i]||(folded[i]?'FOLD':''));
       let statusClass=/БҮГДИЙГ НЬ|ALL IN/i.test(seatStatus)?' allin':/RAISE|BET/i.test(seatStatus)?' raise':/FOLD/i.test(seatStatus)?' fold':'';
       const seatClass='s'+String(seatMap[i]??i);
       return `<div class="seat ${seatClass}${active?' active':''}${(i===liveWinner||showdownWinners.includes(i))?' winner':''}${folded[i]?' folded':''}" data-seat-index="${i}"><div class="pic">${p.emoji}${i===liveDealer?'<span class="dealerDot">D</span>':''}</div>${active?`<div class="turnClock">${Math.max(0,turnLeft)}</div>`:''}${cardsBack(i)}${showdownSeatCards(i)}<div class="nm"><span class="seatFlag">🇲🇳</span><span>${p.name}</span></div><div class="stack">${fmt(p.chips)}</div>${seatStatus?`<div class="seatStatus${statusClass}">${seatStatus}</div>`:''}${showdownSeatLabel(i)}${blind?`<div class="blindTag">${blind}</div>`:''}${bet?`<div class="betTag">${fmt(bet)}</div>`:''}</div>`
@@ -4516,7 +4517,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       // betting controls and per-seat action/bet labels must not remain visible.
       const handFinished=(typeof finished!=='undefined' && !!finished);
       const actionBar=document.querySelector('#game .actionBar');
-      if(actionBar) actionBar.style.display=handFinished?'none':'';
+      if(actionBar){ if(handFinished) actionBar.style.setProperty('display','none','important'); else actionBar.style.removeProperty('display'); }
       if(handFinished){
         rememberedActions={};
         document.querySelectorAll('#game .mpActionBadge,#game .mpBetBubble').forEach(el=>el.remove());
