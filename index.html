@@ -1183,7 +1183,7 @@
 #mpBotControlCard .mpBotCompact .mpBotFull{grid-column:1/-1}
 #mpBotControlCard .mpBotCompact .primary{margin:0;min-height:42px;padding:9px}
 #mpBotControlCard #adminBots{margin-top:10px}
-</style><div class="mpBotCompact"><div class="field"><label for="botName">Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label for="botGameType">Тоглоом</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field mpBotFull"><label for="botChips">Chip / суух ширээний орох дүн</label><input id="botChips" type="number" inputmode="numeric" value="30000" placeholder="Ж: 30000"><div style="font-size:10px;color:#929a9d;margin-top:5px">Bot зөвхөн энэ дүнтэй яг таарах нээлттэй ширээнд автоматаар сууна.</div></div><button class="primary mpBotFull" onclick="createBot()">＋ BOT ҮҮСГЭХ</button></div><div id="mpBotCreateState" style="display:none;margin-top:8px;padding:8px;border:1px solid #2f7654;background:#10261d;color:#58e59b;font-size:12px;border-radius:5px">✓ BOT ҮҮСЛЭЭ</div><div id="adminBots"></div></div>
+</style><div class="mpBotCompact"><div class="field"><label for="botName">Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label for="botGameType">Тоглоом</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field mpBotFull"><label for="botTable">Суух ширээ (админ сонгоно)</label><select id="botTable" onchange="mpBotTableChanged()"><option value="">Ширээ сонгох</option></select></div><div class="field mpBotFull"><label for="botChips">Chip / сонгосон ширээний орох дүн</label><input id="botChips" type="number" inputmode="numeric" value="30000" placeholder="Ж: 30000"><div style="font-size:10px;color:#929a9d;margin-top:5px">Bot зөвхөн админы сонгосон ширээнд сууна.</div></div><button class="primary mpBotFull" onclick="createBot()">＋ BOT ҮҮСГЭХ</button></div><div id="mpBotCreateState" style="display:none;margin-top:8px;padding:8px;border:1px solid #2f7654;background:#10261d;color:#58e59b;font-size:12px;border-radius:5px">✓ BOT ҮҮСЛЭЭ</div><div id="adminBots"></div></div>
 <div class="adminCard"><h3>Ширээнүүд</h3><div id="adminTables"></div></div>
 <div class="adminCard" id="adminTournamentCard"><h3>🏆 Тэмцээн удирдлага</h3>
 <input id="tourEditId" type="hidden">
@@ -1904,7 +1904,7 @@ function renderCash(){
   if($('withdrawHolder')&&!$('withdrawHolder').value)$('withdrawHolder').value=currentUser?.name||'';
   renderWithdrawalHistory();
 }
-function renderAdmin(){if(currentUser?.role==='admin'&&mpAuth?.currentUser?.uid===MP_ADMIN_UID&&!mpRegListenerRef){try{mpStartAdminRegistrationListener()}catch(e){}}if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>{const t=(db.tables||[]).find(x=>String(x.id)===String(b.tableId||''));return `<div style="display:grid;grid-template-columns:1fr auto;gap:5px 8px;align-items:center;padding:9px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> <span style="color:#58e59b">• ҮҮССЭН</span><br><span style="color:#aeb5b7">${mpBotGameType(b)==='omaha'?'OMAHA':'TEXAS'} • ${fmt(b.chips)} chip</span><br><span style="color:${t?'#e7c15a':'#d78383'}">${t?'Суусан: '+t.name:'Яг '+fmt(b.chips)+' орох дүнтэй нээлттэй ширээ алга'}</span></span><button class="smallBtn red" onclick="deleteBot('${b.id}')">УСТГАХ</button></div>`}).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=Number(db.settings.start??0);if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminWithdrawals();renderAdminTournaments();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
+function renderAdmin(){queueMicrotask(mpRenderBotTableOptions);if(currentUser?.role==='admin'&&mpAuth?.currentUser?.uid===MP_ADMIN_UID&&!mpRegListenerRef){try{mpStartAdminRegistrationListener()}catch(e){}}if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>{const t=(db.tables||[]).find(x=>String(x.id)===String(b.tableId||''));return `<div style="display:grid;grid-template-columns:1fr auto;gap:5px 8px;align-items:center;padding:9px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> <span style="color:#58e59b">• ҮҮССЭН</span><br><span style="color:#aeb5b7">${mpBotGameType(b)==='omaha'?'OMAHA':'TEXAS'} • ${fmt(b.chips)} chip</span><br><span style="color:${t?'#e7c15a':'#d78383'}">${t?'Суусан: '+t.name:'Яг '+fmt(b.chips)+' орох дүнтэй нээлттэй ширээ алга'}</span></span><button class="smallBtn red" onclick="deleteBot('${b.id}')">УСТГАХ</button></div>`}).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=Number(db.settings.start??0);if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminWithdrawals();renderAdminTournaments();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
 function saveBankSettings(){
   if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');
   const name=$('adminBankName')?.value.trim()||'';
@@ -1968,26 +1968,14 @@ function createTable(){if(currentUser?.role!=='admin')return;let type=$('newType
 function adminAddChips(){if(currentUser?.role!=='admin')return;let id=$('chipUserId').value.trim(),a=+$('chipAmount').value,u=db.users.find(x=>x.id===id);if(!u)return toast('Хэрэглэгч олдсонгүй');if(a<=0)return toast('Chip дүнгээ шалгана уу');u.chips+=a;save();renderAdmin();renderHome();toast(fmt(a)+' chip нэмэгдлээ')}
 function mpBotGameType(b){return String(b?.gameType||b?.type||'holdem').toLowerCase()==='omaha'?'omaha':'holdem'}
 function mpAssignBotsEvenly(){
-  const tables=(db.tables||[]).filter(t=>t&&t.open!==false);
+  /* Only an admin-selected table is valid; never auto-distribute bots. */
   let changed=false;
-  ['holdem','omaha'].forEach(gameType=>{
-    const gtables=tables.filter(t=>String(t.type||'holdem').toLowerCase()===gameType);
-    const bots=(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&mpBotGameType(b)===gameType);
-    const counts=Object.fromEntries(gtables.map(t=>[String(t.id),0]));
-    bots.forEach(b=>{
-      if(Number(b.chips||0)<=0){if(b.tableId){b.tableId='';changed=true;}return;}
-      if(counts[String(b.tableId)]!==undefined)counts[String(b.tableId)]++;
-    });
-    bots.forEach(b=>{
-      if(Number(b.chips||0)<=0)return;
-      const cur=gtables.find(t=>String(t.id)===String(b.tableId||''));
-      if(cur)return;
-      /* Admin gives a bot N chips -> seat it only at an open table whose buy-in is exactly N. */
-      const eligible=gtables.filter(t=>Number(t.buy||0)===Number(b.chips||0) && counts[String(t.id)]<8);
-      if(!eligible.length){if(b.tableId){b.tableId='';changed=true;}return;}
-      eligible.sort((a,z)=>counts[String(a.id)]-counts[String(z.id)] || String(a.id).localeCompare(String(z.id)));
-      b.tableId=String(eligible[0].id);counts[String(eligible[0].id)]++;changed=true;
-    });
+  (db.bots||[]).forEach(b=>{
+    if(!isAdminCreatedBot(b))return;
+    const assigned=String(b.assignedTableId||'');
+    const table=(db.tables||[]).find(t=>String(t.id)===assigned && t.open!==false && String(t.type||'holdem').toLowerCase()===mpBotGameType(b));
+    const target=Number(b.chips||0)>0 && table ? assigned : '';
+    if(String(b.tableId||'')!==target){b.tableId=target;changed=true;}
   });
   return changed;
 }
@@ -1995,14 +1983,32 @@ function mpBotsForTable(tableId,limit=8){
   mpAssignBotsEvenly();
   const t=(db.tables||[]).find(x=>String(x.id)===String(tableId));
   const gameType=String(t?.type||'holdem').toLowerCase();
-  return (db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&mpBotGameType(b)===gameType&&String(b.tableId||'')===String(tableId||'')).slice(0,limit);
+  return (db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&mpBotGameType(b)===gameType&&String(b.assignedTableId||'')===String(tableId||'')&&String(b.tableId||'')===String(tableId||'')).slice(0,limit);
+}
+document.addEventListener('change',e=>{if(e.target?.id==='botGameType')mpRenderBotTableOptions()});
+function mpRenderBotTableOptions(){
+  const sel=$('botTable');if(!sel)return;
+  const previous=sel.value,game=String($('botGameType')?.value||'holdem');
+  const tables=(db.tables||[]).filter(t=>t.open!==false&&String(t.type||'holdem')===game);
+  sel.innerHTML='<option value="">Ширээ сонгох</option>';
+  tables.forEach(t=>{const o=document.createElement('option');o.value=String(t.id);o.textContent=t.name+' • '+fmt(t.buy)+' chip';sel.appendChild(o)});
+  if(tables.some(t=>String(t.id)===previous))sel.value=previous;
+  mpBotTableChanged();
+}
+function mpBotTableChanged(){
+  const t=(db.tables||[]).find(t=>String(t.id)===String($('botTable')?.value||''));
+  if(t&&$('botChips'))$('botChips').value=Number(t.buy)||0;
 }
 function createBot(){
   if(currentUser?.role!=='admin')return;
   let name=$('botName').value.trim(),chips=+$('botChips').value;
   const gameType=String($('botGameType')?.value||'holdem').toLowerCase()==='omaha'?'omaha':'holdem';
+  const selectedTable=(db.tables||[]).find(t=>String(t.id)===String($('botTable')?.value||'')&&t.open!==false&&String(t.type||'holdem')===gameType);
+  if(!selectedTable)return toast('Суух ширээг сонгоно уу');
+  if(chips!==Number(selectedTable.buy||0))return toast('Chip ширээний орох дүнтэй таарах ёстой');
+  if((db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&String(b.tableId||'')===String(selectedTable.id)).length>=8)return toast('Энэ ширээнд BOT суух зай алга');
   if(!name||chips<=0)return toast('Bot мэдээллээ шалгана уу');
-  db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true,gameType,tableId:''});
+  db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true,gameType,tableId:String(selectedTable.id),assignedTableId:String(selectedTable.id)});
   mpAssignBotsEvenly();save();mpPublishSharedLobby();$('botName').value='';renderAdmin();
   const nb=db.bots[db.bots.length-1],nt=(db.tables||[]).find(t=>String(t.id)===String(nb.tableId||''));
   const st=$('mpBotCreateState');if(st){st.style.display='block';st.textContent='✓ '+name+' BOT ҮҮСЛЭЭ'+(nt?' • '+nt.name+' ширээнд суулаа':' • тохирох ширээ хүлээж байна');setTimeout(()=>{if(st)st.style.display='none'},2600)}toast((gameType==='omaha'?'Omaha':'Texas')+' bot үүсгэлээ'+(nt?' • '+fmt(chips)+' орох дүнтэй '+nt.name+' ширээнд суулаа':' • '+fmt(chips)+' орох дүнтэй ширээ алга'));
@@ -4769,17 +4775,11 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   }
   window.mpAutoSeatCreatedBot=function(bot){
     try{
-      if(!bot)return;
-      var chip=n(bot.chips||bot.chip||bot.balance||bot.stack);
-      if(chip<=0)return;
-      var ts=openTables();
-      if(!ts.length)return;
-      ts.sort(function(a,b){
-        var aa=n(a.buyIn||a.buyin||a.minBuyIn||a.minBuyin||a.bb||0);
-        var bb=n(b.buyIn||b.buyin||b.minBuyIn||b.minBuyin||b.bb||0);
-        return Math.abs(aa-chip)-Math.abs(bb-chip);
-      });
-      var t=ts[0];
+      if(!bot || n(bot.chips||bot.chip||bot.balance||bot.stack)<=0)return;
+      var chosen=String(bot.assignedTableId||'');
+      if(!chosen)return;
+      var t=openTables().find(function(t){return String(t.id)===chosen;});
+      if(!t)return;
       if(typeof autoSeatBot==='function')return autoSeatBot(bot,t);
       if(typeof seatBot==='function')return seatBot(bot,t);
       if(typeof assignBotToTable==='function')return assignBotToTable(bot,t);
