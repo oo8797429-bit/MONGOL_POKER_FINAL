@@ -1175,7 +1175,7 @@
 <section id="admin" class="screen"><header class="top"><button onclick="show('menu')">‹</button><div class="ttl">Админ</div><button></button></header><div class="admin">
 <div class="adminCard"><h3>Ширээ нээх</h3><div class="field"><label>Төрөл</label><select id="newType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Нэр</label><input id="newName" placeholder="25K ШИРЭЭ"></div><div class="field"><label>SB / BB</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="newSB" type="number" value="500"><input id="newBB" type="number" value="1000"></div></div><div class="field"><label>Орох дүн</label><input id="newBuy" type="number" value="25000"></div><button class="primary" onclick="createTable()">Ширээ нээх</button></div>
 <div class="adminCard"><h3>Хэрэглэгчид chip нэмэх</h3><div class="field"><label>Хэрэглэгчийн ID</label><input id="chipUserId" placeholder="user ID"></div><div class="field"><label>Нэмэх chip</label><input id="chipAmount" type="number" value="25000"></div><button class="primary" onclick="adminAddChips()">Chip нэмэх</button><div id="adminUsers"></div></div>
-<div class="adminCard"><h3>Bot үүсгэх</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Bot төрөл</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><div class="mpBotStartChipHidden"><label>Эхлэх chip</label><input id="botChips" type="number" value="30000"></div></div><button class="primary" onclick="createBot()">Bot үүсгэх</button><div id="adminBots"></div></div>
+<div class="adminCard" id="mpBotControlCard"><h3>🤖 BOT УДИРДЛАГА</h3><div class="field"><label>Bot нэр</label><input id="botName" placeholder="Bot нэр"></div><div class="field"><label>Тоглоом</label><select id="botGameType"><option value="holdem">Texas Hold'em</option><option value="omaha">Omaha</option></select></div><div class="field"><label>Chip / суух ширээний орох дүн</label><input id="botChips" type="number" inputmode="numeric" value="30000" placeholder="Ж: 30000"><div style="font-size:8px;color:#929a9d;margin-top:5px">Bot зөвхөн энэ дүнтэй яг таарах нээлттэй ширээнд автоматаар сууна.</div></div><button class="primary" onclick="createBot()">＋ BOT ҮҮСГЭХ</button><div id="mpBotCreateState" style="display:none;margin-top:8px;padding:8px;border:1px solid #2f7654;background:#10261d;color:#58e59b;font-size:10px;border-radius:5px">✓ BOT ҮҮСЛЭЭ</div><div id="adminBots"></div></div>
 <div class="adminCard"><h3>Ширээнүүд</h3><div id="adminTables"></div></div>
 <div class="adminCard" id="adminTournamentCard"><h3>🏆 Тэмцээн удирдлага</h3>
 <input id="tourEditId" type="hidden">
@@ -1896,7 +1896,7 @@ function renderCash(){
   if($('withdrawHolder')&&!$('withdrawHolder').value)$('withdrawHolder').value=currentUser?.name||'';
   renderWithdrawalHistory();
 }
-function renderAdmin(){if(currentUser?.role==='admin'&&mpAuth?.currentUser?.uid===MP_ADMIN_UID&&!mpRegListenerRef){try{mpStartAdminRegistrationListener()}catch(e){}}if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> — ${fmt(b.chips)}</span><button class="smallBtn red" onclick="deleteBot('${b.id}')">Устгах</button></div>`).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=Number(db.settings.start??0);if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminWithdrawals();renderAdminTournaments();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
+function renderAdmin(){if(currentUser?.role==='admin'&&mpAuth?.currentUser?.uid===MP_ADMIN_UID&&!mpRegListenerRef){try{mpStartAdminRegistrationListener()}catch(e){}}if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>{const t=(db.tables||[]).find(x=>String(x.id)===String(b.tableId||''));return `<div style="display:grid;grid-template-columns:1fr auto;gap:5px 8px;align-items:center;padding:9px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> <span style="color:#58e59b">• ҮҮССЭН</span><br><span style="color:#aeb5b7">${mpBotGameType(b)==='omaha'?'OMAHA':'TEXAS'} • ${fmt(b.chips)} chip</span><br><span style="color:${t?'#e7c15a':'#d78383'}">${t?'Суусан: '+t.name:'Яг '+fmt(b.chips)+' орох дүнтэй нээлттэй ширээ алга'}</span></span><button class="smallBtn red" onclick="deleteBot('${b.id}')">УСТГАХ</button></div>`}).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=Number(db.settings.start??0);if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminWithdrawals();renderAdminTournaments();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
 function saveBankSettings(){
   if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');
   const name=$('adminBankName')?.value.trim()||'';
@@ -1997,7 +1997,7 @@ function createBot(){
   db.bots.push({id:'b'+Date.now(),name,chips,adminCreated:true,gameType,tableId:''});
   mpAssignBotsEvenly();save();mpPublishSharedLobby();$('botName').value='';renderAdmin();
   const nb=db.bots[db.bots.length-1],nt=(db.tables||[]).find(t=>String(t.id)===String(nb.tableId||''));
-  toast((gameType==='omaha'?'Omaha':'Texas')+' bot үүсгэлээ'+(nt?' • '+fmt(chips)+' орох дүнтэй '+nt.name+' ширээнд суулаа':' • '+fmt(chips)+' орох дүнтэй ширээ алга'));
+  const st=$('mpBotCreateState');if(st){st.style.display='block';st.textContent='✓ '+name+' BOT ҮҮСЛЭЭ'+(nt?' • '+nt.name+' ширээнд суулаа':' • тохирох ширээ хүлээж байна');setTimeout(()=>{if(st)st.style.display='none'},2600)}toast((gameType==='omaha'?'Omaha':'Texas')+' bot үүсгэлээ'+(nt?' • '+fmt(chips)+' орох дүнтэй '+nt.name+' ширээнд суулаа':' • '+fmt(chips)+' орох дүнтэй ширээ алга'));
 }
 function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
@@ -2874,7 +2874,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       renderGame();
       await wait(650);
     }
-    liveTurn=0;liveRoundBusy=false;turnLeft=TURN_SECONDS;renderGame();
+    liveTurn=0;liveRoundBusy=false;turnLeft=Math.max(0,Number(s.turnLeft)||TURN_SECONDS);renderGame();
   }
   bots=function(targetBet=0){
     targetBet=Math.max(0,Number(targetBet)||0);
@@ -3133,12 +3133,12 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     street=Number(s.street)||0;potAmt=Number(s.potAmt)||0;toCall=Number(s.toCall)||0;finished=!!s.finished;handNo=Number(s.handNo)||0;
     liveDealer=Number.isFinite(Number(s.liveDealer))?Number(s.liveDealer):-1;liveSB=Number.isFinite(Number(s.liveSB))?Number(s.liveSB):-1;liveBB=Number.isFinite(Number(s.liveBB))?Number(s.liveBB):-1;
     liveTurn=Number.isFinite(Number(s.liveTurn))?Number(s.liveTurn):-1;liveWinner=Number.isFinite(Number(s.liveWinner))?Number(s.liveWinner):-1;
-    liveSeatBets=cp(s.liveSeatBets||players.map(()=>0));liveSeatStatus=cp(s.liveSeatStatus||players.map(()=>''));liveRoundBusy=!!s.liveRoundBusy;turnLeft=Math.max(0,Number.isFinite(Number(s.turnLeft))?Number(s.turnLeft):TURN_SECONDS);
+    liveSeatBets=cp(s.liveSeatBets||players.map(()=>0));liveSeatStatus=cp(s.liveSeatStatus||players.map(()=>''));liveRoundBusy=false;turnLeft=Math.max(0,Number(s.turnLeft)||TURN_SECONDS);
     burnedCards=cp(s.burnedCards||[]);showdownInfo=cp(s.showdownInfo||[]);showdownWinners=cp(s.showdownWinners||[]);dealSessionToken=(Number(s.dealSessionToken)||0)+1;
     if($('gameName'))$('gameName').textContent=currentTable.name+' • '+(currentTable.type==='omaha'?'OMAHA':'HOLDEM');
     if($('gameBlind'))$('gameBlind').textContent=fmt(currentTable.sb)+'/'+fmt(currentTable.bb)+' • 9 MAX';
     show('game');if(s.statusText)setStatus(s.statusText);renderGame();
-    if(!finished){if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&liveTurn===0)setTimeout(startUserTurn,450);}
+    if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
     return true;
   };
 
@@ -4865,80 +4865,57 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 
 
 
-
-<!-- MP SHARED TABLE ENGINE V5: one Firebase state per table; no UI changes -->
-<script id="mp-shared-table-engine-v5">
+<script id="mp-reentry-firebase-authoritative-v4">
 (function(){
-  if(window.__MP_SHARED_TABLE_ENGINE_V5__) return;
-  window.__MP_SHARED_TABLE_ENGINE_V5__=true;
-  const OWNER_MS=4500, TICK_MS=700;
-  const clientId=(sessionStorage.mpSharedClientId||(sessionStorage.mpSharedClientId='c_'+Math.random().toString(36).slice(2)+Date.now().toString(36)));
-  let tableId='', ref=null, ownerRef=null, timer=null, applying=false, owner=false, lastRemote=0;
-  const clone=v=>{try{return structuredClone(v)}catch(e){return JSON.parse(JSON.stringify(v))}};
-  function stateRef(id){return window.mpRtdb&&window.mpRtdb.ref('sharedGames/'+String(id).replace(/[.#$\[\]]/g,'_'))}
-  function cleanState(s){
-    if(!s)return null; const x=clone(s);
-    delete x.currentTable?.__proto__;
-    return x;
+  if(window.__MP_REENTRY_FIREBASE_V4__) return;
+  window.__MP_REENTRY_FIREBASE_V4__=true;
+  let busy=false, remoteApplying=false, gameRef=null, gameCb=null, saveTimer=0, lastRemoteSavedAt=0;
+  const cp=v=>{try{return structuredClone(v)}catch(e){return JSON.parse(JSON.stringify(v))}};
+  const ref=id=>{try{return mpRtdb.ref('sharedGames/'+String(id))}catch(e){return null}};
+  async function ready(){try{if(typeof mpEnsureWriter==='function')await mpEnsureWriter();return !!mpRtdb}catch(e){console.warn('game auth failed',e);return false}}
+  function detach(){try{if(gameRef&&gameCb)gameRef.off('value',gameCb)}catch(e){} gameRef=null;gameCb=null}
+  function applyRemote(s){
+    if(!s||!s.currentTable||remoteApplying)return;
+    remoteApplying=true;
+    try{lastRemoteSavedAt=Math.max(lastRemoteSavedAt,Number(s.savedAt)||0);window.mpRestorePokerSession(cp(s))}finally{setTimeout(()=>remoteApplying=false,80)}
   }
-  async function claimOwner(){
-    if(!ownerRef)return false; const now=Date.now();
+  function listen(id){
+    detach(); const r=ref(id); if(!r)return; gameRef=r;
+    gameCb=snap=>{const s=snap.val();if(!s||busy)return;const ts=Number(s.savedAt)||0;if(ts<=lastRemoteSavedAt)return;applyRemote(s)};
+    r.on('value',gameCb);
+  }
+  async function put(s){
+    if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
+    const r=ref(s.currentTable.id);if(!r)return false;
+    const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
+    try{lastRemoteSavedAt=x.savedAt;await r.set(x);return true}catch(e){console.warn('game save failed',e);return false}
+  }
+  async function get(id){if(!(await ready()))return null;const r=ref(id);if(!r)return null;try{const sn=await r.once('value');return sn.val()||null}catch(e){console.warn('game read failed',e);return null}}
+  const baseJoin=window.join;
+  window.join=async function(id){
+    if(busy)return;busy=true;
     try{
-      const tr=await ownerRef.transaction(v=>{
-        if(v&&v.id!==clientId&&Number(v.until)>now)return;
-        return {id:clientId,until:now+OWNER_MS,at:firebase.database.ServerValue.TIMESTAMP};
-      },undefined,false);
-      owner=!!(tr.committed&&tr.snapshot.val()?.id===clientId); return owner;
-    }catch(e){owner=false;return false}
-  }
-  async function publish(){
-    if(!owner||applying||!ref||typeof window.mpCapturePokerSession!=='function')return;
-    const s=window.mpCapturePokerSession(); if(!s?.currentTable||String(s.currentTable.id)!==String(tableId))return;
-    try{await ref.child('state').set({data:cleanState(s),updatedAt:firebase.database.ServerValue.TIMESTAMP,owner:clientId})}catch(e){}
-  }
-  function applyRemote(v){
-    if(!v?.data||v.owner===clientId||owner)return;
-    const stamp=Number(v.updatedAt)||0;if(stamp&&stamp<lastRemote)return;lastRemote=stamp;
-    applying=true;try{window.mpRestorePokerSession&&window.mpRestorePokerSession(v.data)}finally{setTimeout(()=>applying=false,80)}
-  }
-  async function attach(id,seed){
-    tableId=String(id); ref=stateRef(tableId); if(!ref)return;
-    ownerRef=ref.child('owner');
-    try{
-      const snap=await ref.child('state').once('value'); const remote=snap.val();
-      if(remote?.data){ applyRemote(remote); }
-      else { owner=await claimOwner(); if(owner){ await ref.child('state').set({data:cleanState(seed),updatedAt:firebase.database.ServerValue.TIMESTAMP,owner:clientId}); } }
-      ref.child('state').off('value'); ref.child('state').on('value',s=>applyRemote(s.val()));
-    }catch(e){console.warn('shared table attach',e)}
-    clearInterval(timer);timer=setInterval(async()=>{
-      const was=owner; await claimOwner();
-      if(owner){ if(!was){try{const s=(await ref.child('state').once('value')).val();if(s?.data){applying=true;window.mpRestorePokerSession&&window.mpRestorePokerSession(s.data);applying=false}}catch(e){}} await publish(); }
-      else {try{const s=(await ref.child('state').once('value')).val();applyRemote(s)}catch(e){}}
-    },TICK_MS);
-  }
-  const oldJoin=window.join;
-  if(typeof oldJoin==='function') window.join=async function(id){
-    const r=await oldJoin.apply(this,arguments);
-    const seed=window.mpCapturePokerSession&&window.mpCapturePokerSession();
-    if(seed?.currentTable){
-      /* Stop the per-device preview before deciding who owns the shared engine. */
-      window.mpSuspendPokerSession&&window.mpSuspendPokerSession();
-      await attach(seed.currentTable.id,seed);
-      if(owner) window.mpRestorePokerSession&&window.mpRestorePokerSession(seed);
-    }
-    return r;
+      const t=(db.tables||[]).find(x=>String(x.id)===String(id)&&x.open);if(!t)return;
+      const s=await get(t.id);
+      if(s&&s.currentTable&&String(s.tableId||s.currentTable.id)===String(t.id)){
+        applyRemote(s);listen(t.id);toast('Явж байсан тоглолт үргэлжиллээ');return;
+      }
+      const out=await baseJoin.apply(this,arguments);
+      if(currentTable&&tableSession){await put(window.mpCapturePokerSession());listen(currentTable.id)}
+      return out;
+    }finally{busy=false}
   };
-  const oldLeave=window.leaveTable;
-  if(typeof oldLeave==='function') window.leaveTable=function(){
-    clearInterval(timer);timer=null;
-    if(ownerRef&&owner){ownerRef.transaction(v=>v?.id===clientId?null:v).catch(()=>{})}
-    if(ref)ref.child('state').off('value'); owner=false;ref=null;ownerRef=null;tableId='';
-    return oldLeave.apply(this,arguments);
+  window.leaveTable=async function(){
+    if(currentTable&&tableSession&&typeof window.mpCapturePokerSession==='function')await put(window.mpCapturePokerSession());
+    detach();try{window.mpSuspendPokerSession()}catch(e){}try{closeSide()}catch(e){}show('tables');
   };
-  window.addEventListener('pagehide',()=>{try{if(ownerRef&&owner)ownerRef.transaction(v=>v?.id===clientId?null:v)}catch(e){}});
+  function queue(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(currentTable&&tableSession&&!busy&&!remoteApplying&&typeof window.mpCapturePokerSession==='function')put(window.mpCapturePokerSession())},180)}
+  const baseRender=window.renderGame;
+  window.renderGame=function(){const r=baseRender.apply(this,arguments);queue();return r};
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&currentTable&&tableSession)put(window.mpCapturePokerSession())});
+  window.addEventListener('pagehide',()=>{if(currentTable&&tableSession)put(window.mpCapturePokerSession())});
 })();
 </script>
-</body></html>
 
 <style id="mp-plus-seat-visibility-fix">
 /* Only restore the spectator + seat button visibility. */
