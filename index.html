@@ -3128,7 +3128,9 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   window.mpRestorePokerSession=function(s){
     if(!s||!s.currentTable)return false;stopUserTurnClock();
     const cp=v=>{try{return structuredClone(v)}catch(e){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}};
-    currentTable=cp(s.currentTable);tableSession=true;userSeatedAtTable=!!s.userSeatedAtTable;userSeatSlot=s.userSeatSlot??null;spectator=!!s.spectator;
+    const localSeat=userSeatedAtTable,localSlot=userSeatSlot,localSpectator=spectator;
+    currentTable=cp(s.currentTable);tableSession=true;
+    userSeatedAtTable=!!localSeat;userSeatSlot=localSeat?localSlot:null;spectator=localSeat?false:!!localSpectator;
     deck=cp(s.deck||[]);holes=cp(s.holes||[]);boardCards=cp(s.boardCards||[]);players=cp(s.players||[]);folded=cp(s.folded||[]);
     street=Number(s.street)||0;potAmt=Number(s.potAmt)||0;toCall=Number(s.toCall)||0;finished=!!s.finished;handNo=Number(s.handNo)||0;
     liveDealer=Number.isFinite(Number(s.liveDealer))?Number(s.liveDealer):-1;liveSB=Number.isFinite(Number(s.liveSB))?Number(s.liveSB):-1;liveBB=Number.isFinite(Number(s.liveBB))?Number(s.liveBB):-1;
@@ -3138,7 +3140,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     if($('gameName'))$('gameName').textContent=currentTable.name+' • '+(currentTable.type==='omaha'?'OMAHA':'HOLDEM');
     if($('gameBlind'))$('gameBlind').textContent=fmt(currentTable.sb)+'/'+fmt(currentTable.bb)+' • 9 MAX';
     show('game');if(s.statusText)setStatus(s.statusText);renderGame();
-    if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
+    if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
     return true;
   };
 
@@ -4887,7 +4889,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   async function put(s){
     if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
-    const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
+    const x=cp(s);delete x.userSeatedAtTable;delete x.userSeatSlot;delete x.spectator;x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
     try{
       const result=await r.transaction(old=>{
         if(old && Number(old.savedAt)>Number(lastRemoteSavedAt))return;
@@ -4905,6 +4907,9 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       const t=(db.tables||[]).find(x=>String(x.id)===String(id)&&x.open);if(!t)return;
       const s=await get(t.id);
       if(s&&s.currentTable&&String(s.tableId||s.currentTable.id)===String(t.id)){
+        const local=sessions?.[String(t.id)];
+        if(local?.userSeatedAtTable){userSeatedAtTable=true;userSeatSlot=local.userSeatSlot??null;spectator=false}
+        else {userSeatedAtTable=false;userSeatSlot=null;spectator=true}
         applyRemote(s);listen(t.id);toast('Явж байсан тоглолт үргэлжиллээ');return;
       }
       const out=await baseJoin.apply(this,arguments);
