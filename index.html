@@ -4887,7 +4887,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     r.on('value',gameCb);
   }
   async function put(s){
-    if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
+    if(remoteApplying||spectator||!userSeatedAtTable||!s||!s.currentTable||!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
     const x=cp(s);delete x.userSeatedAtTable;delete x.userSeatSlot;delete x.spectator;x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
     try{
@@ -4921,7 +4921,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(currentTable&&tableSession&&typeof window.mpCapturePokerSession==='function')await put(window.mpCapturePokerSession());
     detach();try{window.mpSuspendPokerSession()}catch(e){}try{closeSide()}catch(e){}show('tables');
   };
-  function queue(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(currentTable&&tableSession&&!busy&&!remoteApplying&&typeof window.mpCapturePokerSession==='function')put(window.mpCapturePokerSession())},180)}
+  function queue(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(currentTable&&tableSession&&userSeatedAtTable&&!spectator&&!busy&&!remoteApplying&&typeof window.mpCapturePokerSession==='function')put(window.mpCapturePokerSession())},180)}
   const baseRender=window.renderGame;
   window.renderGame=function(){const r=baseRender.apply(this,arguments);queue();return r};
   
