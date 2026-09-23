@@ -3128,9 +3128,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   window.mpRestorePokerSession=function(s){
     if(!s||!s.currentTable)return false;stopUserTurnClock();
     const cp=v=>{try{return structuredClone(v)}catch(e){try{return JSON.parse(JSON.stringify(v))}catch(_){return v}}};
-    const localSeat=userSeatedAtTable,localSlot=userSeatSlot,localSpectator=spectator;
-    currentTable=cp(s.currentTable);tableSession=true;
-    userSeatedAtTable=!!localSeat;userSeatSlot=localSeat?localSlot:null;spectator=localSeat?false:!!localSpectator;
+    currentTable=cp(s.currentTable);tableSession=true;userSeatedAtTable=!!s.userSeatedAtTable;userSeatSlot=s.userSeatSlot??null;spectator=!!s.spectator;
     deck=cp(s.deck||[]);holes=cp(s.holes||[]);boardCards=cp(s.boardCards||[]);players=cp(s.players||[]);folded=cp(s.folded||[]);
     street=Number(s.street)||0;potAmt=Number(s.potAmt)||0;toCall=Number(s.toCall)||0;finished=!!s.finished;handNo=Number(s.handNo)||0;
     liveDealer=Number.isFinite(Number(s.liveDealer))?Number(s.liveDealer):-1;liveSB=Number.isFinite(Number(s.liveSB))?Number(s.liveSB):-1;liveBB=Number.isFinite(Number(s.liveBB))?Number(s.liveBB):-1;
@@ -3140,7 +3138,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     if($('gameName'))$('gameName').textContent=currentTable.name+' • '+(currentTable.type==='omaha'?'OMAHA':'HOLDEM');
     if($('gameBlind'))$('gameBlind').textContent=fmt(currentTable.sb)+'/'+fmt(currentTable.bb)+' • 9 MAX';
     show('game');if(s.statusText)setStatus(s.statusText);renderGame();
-    if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
+    if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
     return true;
   };
 
@@ -4642,71 +4640,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 
 
 
-<!-- MP ONLY FIX 2026-09-17: automatic 2% rake from every active table, independent of admin seating -->
-<script id="mp-global-table-rake-only-fix">
-(function(){
-  if(window.__MP_GLOBAL_TABLE_RAKE_ONLY_FIX__)return;
-  window.__MP_GLOBAL_TABLE_RAKE_ONLY_FIX__=true;
-  const ENGINE_MS=12000;
-  let timer=null,busy=false;
-
-  function activeTables(){
-    try{
-      const bots=(db?.bots||[]).filter(b=>typeof isAdminCreatedBot==='function'?isAdminCreatedBot(b):b?.adminCreated===true);
-      if(bots.length<2)return [];
-      return (db?.tables||[]).filter(t=>t&&t.open!==false).map(t=>({t,bots}));
-    }catch(e){return []}
-  }
-  async function writeTableRake(t,gross,amount){
-    if(!mpRtdb||!amount)return false;
-    const user=await mpEnsureWriter();
-    const key='rake_'+Date.now()+'_'+String(t.id||'table').replace(/[^a-z0-9_-]/gi,'')+'_'+Math.random().toString(36).slice(2,7);
-    const payload={
-      _type:'withdrawal',kind:'rake',userId:'__RAKE__',userName:'RAKE',bank:'',account:'',holder:'',
-      amount:Math.floor(amount),gross:Math.floor(gross),status:'pending',
-      tableId:String(t.id||''),tableName:String(t.name||''),handNo:0,sourceUserId:'__TABLE_ENGINE__',
-      createdAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now(),createdText:new Date().toLocaleString('mn-MN')
-    };
-    await mpRtdb.ref('registrations/'+user.uid+'/'+key).set(payload);
-    return true;
-  }
-  async function tick(){
-    if(busy||currentUser?.role!=='admin'||!mpRtdb||mpAuth?.currentUser?.uid!==MP_ADMIN_UID)return;
-    busy=true;
-    try{
-      /* One admin browser owns the short Firebase lease, so Messenger + Chrome cannot double-charge. */
-      const leaseRef=mpRtdb.ref('sharedLobby/rakeEngine');
-      const me=mpAuth.currentUser.uid+'_'+(sessionStorage.mpRakeEngineId||(sessionStorage.mpRakeEngineId=Math.random().toString(36).slice(2)));
-      const now=Date.now();
-      const tr=await leaseRef.transaction(v=>{
-        if(v&&Number(v.until)>now&&v.owner!==me)return;
-        return {owner:me,until:now+ENGINE_MS-1500,updatedAt:firebase?.database?.ServerValue?.TIMESTAMP||now};
-      },undefined,false);
-      if(!tr.committed||tr.snapshot.val()?.owner!==me)return;
-
-      const pct=Math.max(0,Math.min(20,Number(db?.rake?.percent)||0));
-      if(pct<=0)return;
-      for(const {t,bots} of activeTables()){
-        /* Background hand pot is generated from this table's own blind level and seated admin bots.
-           It is independent of whether the admin has opened/sat at that table. */
-        const seated=Math.max(2,Math.min(9,bots.length));
-        const bb=Math.max(1,Math.floor(Number(t.bb)||1));
-        const gross=Math.max(bb*2,Math.floor(bb*(2+seated*0.8)));
-        const rake=Math.max(1,Math.floor(gross*pct/100));
-        await writeTableRake(t,gross,rake);
-      }
-      if(typeof mpRefreshAdminRakeFromServer==='function')setTimeout(()=>mpRefreshAdminRakeFromServer(),250);
-    }catch(e){console.warn('Global table rake engine:',e)}finally{busy=false}
-  }
-  function start(){
-    if(timer)clearInterval(timer);
-    timer=setInterval(tick,ENGINE_MS);
-    setTimeout(tick,1800);
-  }
-  start();
-})();
-</script>
-
+<!-- Disabled synthetic background rake: only actual completed hands may generate rake. -->
 <style id="mp-admin-seat-menu-editor-style">
 #mpSeatEditBar2{display:none;position:fixed;left:8px;right:8px;bottom:82px;z-index:10060;background:#0b0b0bf2;border:1px solid #d7aa42;border-radius:12px;padding:8px;gap:7px;align-items:center;justify-content:center}
 #mpSeatEditBar2 button{border:1px solid #d7aa42;border-radius:8px;background:#17120a;color:#f3ca68;padding:9px 12px;font-weight:900}
@@ -4887,17 +4821,10 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     r.on('value',gameCb);
   }
   async function put(s){
-    if(remoteApplying||spectator||!userSeatedAtTable||!s||!s.currentTable||!(await ready()))return false;
+    if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
-    const x=cp(s);delete x.userSeatedAtTable;delete x.userSeatSlot;delete x.spectator;x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
-    try{
-      const result=await r.transaction(old=>{
-        if(old && Number(old.savedAt)>Number(lastRemoteSavedAt))return;
-        return x;
-      },undefined,false);
-      if(!result.committed){console.warn('game save skipped: newer remote state');return false}
-      lastRemoteSavedAt=x.savedAt;return true
-    }catch(e){console.warn('game save failed',e);return false}
+    const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
+    try{lastRemoteSavedAt=x.savedAt;await r.set(x);return true}catch(e){console.warn('game save failed',e);return false}
   }
   async function get(id){if(!(await ready()))return null;const r=ref(id);if(!r)return null;try{const sn=await r.once('value');return sn.val()||null}catch(e){console.warn('game read failed',e);return null}}
   const baseJoin=window.join;
@@ -4907,9 +4834,6 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       const t=(db.tables||[]).find(x=>String(x.id)===String(id)&&x.open);if(!t)return;
       const s=await get(t.id);
       if(s&&s.currentTable&&String(s.tableId||s.currentTable.id)===String(t.id)){
-        const local=sessions?.[String(t.id)];
-        if(local?.userSeatedAtTable){userSeatedAtTable=true;userSeatSlot=local.userSeatSlot??null;spectator=false}
-        else {userSeatedAtTable=false;userSeatSlot=null;spectator=true}
         applyRemote(s);listen(t.id);toast('Явж байсан тоглолт үргэлжиллээ');return;
       }
       const out=await baseJoin.apply(this,arguments);
@@ -4921,11 +4845,11 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(currentTable&&tableSession&&typeof window.mpCapturePokerSession==='function')await put(window.mpCapturePokerSession());
     detach();try{window.mpSuspendPokerSession()}catch(e){}try{closeSide()}catch(e){}show('tables');
   };
-  function queue(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(currentTable&&tableSession&&userSeatedAtTable&&!spectator&&!busy&&!remoteApplying&&typeof window.mpCapturePokerSession==='function')put(window.mpCapturePokerSession())},180)}
+  function queue(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(currentTable&&tableSession&&!busy&&!remoteApplying&&typeof window.mpCapturePokerSession==='function')put(window.mpCapturePokerSession())},180)}
   const baseRender=window.renderGame;
   window.renderGame=function(){const r=baseRender.apply(this,arguments);queue();return r};
-  
-  
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&currentTable&&tableSession)put(window.mpCapturePokerSession())});
+  window.addEventListener('pagehide',()=>{if(currentTable&&tableSession)put(window.mpCapturePokerSession())});
 })();
 </script>
 
