@@ -4640,7 +4640,8 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 
 
 
-<!-- Disabled synthetic background rake: only actual completed hands may generate rake. -->
+<!-- Disabled: synthetic rake engine generated charges without completed hands. Actual rake must be recorded only on a settled pot. -->
+
 <style id="mp-admin-seat-menu-editor-style">
 #mpSeatEditBar2{display:none;position:fixed;left:8px;right:8px;bottom:82px;z-index:10060;background:#0b0b0bf2;border:1px solid #d7aa42;border-radius:12px;padding:8px;gap:7px;align-items:center;justify-content:center}
 #mpSeatEditBar2 button{border:1px solid #d7aa42;border-radius:8px;background:#17120a;color:#f3ca68;padding:9px 12px;font-weight:900}
@@ -4702,12 +4703,14 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       if(chip<=0)return;
       var ts=openTables();
       if(!ts.length)return;
-      ts.sort(function(a,b){
-        var aa=n(a.buyIn||a.buyin||a.minBuyIn||a.minBuyin||a.bb||0);
-        var bb=n(b.buyIn||b.buyin||b.minBuyIn||b.minBuyin||b.bb||0);
-        return Math.abs(aa-chip)-Math.abs(bb-chip);
+      // Match the bot's chips to the exact table buy-in; never seat at a nearby stake.
+      var selected=bot.tableId||bot.selectedTableId||bot.targetTableId;
+      var matches=ts.filter(function(t){
+        var buyIn=n(t.buyIn??t.buyin??t.minBuyIn??t.minBuyin??0);
+        return buyIn===chip && (!selected || String(t.id)===String(selected));
       });
-      var t=ts[0];
+      if(!matches.length)return;
+      var t=matches[0];
       if(typeof autoSeatBot==='function')return autoSeatBot(bot,t);
       if(typeof seatBot==='function')return seatBot(bot,t);
       if(typeof assignBotToTable==='function')return assignBotToTable(bot,t);
@@ -4824,7 +4827,15 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
     const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
-    try{lastRemoteSavedAt=x.savedAt;await r.set(x);return true}catch(e){console.warn('game save failed',e);return false}
+    try{
+      const result=await r.transaction(function(remote){
+        if(remote && Number(remote.savedAt||0)>Number(lastRemoteSavedAt||0))return;
+        x.savedAt=Math.max(Date.now(),Number(remote?.savedAt||0)+1);
+        return x;
+      },undefined,false);
+      if(!result.committed){const latest=result.snapshot.val();if(latest)applyRemote(latest);return false}
+      lastRemoteSavedAt=x.savedAt;return true;
+    }catch(e){console.warn('game save failed',e);return false}
   }
   async function get(id){if(!(await ready()))return null;const r=ref(id);if(!r)return null;try{const sn=await r.once('value');return sn.val()||null}catch(e){console.warn('game read failed',e);return null}}
   const baseJoin=window.join;
