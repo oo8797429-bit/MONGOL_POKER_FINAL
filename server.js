@@ -20,6 +20,10 @@ let db = null;
 let firebaseReady = false;
 let firebaseError = null;
 
+/* =========================
+   FIREBASE
+========================= */
+
 try {
   const serviceAccount = JSON.parse(
     fs.readFileSync(SERVICE_ACCOUNT_PATH, "utf8")
@@ -39,124 +43,70 @@ try {
   console.error("Firebase Admin failed:", err.message);
 }
 
-
-/* =========================
-   BASIC STATUS
-========================= */
-
-app.get("/", (req, res) => {
-  res.json({
-    ok: true,
-    service: "MONGOL_POKER_SERVER",
-    firebase: firebaseReady ? "connected" : "not_connected"
-  });
-});
-
-
-app.get("/health", async (req, res) => {
-  if (!firebaseReady || !db) {
-    return res.status(500).json({
-      ok: false,
-      firebase: "not_connected",
-      error: firebaseError
-    });
-  }
-
-  try {
-    await db.ref(".info/connected").once("value");
-
-    res.json({
-      ok: true,
-      firebase: "connected",
-      database: "mongol-poker-default-rtdb",
-      now: Date.now()
-    });
-  } catch (err) {
-    res.status(500).json({
-      ok: false,
-      firebase: "error",
-      error: err.message
-    });
-  }
-});
-
-
 /* =========================
    HELPERS
 ========================= */
 
-function gameRef(tableId) {
-  return db.ref("sharedGames/" + String(tableId));
+function tableRef(tableId) {
+  return db.ref("serverPoker/tables/" + String(tableId));
 }
 
-function cleanTableId(id) {
-  return String(id || "")
-    .trim()
-    .replace(/[.#$\/]/g, "_")
-    .slice(0, 120);
+function cleanTableId(value) {
+  return String(value || "").trim();
 }
 
-function randomInt(max) {
-  return Math.floor(Math.random() * max);
+function defaultState(tableId) {
+  return {
+    tableId: String(tableId),
+
+    handNo: 0,
+    phase: "waiting",
+
+    pot: 0,
+    street: 0,
+
+    dealerSeat: -1,
+    currentSeat: -1,
+
+    board: [],
+
+    seats: {},
+
+    currentBet: 0,
+    minRaise: 200,
+
+    turnStartedAt: 0,
+    turnDeadline: 0,
+
+    rakeTotal: 0,
+
+    createdAt: Date.now(),
+    savedAt: Date.now()
+  };
 }
 
-function alivePlayers(state) {
-  if (!Array.isArray(state.players)) return [];
-
-  return state.players
-    .map((p, i) => ({
-      index: i,
-      player: p,
-      folded: !!state.folded?.[i]
-    }))
-    .filter(x =>
-      x.player &&
-      !x.folded &&
-      Number(x.player.chips || 0) >= 0
-    );
-}
-
-function nextAliveSeat(state, from) {
-  const players = Array.isArray(state.players)
-    ? state.players
-    : [];
-
-  if (!players.length) return -1;
-
-  for (let n = 1; n <= players.length; n++) {
-    const i = (Number(from || 0) + n) % players.length;
-
-    if (
-      players[i] &&
-      !state.folded?.[i] &&
-      Number(players[i].chips || 0) > 0
-    ) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-function normalizeState(state, tableId) {
-  state = state || {};
+function normalizeState(tableId, value) {
+  const state =
+    value && typeof value === "object"
+      ? value
+      : defaultState(tableId);
 
   state.tableId = String(tableId);
 
-  if (!Array.isArray(state.players))
-    state.players = [];
+  if (!state.seats || typeof state.seats !== "object") {
+    state.seats = {};
+  }
 
-  if (!Array.isArray(state.folded))
-    state.folded = state.players.map(() => false);
+  if (!Array.isArray(state.board)) {
+    state.board = [];
+  }
 
-  if (!Array.isArray(state.liveSeatBets))
-    state.liveSeatBets = state.players.map(() => 0);
+  state.pot = Math.max(0, Number(state.pot) || 0);
+  state.currentBet =
+    Math.max(0, Number(state.currentBet) || 0);
 
-  if (!Array.isArray(state.liveSeatStatus))
-    state.liveSeatStatus = state.players.map(() => "");
-
-  state.potAmt =
-    Math.max(0, Number(state.potAmt) || 0);
+  state.minRaise =
+    Math.max(200, Number(state.minRaise) || 200);
 
   state.street =
     Math.max(0, Number(state.street) || 0);
@@ -164,8 +114,27 @@ function normalizeState(state, tableId) {
   state.handNo =
     Math.max(0, Number(state.handNo) || 0);
 
+  state.rakeTotal =
+    Math.max(0, Number(state.rakeTotal) || 0);
+
   return state;
+}
+
+async function readServerState(tableId) {
+  const snap = await tableRef(tableId).once("value");
+
+  return normalizeState(
+    tableId,
+    snap.val()
+  );
 }
 
 async function saveServerState(tableId, state) {
   state.savedAt = Date.now();
+
+  await tableRef(tableId).set(state);
+
+  return state;
+}
+
+function activeSeats
