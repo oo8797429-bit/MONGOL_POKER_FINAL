@@ -4822,3 +4822,46 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   #game .pokerTable .seat.s6{right:-7%!important;left:auto!important;top:38%!important;bottom:auto!important;transform:translateY(-50%)!important}
 }
 </style>
+<script id="mp-server-bridge">
+(function () {
+  const MP_SERVER = "https://mongol-poker-server.onrender.com";
+
+  window.MP_SERVER_URL = MP_SERVER;
+
+  async function mpServerRequest(path, options) {
+    const response = await fetch(MP_SERVER + path, {
+      method: (options && options.method) || "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...((options && options.headers) || {})
+      },
+      body: options && options.body
+        ? JSON.stringify(options.body)
+        : undefined
+    });
+
+    if (!response.ok) {
+      throw new Error("Mongol Poker server: HTTP " + response.status);
+    }
+
+    return response.json();
+  }
+
+  window.mpServerRequest = mpServerRequest;
+
+  window.mpServerHealth = async function () {
+    try {
+      const data = await mpServerRequest("/health");
+      console.log("MP SERVER CONNECTED", data);
+      window.MP_SERVER_CONNECTED = true;
+      return data;
+    } catch (err) {
+      console.error("MP SERVER CONNECTION FAILED", err);
+      window.MP_SERVER_CONNECTED = false;
+      return null;
+    }
+  };
+
+  window.mpServerHealth();
+})();
+</script>
