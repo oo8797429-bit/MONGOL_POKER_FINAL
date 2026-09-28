@@ -1343,6 +1343,10 @@ async function mpStartSharedLobby(opts={}){
       const remoteBots=Array.isArray(v.bots)?v.bots:Object.values(v.bots||{});
       if(v.tables!==undefined){
         db.tables=remoteTables.filter(Boolean).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
+        // A stale 21-table Firebase snapshot must not shrink the live lobby. Add real table records to 25.
+        const stakes=[[5000,100,200],[10000,200,400],[15000,300,600],[30000,500,1000],[75000,1000,2000],[150000,2000,4000]];
+        const used=new Set(db.tables.map(t=>String(t.id)));
+        for(let i=db.tables.length;i<25;i++){const n=i+1,st=stakes[i%stakes.length],type=(i%5===4?'omaha':'holdem');let id='mp25_'+n;while(used.has(id))id+='_x';used.add(id);db.tables.push({id,name:(type==='omaha'?'OMAHA ':'TEXAS ')+'ШИРЭЭ - '+n,type,sb:st[1],bb:st[2],buy:st[0],color:['gold','blue','green'][i%3],open:true});}
       }
       db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true,gameType:String(b.gameType||b.type||'holdem').toLowerCase()==='omaha'?'omaha':'holdem',tableId:String(b.tableId||'')}));
       if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
@@ -2690,6 +2694,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
   }
   async function startSpectatorBotLoop(){
     if(spectatorBotLoopRunning||!spectatorModeActive())return;
+    // Shared tables have exactly one progression owner. Viewers only render Firebase state.
+    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true)return;
     spectatorBotLoopRunning=true;
     try{
       if(window.__mpRestoredSpectatorHand && spectatorModeActive() && !finished){
@@ -2744,7 +2750,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     }finally{
       spectatorBotLoopRunning=false;
       liveRoundBusy=false;
-      if(spectatorModeActive())setTimeout(startSpectatorBotLoop,350);
+      if(spectatorModeActive()&&(!window.__MP_FOUR_ERROR_FINAL_FIX_V1__||window.__mpGameLeaseOwner===true))setTimeout(startSpectatorBotLoop,350);
     }
   }
 
@@ -4845,7 +4851,11 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     r.on('value',gameCb);
   }
   async function put(s){
-    if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
+    if(remoteApplying||!s||!s.currentTable)return false;
+    // Once the lease system is active, only the authoritative browser may write game state.
+    // Other Messenger/Chrome instances are read-only renderers and must never overwrite pot/board/turn.
+    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true)return false;
+    if(!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
     const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
     try{
@@ -4994,6 +5004,9 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   if(typeof _restoreOwner==='function')window.mpRestorePokerSession=function(s){
     const r=_restoreOwner.apply(this,arguments);
     if(r&&currentTable&&!window.__mpGameLeaseOwner){try{stopUserTurnClock()}catch(e){} liveRoundBusy=false;}
+    if(r&&currentTable&&window.__mpGameLeaseOwner===true&&spectator&&!userSeatedAtTable&&!finished){
+      setTimeout(()=>{try{startSpectatorBotLoop()}catch(e){}},250);
+    }
     return r;
   };
 
