@@ -4912,3 +4912,93 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   #game .pokerTable .seat.s6{right:-7%!important;left:auto!important;top:38%!important;bottom:auto!important;transform:translateY(-50%)!important}
 }
 </style>
+<script id="MP-FOUR-ERROR-FINAL-FIX-V1">
+(function(){
+  if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__)return;
+  window.__MP_FOUR_ERROR_FINAL_FIX_V1__=true;
+
+  /* 4) Lobby must contain 25 real joinable table records, not only a visual count. */
+  function ensure25Tables(){
+    if(!window.db||!Array.isArray(db.tables))return;
+    const stakes=[
+      [5000,100,200],[10000,200,400],[15000,300,600],[30000,500,1000],[75000,1000,2000],[150000,2000,4000]
+    ];
+    const used=new Set(db.tables.map(t=>String(t.id)));
+    for(let i=db.tables.length;i<25;i++){
+      const n=i+1, st=stakes[i%stakes.length], type=(i%5===4?'omaha':'holdem');
+      let id='mp25_'+n; while(used.has(id))id+='_x'; used.add(id);
+      db.tables.push({id,name:(type==='omaha'?'OMAHA ':'TEXAS ')+'ШИРЭЭ - '+n,type,sb:st[1],bb:st[2],buy:st[0],color:['gold','blue','green'][i%3],open:true});
+    }
+  }
+  ensure25Tables();
+  const _renderTables25=window.renderTables;
+  if(typeof _renderTables25==='function')window.renderTables=function(){ensure25Tables();return _renderTables25.apply(this,arguments)};
+
+  /* 1/2/3) One browser owns the live hand clock/action progression at a time.
+     Other Messenger/Chrome instances only render the same Firebase sharedGames state. */
+  const CLIENT=(sessionStorage.getItem('mpGameClientId')||('c_'+Date.now()+'_'+Math.random().toString(36).slice(2)));
+  sessionStorage.setItem('mpGameClientId',CLIENT);
+  let ownedTable='',leaseTimer=0;
+  window.__mpGameLeaseOwner=false;
+  function leaseRef(id){try{return window.mpRtdb&&mpRtdb.ref('sharedGameLeases/'+String(id))}catch(e){return null}}
+  async function acquire(id){
+    const r=leaseRef(id); if(!r){window.__mpGameLeaseOwner=true;ownedTable=String(id||'');return true}
+    try{
+      const now=Date.now(),res=await r.transaction(v=>{
+        if(!v||String(v.owner||'')===CLIENT||Number(v.until||0)<now)return {owner:CLIENT,until:now+12000};
+      },undefined,false);
+      const v=res.snapshot&&res.snapshot.val();
+      window.__mpGameLeaseOwner=!!(v&&String(v.owner)===CLIENT); ownedTable=window.__mpGameLeaseOwner?String(id):'';
+      return window.__mpGameLeaseOwner;
+    }catch(e){window.__mpGameLeaseOwner=false;return false}
+  }
+  async function renew(){if(!ownedTable||!window.__mpGameLeaseOwner)return;const r=leaseRef(ownedTable);if(!r)return;try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.set({owner:CLIENT,until:Date.now()+12000});else{ownedTable='';window.__mpGameLeaseOwner=false}}catch(e){}}
+  clearInterval(leaseTimer);leaseTimer=setInterval(renew,5000);
+
+  const _joinLease=window.join;
+  if(typeof _joinLease==='function')window.join=async function(id){await acquire(id);return _joinLease.apply(this,arguments)};
+  const _leaveLease=window.leaveTable;
+  if(typeof _leaveLease==='function')window.leaveTable=async function(){
+    const id=ownedTable,r=leaseRef(id);ownedTable='';window.__mpGameLeaseOwner=false;
+    if(r){try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.remove()}catch(e){}}
+    return _leaveLease.apply(this,arguments);
+  };
+
+  /* Prevent duplicate turn timers from two devices advancing the same restored hand. */
+  const _startUserTurn=window.startUserTurn;
+  if(typeof _startUserTurn==='function')window.startUserTurn=function(){if(!window.__mpGameLeaseOwner)return;return _startUserTurn.apply(this,arguments)};
+
+  /* Prevent a non-owner device from creating the next deck/hand. */
+  const _newHandOwner=window.newHand;
+  if(typeof _newHandOwner==='function')window.newHand=function(){
+    if(currentTable&&tableSession&&!window.__mpGameLeaseOwner)return;
+    return _newHandOwner.apply(this,arguments);
+  };
+
+  /* Keep bot/action labels tied to the current state instead of stale previous actions. */
+  const _botsState=window.bots;
+  if(typeof _botsState==='function')window.bots=function(amount){
+    if(currentTable&&tableSession&&!window.__mpGameLeaseOwner)return;
+    if(Array.isArray(liveSeatStatus))for(let i=1;i<liveSeatStatus.length;i++)liveSeatStatus[i]='';
+    const before=Array.isArray(players)?players.map(p=>Number(p&&p.chips||0)):[];
+    const r=_botsState.apply(this,arguments);
+    if(Array.isArray(liveSeatStatus)&&Array.isArray(players))for(let i=1;i<players.length;i++){
+      if(folded&&folded[i])liveSeatStatus[i]='FOLD';
+      else {const paid=Math.max(0,(before[i]||0)-Number(players[i]?.chips||0));liveSeatStatus[i]=paid>0?('CALL '+fmt(paid)):'CHECK';}
+    }
+    return r;
+  };
+
+  /* Remote restore is display-only on non-owner devices; owner resumes the saved hand. */
+  const _restoreOwner=window.mpRestorePokerSession;
+  if(typeof _restoreOwner==='function')window.mpRestorePokerSession=function(s){
+    const r=_restoreOwner.apply(this,arguments);
+    if(r&&currentTable&&!window.__mpGameLeaseOwner){try{stopUserTurnClock()}catch(e){} liveRoundBusy=false;}
+    return r;
+  };
+
+  /* Make sure a 21-table Firebase snapshot cannot shrink this client back below 25. */
+  setInterval(()=>{try{if(db&&Array.isArray(db.tables)&&db.tables.length<25){ensure25Tables();if(document.getElementById('tables')?.classList.contains('active'))renderTables()}}catch(e){}},1200);
+})();
+</script>
+
