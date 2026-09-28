@@ -2636,16 +2636,8 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       if(!spectatorModeActive())return false;
       if(folded[i]||(Number(players[i]?.chips)||0)<=0)continue;
       liveTurn=i;turnLeft=TURN_SECONDS;
-      setStatus(players[i].name+'-ийн ээлж • '+TURN_SECONDS+' сек');renderGame();
-      // Spectator/bot tables must use the same real 20-second turn clock.
-      // Previously this path acted after only 0.65–1.3s, which made bots race.
-      const botActAt=Math.max(1,TURN_SECONDS-(Math.random()<0.85?1:0));
-      for(let sec=0;sec<botActAt;sec++){
-        if(!spectatorModeActive() || (window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true))return false;
-        turnLeft=Math.max(0,TURN_SECONDS-sec);paintTurnClock();
-        await wait(1000);
-      }
-      turnLeft=Math.max(0,TURN_SECONDS-botActAt);paintTurnClock();
+      setStatus(players[i].name+'-ийн ээлж');renderGame();
+      await wait(Math.max(1000,(TURN_SECONDS-2)*1000+Math.floor(Math.random()*2000)));
       if(!spectatorModeActive())return false;
       /* Never let the final two live players both disappear pre-flop.
          This keeps a real hand progressing to the board instead of constantly
@@ -2676,6 +2668,21 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     }
     return true;
   }
+  function persistSpectatorBotStacks(){
+    try{
+      if(!Array.isArray(players)||!window.db||!Array.isArray(db.bots))return;
+      let changed=false;
+      players.forEach(p=>{
+        if(!p||!p.botId)return;
+        const b=db.bots.find(x=>String(x.id)===String(p.botId));
+        if(!b)return;
+        const chips=Math.max(0,Math.floor(Number(p.chips)||0));
+        if(Number(b.chips)!==chips){b.chips=chips;changed=true;}
+        if(chips<=0&&b.tableId){b.tableId='';changed=true;}
+      });
+      if(changed){save();try{mpPublishSharedLobby()}catch(e){}}
+    }catch(e){console.warn('persist bot stacks',e)}
+  }
   async function spectatorBotFinishHand(){
     if(!spectatorModeActive())return;
     let alive=spectatorAliveSeats();
@@ -2686,6 +2693,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;liveSeatStatus[w]='ЯЛАГЧ +'+fmt(p.net);
       setStatus(players[w].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');
       renderGame();
+      persistSpectatorBotStacks();
       return;
     }
     completeBoardToRiver();
@@ -2699,6 +2707,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const won=p.net;potAmt=0;finished=true;liveWinner=showdownWinners[0]??-1;
     setStatus(showdownWinners.map(i=>players[i].name).join(', ')+' яллаа — '+(best?.name||'')+' • +'+fmt(won)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');
     renderGame();
+    persistSpectatorBotStacks();
   }
   async function startSpectatorBotLoop(){
     if(spectatorBotLoopRunning||!spectatorModeActive())return;
@@ -4862,7 +4871,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(remoteApplying||!s||!s.currentTable)return false;
     // Once the lease system is active, only the authoritative browser may write game state.
     // Other Messenger/Chrome instances are read-only renderers and must never overwrite pot/board/turn.
-    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true)return false;
+    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && spectator&&!userSeatedAtTable && window.__mpGameLeaseOwner!==true)return false;
     if(!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
     const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
@@ -4972,35 +4981,23 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   }
   async function renew(){if(!ownedTable||!window.__mpGameLeaseOwner)return;const r=leaseRef(ownedTable);if(!r)return;try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.set({owner:CLIENT,until:Date.now()+12000});else{ownedTable='';window.__mpGameLeaseOwner=false}}catch(e){}}
   clearInterval(leaseTimer);leaseTimer=setInterval(renew,5000);
+  window.addEventListener('pagehide',()=>{try{if(ownedTable&&window.__mpGameLeaseOwner){const r=leaseRef(ownedTable);if(r)r.remove()}}catch(e){}});
 
   const _joinLease=window.join;
   if(typeof _joinLease==='function')window.join=async function(id){await acquire(id);return _joinLease.apply(this,arguments)};
   const _leaveLease=window.leaveTable;
   if(typeof _leaveLease==='function')window.leaveTable=async function(){
-    // Save the exact live hand while this browser is still the authoritative owner.
-    // Only release the lease AFTER the sharedGames write/suspend has completed.
-    const id=ownedTable,r=leaseRef(id);
-    const out=await _leaveLease.apply(this,arguments);
-    ownedTable='';window.__mpGameLeaseOwner=false;
+    const id=ownedTable,r=leaseRef(id);ownedTable='';window.__mpGameLeaseOwner=false;
     if(r){try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.remove()}catch(e){}}
-    return out;
+    return _leaveLease.apply(this,arguments);
   };
 
-  /* Prevent duplicate turn timers from two devices advancing the same restored hand. */
-  const _startUserTurn=window.startUserTurn;
-  if(typeof _startUserTurn==='function')window.startUserTurn=function(){if(!window.__mpGameLeaseOwner)return;return _startUserTurn.apply(this,arguments)};
-
-  /* Prevent a non-owner device from creating the next deck/hand. */
-  const _newHandOwner=window.newHand;
-  if(typeof _newHandOwner==='function')window.newHand=function(){
-    if(currentTable&&tableSession&&!window.__mpGameLeaseOwner)return;
-    return _newHandOwner.apply(this,arguments);
-  };
+  /* Human turns/new-hand flow must never be blocked by the bot-engine lease.
+     The lease is only for automatic spectator/bot progression. */
 
   /* Keep bot/action labels tied to the current state instead of stale previous actions. */
   const _botsState=window.bots;
   if(typeof _botsState==='function')window.bots=function(amount){
-    if(currentTable&&tableSession&&!window.__mpGameLeaseOwner)return;
     if(Array.isArray(liveSeatStatus))for(let i=1;i<liveSeatStatus.length;i++)liveSeatStatus[i]='';
     const before=Array.isArray(players)?players.map(p=>Number(p&&p.chips||0)):[];
     const r=_botsState.apply(this,arguments);
@@ -5022,22 +5019,19 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     return r;
   };
 
-  /* Automatic owner failover: if the owner phone/browser leaves, any other
-     connected viewer of the same table takes the expired/free lease and
-     continues the exact Firebase-restored hand instead of starting a new one. */
-  setInterval(async function(){
+
+  async function ensureBotEngineOwner(){
     try{
-      if(!currentTable||!tableSession||window.__mpGameLeaseOwner===true)return;
+      if(!currentTable||!tableSession||!spectator||userSeatedAtTable)return;
+      if(window.__mpGameLeaseOwner===true){if(!spectatorBotLoopRunning&&!finished)startSpectatorBotLoop();return;}
       const ok=await acquire(currentTable.id);
-      if(!ok)return;
-      if(spectator&&!userSeatedAtTable&&!finished){
-        window.__mpRestoredSpectatorHand=true;
-        setTimeout(()=>{try{startSpectatorBotLoop()}catch(e){}},150);
-      }else if(userSeatedAtTable&&!finished){
-        setTimeout(()=>{try{startUserTurn()}catch(e){}},150);
+      if(ok&&!spectatorBotLoopRunning){
+        window.__mpRestoredSpectatorHand=!finished;
+        startSpectatorBotLoop();
       }
     }catch(e){}
-  },3000);
+  }
+  setInterval(ensureBotEngineOwner,3000);
 
   /* Make sure a 21-table Firebase snapshot cannot shrink this client back below 25. */
   setInterval(()=>{try{if(db&&Array.isArray(db.tables)&&db.tables.length<25){ensure25Tables();if(document.getElementById('tables')?.classList.contains('active'))renderTables()}}catch(e){}},1200);
