@@ -2636,8 +2636,16 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       if(!spectatorModeActive())return false;
       if(folded[i]||(Number(players[i]?.chips)||0)<=0)continue;
       liveTurn=i;turnLeft=TURN_SECONDS;
-      setStatus(players[i].name+'-ийн ээлж');renderGame();
-      await wait(650+Math.floor(Math.random()*650));
+      setStatus(players[i].name+'-ийн ээлж • '+TURN_SECONDS+' сек');renderGame();
+      // Spectator/bot tables must use the same real 20-second turn clock.
+      // Previously this path acted after only 0.65–1.3s, which made bots race.
+      const botActAt=Math.max(1,TURN_SECONDS-(Math.random()<0.85?1:0));
+      for(let sec=0;sec<botActAt;sec++){
+        if(!spectatorModeActive() || (window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true))return false;
+        turnLeft=Math.max(0,TURN_SECONDS-sec);paintTurnClock();
+        await wait(1000);
+      }
+      turnLeft=Math.max(0,TURN_SECONDS-botActAt);paintTurnClock();
       if(!spectatorModeActive())return false;
       /* Never let the final two live players both disappear pre-flop.
          This keeps a real hand progressing to the board instead of constantly
@@ -4969,9 +4977,13 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   if(typeof _joinLease==='function')window.join=async function(id){await acquire(id);return _joinLease.apply(this,arguments)};
   const _leaveLease=window.leaveTable;
   if(typeof _leaveLease==='function')window.leaveTable=async function(){
-    const id=ownedTable,r=leaseRef(id);ownedTable='';window.__mpGameLeaseOwner=false;
+    // Save the exact live hand while this browser is still the authoritative owner.
+    // Only release the lease AFTER the sharedGames write/suspend has completed.
+    const id=ownedTable,r=leaseRef(id);
+    const out=await _leaveLease.apply(this,arguments);
+    ownedTable='';window.__mpGameLeaseOwner=false;
     if(r){try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.remove()}catch(e){}}
-    return _leaveLease.apply(this,arguments);
+    return out;
   };
 
   /* Prevent duplicate turn timers from two devices advancing the same restored hand. */
@@ -5009,6 +5021,23 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     }
     return r;
   };
+
+  /* Automatic owner failover: if the owner phone/browser leaves, any other
+     connected viewer of the same table takes the expired/free lease and
+     continues the exact Firebase-restored hand instead of starting a new one. */
+  setInterval(async function(){
+    try{
+      if(!currentTable||!tableSession||window.__mpGameLeaseOwner===true)return;
+      const ok=await acquire(currentTable.id);
+      if(!ok)return;
+      if(spectator&&!userSeatedAtTable&&!finished){
+        window.__mpRestoredSpectatorHand=true;
+        setTimeout(()=>{try{startSpectatorBotLoop()}catch(e){}},150);
+      }else if(userSeatedAtTable&&!finished){
+        setTimeout(()=>{try{startUserTurn()}catch(e){}},150);
+      }
+    }catch(e){}
+  },3000);
 
   /* Make sure a 21-table Firebase snapshot cannot shrink this client back below 25. */
   setInterval(()=>{try{if(db&&Array.isArray(db.tables)&&db.tables.length<25){ensure25Tables();if(document.getElementById('tables')?.classList.contains('active'))renderTables()}}catch(e){}},1200);
