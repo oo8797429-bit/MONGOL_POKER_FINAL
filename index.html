@@ -1310,7 +1310,7 @@ function mpSharedLobbyPayload(){
     bots:(db?.bots||[]).filter(isAdminCreatedBot).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true,gameType:mpBotGameType(b),tableId:String(b.tableId||'')})),
     promotions:(db?.promotions||[]).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)})),
     tournaments:(db?.tournaments||[]).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)})),
-    rakePercent:Number(db?.rake?.percent??1),
+    rakePercent:2,
     updatedAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()
   };
 }
@@ -1348,7 +1348,7 @@ async function mpStartSharedLobby(opts={}){
       if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
       if(v.tournaments!==undefined){const rt=Array.isArray(v.tournaments)?v.tournaments:Object.values(v.tournaments||{});db.tournaments=rt.filter(Boolean).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)}));}
       db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
-      if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
+      db.rake.percent=2;
       try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
       try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}
       try{if(currentUser?.role==='admin'&&document.getElementById('admin')?.classList.contains('active'))renderAdmin()}catch(e){}
@@ -1733,7 +1733,7 @@ function isAdminCreatedBot(b){
   return !!b && !isAutoFillerBot(b) && (b.adminCreated===true || /^b\d{10,}$/.test(String(b.id||'')));
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
-function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:0};if(!db.settings.startZeroV1){db.settings.start=0;db.settings.startZeroV1=true;}db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.withdrawals=db.withdrawals||[];db.promotions=Array.isArray(db.promotions)?db.promotions:[];if(!Array.isArray(db.tournaments))db.tournaments=[{id:'tr1',title:'FREEROLL - 100K',prize:'100,000',buyin:'Үнэгүй',players:12,time:'11:37',active:true},{id:'tr2',title:'УЛААН 500,000₮ BUY IN',prize:'100,000',buyin:'1,000',players:21,time:'11:37',active:true},{id:'tr3',title:'FREEROLL - 100K',prize:'100,000',buyin:'Тоглож байна',players:30,time:'11:37',active:true},{id:'tr4',title:'ШАР 1,500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:39,time:'✓',active:true},{id:'tr5',title:'FREEROLL - 100K',prize:'100,000',buyin:'✓',players:48,time:'✓',active:true},{id:'tr6',title:'УЛААН 500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:57,time:'✓',active:true}];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:0};if(!db.settings.startZeroV1){db.settings.start=0;db.settings.startZeroV1=true;}db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.withdrawals=db.withdrawals||[];db.promotions=Array.isArray(db.promotions)?db.promotions:[];if(!Array.isArray(db.tournaments))db.tournaments=[{id:'tr1',title:'FREEROLL - 100K',prize:'100,000',buyin:'Үнэгүй',players:12,time:'11:37',active:true},{id:'tr2',title:'УЛААН 500,000₮ BUY IN',prize:'100,000',buyin:'1,000',players:21,time:'11:37',active:true},{id:'tr3',title:'FREEROLL - 100K',prize:'100,000',buyin:'Тоглож байна',players:30,time:'11:37',active:true},{id:'tr4',title:'ШАР 1,500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:39,time:'✓',active:true},{id:'tr5',title:'FREEROLL - 100K',prize:'100,000',buyin:'✓',players:48,time:'✓',active:true},{id:'tr6',title:'УЛААН 500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:57,time:'✓',active:true}];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});db.rake.percent=2;db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});/* Keep admin-created custom bots, but permanently remove old automatic Player N / Bot N fillers. */db.bots=db.bots.filter(isAdminCreatedBot).map(b=>Object.assign(b,{adminCreated:true}));save()}
 function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
 async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:0,cgp:0,stars:0,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
@@ -1775,7 +1775,7 @@ async function mpRefreshSharedLobbyOnce(){
     if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
     if(v.tournaments!==undefined){const rt=Array.isArray(v.tournaments)?v.tournaments:Object.values(v.tournaments||{});db.tournaments=rt.filter(Boolean).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)}));}
     db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
-    if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
+    db.rake.percent=2;
     try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
     return true;
   }catch(e){console.warn('Shared lobby fresh read failed',e);return false}
@@ -1946,7 +1946,7 @@ async function collectAdminRake(){
 function takeRakeFromPot(){
   let gross=Math.max(0,Math.floor(potAmt||0));
   db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
-  let pct=Math.max(0,Math.min(20,Number(db.rake.percent)||0));
+  let pct=2; db.rake.percent=2;
   let rake=(gross>0&&pct>0)?Math.max(1,Math.floor(gross*pct/100)):0;
   if(rake>gross)rake=gross;
   if(rake>0){
@@ -4640,8 +4640,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 
 
 
-<!-- Disabled: synthetic rake engine generated charges without completed hands. Actual rake must be recorded only on a settled pot. -->
-
+<!-- Disabled synthetic background rake: only actual completed hands may generate rake. -->
 <style id="mp-admin-seat-menu-editor-style">
 #mpSeatEditBar2{display:none;position:fixed;left:8px;right:8px;bottom:82px;z-index:10060;background:#0b0b0bf2;border:1px solid #d7aa42;border-radius:12px;padding:8px;gap:7px;align-items:center;justify-content:center}
 #mpSeatEditBar2 button{border:1px solid #d7aa42;border-radius:8px;background:#17120a;color:#f3ca68;padding:9px 12px;font-weight:900}
@@ -4703,14 +4702,12 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       if(chip<=0)return;
       var ts=openTables();
       if(!ts.length)return;
-      // Match the bot's chips to the exact table buy-in; never seat at a nearby stake.
-      var selected=bot.tableId||bot.selectedTableId||bot.targetTableId;
-      var matches=ts.filter(function(t){
-        var buyIn=n(t.buyIn??t.buyin??t.minBuyIn??t.minBuyin??0);
-        return buyIn===chip && (!selected || String(t.id)===String(selected));
+      ts.sort(function(a,b){
+        var aa=n(a.buyIn||a.buyin||a.minBuyIn||a.minBuyin||a.bb||0);
+        var bb=n(b.buyIn||b.buyin||b.minBuyIn||b.minBuyin||b.bb||0);
+        return Math.abs(aa-chip)-Math.abs(bb-chip);
       });
-      if(!matches.length)return;
-      var t=matches[0];
+      var t=ts[0];
       if(typeof autoSeatBot==='function')return autoSeatBot(bot,t);
       if(typeof seatBot==='function')return seatBot(bot,t);
       if(typeof assignBotToTable==='function')return assignBotToTable(bot,t);
@@ -4827,15 +4824,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
     const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
-    try{
-      const result=await r.transaction(function(remote){
-        if(remote && Number(remote.savedAt||0)>Number(lastRemoteSavedAt||0))return;
-        x.savedAt=Math.max(Date.now(),Number(remote?.savedAt||0)+1);
-        return x;
-      },undefined,false);
-      if(!result.committed){const latest=result.snapshot.val();if(latest)applyRemote(latest);return false}
-      lastRemoteSavedAt=x.savedAt;return true;
-    }catch(e){console.warn('game save failed',e);return false}
+    try{lastRemoteSavedAt=x.savedAt;await r.set(x);return true}catch(e){console.warn('game save failed',e);return false}
   }
   async function get(id){if(!(await ready()))return null;const r=ref(id);if(!r)return null;try{const sn=await r.once('value');return sn.val()||null}catch(e){console.warn('game read failed',e);return null}}
   const baseJoin=window.join;
@@ -4856,7 +4845,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(currentTable&&tableSession&&typeof window.mpCapturePokerSession==='function')await put(window.mpCapturePokerSession());
     detach();try{window.mpSuspendPokerSession()}catch(e){}try{closeSide()}catch(e){}show('tables');
   };
-  function queue(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(currentTable&&tableSession&&!busy&&!remoteApplying&&typeof window.mpCapturePokerSession==='function')put(window.mpCapturePokerSession())},180)}
+  function queue(){if(remoteApplying)return;clearTimeout(saveTimer);saveTimer=setTimeout(()=>{if(currentTable&&tableSession&&!busy&&!remoteApplying&&typeof window.mpCapturePokerSession==='function')put(window.mpCapturePokerSession())},180)}
   const baseRender=window.renderGame;
   window.renderGame=function(){const r=baseRender.apply(this,arguments);queue();return r};
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&currentTable&&tableSession)put(window.mpCapturePokerSession())});
