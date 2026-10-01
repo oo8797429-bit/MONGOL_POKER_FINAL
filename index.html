@@ -1061,6 +1061,29 @@
 #game .pokerTable .seat .seatStatus,#game .pokerTable .seat .blindTag{height:18px!important;min-height:18px!important;max-height:18px!important;line-height:12px!important;padding:2px 6px!important;box-sizing:border-box!important;overflow:hidden!important;writing-mode:horizontal-tb!important}
 #game .pokerTable .seat .seatStatus::before,#game .pokerTable .seat .seatStatus::after,#game .pokerTable .seat .blindTag::before,#game .pokerTable .seat .blindTag::after{height:0!important;max-height:0!important;box-shadow:none!important}
 </style>
+
+<style id="mp-home-red-lightweight">
+/* HOME ONLY. No game/admin/cash/server logic touched. */
+#home .exactHome{background:
+ radial-gradient(circle at 50% 18%,rgba(125,0,0,.32),transparent 38%),
+ linear-gradient(180deg,#120303 0%,#050606 48%,#020707 100%)}
+#home .exactHomeArt{filter:saturate(1.28) contrast(1.08) brightness(.88)}
+#home:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+ background:linear-gradient(180deg,rgba(135,0,0,.12),transparent 36%,rgba(90,0,0,.10));
+ box-shadow:inset 0 0 55px rgba(255,20,10,.15)}
+#home .cashGuideTicker{border-color:#ff392c!important;background:rgba(17,3,4,.94)!important;
+ box-shadow:0 0 9px rgba(255,34,25,.55),inset 0 0 10px rgba(255,45,25,.18)!important}
+#home .telegramContactBanner{border-color:#ff342b!important;background:linear-gradient(100deg,rgba(48,5,7,.97),rgba(10,8,9,.97))!important;
+ box-shadow:0 0 12px rgba(255,35,25,.62),inset 0 0 18px rgba(255,35,25,.20)!important}
+#home .goodPlayerTicker{position:absolute;left:2.5%;top:72.5%;width:82%;height:3.5%;z-index:12;overflow:hidden;
+ display:flex;align-items:center;border:1px solid #ff3b2d;border-radius:999px;background:rgba(18,3,4,.96);
+ box-shadow:0 0 9px rgba(255,36,24,.55);pointer-events:none}
+#home .goodPlayerTrack{white-space:nowrap;min-width:max-content;padding-left:100%;color:#ffd45b;font-weight:900;
+ font-size:clamp(8px,2.7vw,13px);text-shadow:0 0 6px #ff5a19;animation:mpGoodPlayer 13s linear infinite}
+@keyframes mpGoodPlayer{to{transform:translateX(-100%)}}
+@media(prefers-reduced-motion:reduce){#home .goodPlayerTrack{animation:none;padding-left:4%}}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1076,6 +1099,7 @@
   <div class="cashGuideTicker" onclick="featureOpen('cash','cash')" role="button" aria-label="Цэнэглэх заавар">
     <div class="cashGuideTrack">««« 💰 Цэнэглэх заавар КАСС хэсэгт байгаа шүү! &nbsp;&nbsp;|&nbsp;&nbsp; 💰 Асуух зүйл байвал админтай холбогдоорой! »»»</div>
   </div>
+  <div class="goodPlayerTicker" aria-hidden="true"><div class="goodPlayerTrack">♛ САЙН ТОГЛОГЧ ХҮЛЭЭЖ ЧАДДАГ ♛ &nbsp;&nbsp;&nbsp; ♛ САЙН ТОГЛОГЧ ХҮЛЭЭЖ ЧАДДАГ ♛</div></div>
   <button type="button" class="telegramContactBanner" onclick="show('contact')" aria-label="Админтай холбогдох">
     <span class="telegramIcon">➤</span>
     <span class="telegramCopy"><b>Админтай холбогдох</b><small>Telegram-аар шууд холбогдоно уу</small></span>
@@ -1188,7 +1212,7 @@
 <div class="rowBtns"><button class="smallBtn" onclick="saveTournamentAdmin()">Хадгалах / Нэмэх</button><button class="smallBtn" onclick="clearTournamentAdmin()">Шинэ</button></div>
 <div id="adminTournaments" style="margin-top:8px"></div>
 </div>
-<div class="adminCard"><h3>Апп удирдлага</h3><div class="field"><label>Нүүр баннер</label><input id="adminBanner" value="АДМИНТАЙ ХОЛБОГДОХ"></div><div class="field"><label>Шинэ хэрэглэгчийн эхлэх chip</label><input id="adminStart" type="number" value="0"></div><button class="primary" onclick="saveAdminSettings()">Хадгалах</button></div><div class="adminCard"><h3>Ширээний татас (RAKE)</h3><div class="field"><label>Татас %</label><input id="adminRakePercent" type="number" min="0" max="20" step="0.1" value="1"></div><div class="settingRow"><span>Одоогийн татас</span><b id="adminRakeBalance">0</b></div><div class="settingRow"><span>Нийт цугларсан</span><b id="adminRakeTotal">0</b></div><div class="rowBtns"><button class="smallBtn" onclick="saveRakeSettings()">Хадгалах</button><button class="smallBtn" onclick="collectAdminRake()">Татас авах</button></div><div style="font-size:9px;color:#8e969a;margin-top:8px">Гар дуусах бүрт pot-оос тохируулсан хувийн татас автоматаар суутгагдаж энд цугларна. “Татас авах” дарахад админы chip үлдэгдэлд орно.</div></div><div class="adminCard"><h3>Жекпот удирдлага</h3><div class="field"><label>Жекпот дүн</label><input id="adminJackpot" type="number" min="0" step="100" value="200000"></div><div class="field"><label>Blind</label><input id="adminJpBlind" value="500/1000+"></div><div class="field"><label>Тоглоом</label><select id="adminJpGame"><option value="Texas Hold'em">Texas Hold'em</option><option value="Omaha">Omaha</option></select></div><div class="field"><label>Bad Beat Trigger</label><input id="adminJpTrigger" value="AAAA beaten by Straight Flush or better"></div><div class="field"><label>Ялагдсан гар %</label><input id="adminJpLoser" type="number" value="25"></div><div class="field"><label>Ялагч гар %</label><input id="adminJpWinner" type="number" value="40"></div><div class="field"><label>Ширээний бусад тоглогч %</label><input id="adminJpTable" type="number" value="15"></div><div class="field"><label>House %</label><input id="adminJpHouse" type="number" value="0"></div><div class="rowBtns"><button class="smallBtn" onclick="adminSetJackpot()">Хадгалах</button><button class="smallBtn" onclick="adminAddJackpot(10000)">+10,000</button><button class="smallBtn red" onclick="adminResetJackpot()">200,000 болгох</button></div><div style="font-size:9px;color:#8e969a;margin-top:8px">Жекпот тусдаа удирдлагатай. Ширээний RAKE нь дээрх “Ширээний татас” хэсэгт цугларна.</div></div>
+<div class="adminCard"><h3>Апп удирдлага</h3><div class="field"><label>Нүүр баннер</label><input id="adminBanner" value="АДМИНТАЙ ХОЛБОГДОХ"></div><div class="field"><label>Шинэ хэрэглэгчийн эхлэх chip</label><input id="adminStart" type="number" value="0"></div><button class="primary" onclick="saveAdminSettings()">Хадгалах</button></div><div class="adminCard"><h3>Ширээний татас (RAKE)</h3><div class="field"><label>Татас %</label><input id="adminRakePercent" type="number" min="0" max="20" step="0.1" value="2"></div><div class="settingRow"><span>Одоогийн татас</span><b id="adminRakeBalance">0</b></div><div class="settingRow"><span>Нийт цугларсан</span><b id="adminRakeTotal">0</b></div><div class="rowBtns"><button class="smallBtn" onclick="saveRakeSettings()">Хадгалах</button><button class="smallBtn" onclick="collectAdminRake()">Татас авах</button></div><div style="font-size:9px;color:#8e969a;margin-top:8px">Гар дуусах бүрт pot-оос тохируулсан хувийн татас автоматаар суутгагдаж энд цугларна. “Татас авах” дарахад админы chip үлдэгдэлд орно.</div></div><div class="adminCard"><h3>Жекпот удирдлага</h3><div class="field"><label>Жекпот дүн</label><input id="adminJackpot" type="number" min="0" step="100" value="200000"></div><div class="field"><label>Blind</label><input id="adminJpBlind" value="500/1000+"></div><div class="field"><label>Тоглоом</label><select id="adminJpGame"><option value="Texas Hold'em">Texas Hold'em</option><option value="Omaha">Omaha</option></select></div><div class="field"><label>Bad Beat Trigger</label><input id="adminJpTrigger" value="AAAA beaten by Straight Flush or better"></div><div class="field"><label>Ялагдсан гар %</label><input id="adminJpLoser" type="number" value="25"></div><div class="field"><label>Ялагч гар %</label><input id="adminJpWinner" type="number" value="40"></div><div class="field"><label>Ширээний бусад тоглогч %</label><input id="adminJpTable" type="number" value="15"></div><div class="field"><label>House %</label><input id="adminJpHouse" type="number" value="0"></div><div class="rowBtns"><button class="smallBtn" onclick="adminSetJackpot()">Хадгалах</button><button class="smallBtn" onclick="adminAddJackpot(10000)">+10,000</button><button class="smallBtn red" onclick="adminResetJackpot()">200,000 болгох</button></div><div style="font-size:9px;color:#8e969a;margin-top:8px">Жекпот тусдаа удирдлагатай. Ширээний RAKE нь дээрх “Ширээний татас” хэсэгт цугларна.</div></div>
 <div class="adminCard" id="adminBankCard"><h3>🏦 Цэнэглэлтийн банк / данс — зөвхөн админ</h3>
 <div class="field"><label>Банк сонгох</label><select id="adminBankName">
 <option value="ХААН БАНК">ХААН БАНК</option>
@@ -1310,7 +1334,7 @@ function mpSharedLobbyPayload(){
     bots:(db?.bots||[]).filter(isAdminCreatedBot).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true,gameType:mpBotGameType(b),tableId:String(b.tableId||'')})),
     promotions:(db?.promotions||[]).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)})),
     tournaments:(db?.tournaments||[]).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)})),
-    rakePercent:Number(db?.rake?.percent??1),
+    rakePercent:Number(db?.rake?.percent??2),
     updatedAt:firebase?.database?.ServerValue?.TIMESTAMP||Date.now()
   };
 }
@@ -1343,11 +1367,15 @@ async function mpStartSharedLobby(opts={}){
       const remoteBots=Array.isArray(v.bots)?v.bots:Object.values(v.bots||{});
       if(v.tables!==undefined){
         db.tables=remoteTables.filter(Boolean).map(t=>({id:String(t.id||''),name:String(t.name||''),type:String(t.type||'holdem'),sb:Number(t.sb||0),bb:Number(t.bb||0),buy:Number(t.buy||0),color:String(t.color||'gold'),open:t.open!==false}));
+        // A stale 21-table Firebase snapshot must not shrink the live lobby. Add real table records to 25.
+        const stakes=[[5000,100,200],[10000,200,400],[15000,300,600],[30000,500,1000],[75000,1000,2000],[150000,2000,4000]];
+        const used=new Set(db.tables.map(t=>String(t.id)));
+        for(let i=db.tables.length;i<25;i++){const n=i+1,st=stakes[i%stakes.length],type=(i%5===4?'omaha':'holdem');let id='mp25_'+n;while(used.has(id))id+='_x';used.add(id);db.tables.push({id,name:(type==='omaha'?'OMAHA ':'TEXAS ')+'ШИРЭЭ - '+n,type,sb:st[1],bb:st[2],buy:st[0],color:['gold','blue','green'][i%3],open:true});}
       }
       db.bots=remoteBots.filter(Boolean).map(b=>({id:String(b.id||''),name:String(b.name||''),chips:Number(b.chips||0),adminCreated:true,gameType:String(b.gameType||b.type||'holdem').toLowerCase()==='omaha'?'omaha':'holdem',tableId:String(b.tableId||'')}));
       if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
       if(v.tournaments!==undefined){const rt=Array.isArray(v.tournaments)?v.tournaments:Object.values(v.tournaments||{});db.tournaments=rt.filter(Boolean).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)}));}
-      db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
+      db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});
       if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
       try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
       try{if(document.getElementById('tables')?.classList.contains('active'))renderTables()}catch(e){}
@@ -1461,7 +1489,7 @@ async function mpFlushRakeQueue(){
 }
 function mpApplyRemoteRake(){
   if(currentUser?.role!=='admin')return;
-  db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
+  db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});
   const remoteTotal=mpRemoteRakeEvents.reduce((a,r)=>a+Math.max(0,Math.floor(Number(r.amount)||0)),0);
   const remotePending=mpRemoteRakeEvents
     .filter(r=>!['paid','collected'].includes(String(r.status||'pending')))
@@ -1733,7 +1761,7 @@ function isAdminCreatedBot(b){
   return !!b && !isAutoFillerBot(b) && (b.adminCreated===true || /^b\d{10,}$/.test(String(b.id||'')));
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(db))}
-function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:0};if(!db.settings.startZeroV1){db.settings.start=0;db.settings.startZeroV1=true;}db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.withdrawals=db.withdrawals||[];db.promotions=Array.isArray(db.promotions)?db.promotions:[];if(!Array.isArray(db.tournaments))db.tournaments=[{id:'tr1',title:'FREEROLL - 100K',prize:'100,000',buyin:'Үнэгүй',players:12,time:'11:37',active:true},{id:'tr2',title:'УЛААН 500,000₮ BUY IN',prize:'100,000',buyin:'1,000',players:21,time:'11:37',active:true},{id:'tr3',title:'FREEROLL - 100K',prize:'100,000',buyin:'Тоглож байна',players:30,time:'11:37',active:true},{id:'tr4',title:'ШАР 1,500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:39,time:'✓',active:true},{id:'tr5',title:'FREEROLL - 100K',prize:'100,000',buyin:'✓',players:48,time:'✓',active:true},{id:'tr6',title:'УЛААН 500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:57,time:'✓',active:true}];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x)db=x}catch(e){};db.users=db.users||[];db.users.forEach(u=>{u.cgp=Math.max(0,Number(u.cgp)||0);u.stars=Math.max(0,Math.floor(Number(u.stars)||Math.floor(u.cgp/100)))});db.tables=db.tables||[];db.bots=db.bots||[];db.settings=db.settings||{start:0};if(!db.settings.startZeroV1){db.settings.start=0;db.settings.startZeroV1=true;}db.settings.banner=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';db.settings.sound=db.settings.sound!==false;db.settings.vibe=db.settings.vibe!==false;db.settings.bank=Object.assign({name:'ХААН БАНК',account:'',iban:'',holder:'',note:'Гүйлгээний утгад өөрийн хэрэглэгчийн ID-гаа бичнэ үү.'},db.settings.bank||{});db.messages=db.messages||[];db.withdrawals=db.withdrawals||[];db.promotions=Array.isArray(db.promotions)?db.promotions:[];if(!Array.isArray(db.tournaments))db.tournaments=[{id:'tr1',title:'FREEROLL - 100K',prize:'100,000',buyin:'Үнэгүй',players:12,time:'11:37',active:true},{id:'tr2',title:'УЛААН 500,000₮ BUY IN',prize:'100,000',buyin:'1,000',players:21,time:'11:37',active:true},{id:'tr3',title:'FREEROLL - 100K',prize:'100,000',buyin:'Тоглож байна',players:30,time:'11:37',active:true},{id:'tr4',title:'ШАР 1,500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:39,time:'✓',active:true},{id:'tr5',title:'FREEROLL - 100K',prize:'100,000',buyin:'✓',players:48,time:'✓',active:true},{id:'tr6',title:'УЛААН 500,000₮ BUY IN',prize:'50,000',buyin:'✓',players:57,time:'✓',active:true}];db.jackpot=Number.isFinite(Number(db.jackpot))?Number(db.jackpot):200000;db.jackpotSettings=Object.assign({blind:'500/1000+',game:"Texas Hold\'em",trigger:'AAAA beaten by Straight Flush or better',loser:25,winner:40,table:15,house:0},db.jackpotSettings||{});db.jackpotWinners=db.jackpotWinners||[];db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});db.rake.percent=Math.max(0,Math.min(20,Number(db.rake.percent)||0));db.rake.balance=Math.max(0,Math.floor(Number(db.rake.balance)||0));db.rake.total=Math.max(db.rake.balance,Math.floor(Number(db.rake.total)||0));db.settings.features=Object.assign({tables:true,tour:true,sitgo:true,cash:true,messages:true,stats:true,settings:true,help:true,register:true,join:true,gameplay:true,addmoney:true,spectate:true,cashout:true,sendmsg:true,share:true},db.settings.features||{});let adminUser=db.users.find(x=>x.id==='admin');if(!adminUser){adminUser={id:'admin',pass:'1234',name:'Админ',chips:200000,cgp:0,stars:0,role:'admin',stats:{hands:0,wins:0,tables:0}};db.users.push(adminUser)}else{adminUser.pass='1234';adminUser.role='admin';adminUser.name='Админ';adminUser.stats=adminUser.stats||{hands:0,wins:0,tables:0}};if(!db.tables.length)db.tables=[
 {id:'t1',name:'ЦЭНХЭР ШИРЭЭ - 2',type:'holdem',sb:100,bb:200,buy:5000,color:'blue',open:true},{id:'t2',name:'ORANGE ШИРЭЭ - 4',type:'holdem',sb:200,bb:400,buy:10000,color:'gold',open:true},{id:'t3',name:'ШАР ШИРЭЭ - 4',type:'holdem',sb:500,bb:1000,buy:25000,color:'gold',open:true},{id:'t4',name:'ШАР ОМАХА 6 MOD-3',type:'omaha',sb:1000,bb:2000,buy:50000,color:'blue',open:true},{id:'t5',name:'НОГООН ШИРЭЭ - 4',type:'holdem',sb:2000,bb:4000,buy:100000,color:'green',open:true},{id:'t6',name:'НОГООН ОМАХА - 1',type:'omaha',sb:5000,bb:10000,buy:250000,color:'green',open:true}];db.tables.forEach(t=>t.type=t.type||(/ОМАХА|OMAHA/i.test(t.name)?'omaha':'holdem'));db.users.forEach(u=>u.stats=u.stats||{hands:0,wins:0,tables:0});/* Keep admin-created custom bots, but permanently remove old automatic Player N / Bot N fillers. */db.bots=db.bots.filter(isAdminCreatedBot).map(b=>Object.assign(b,{adminCreated:true}));save()}
 function toggleRegister(on){if(on&&!adminAllows('register'))return;$('authTitle').textContent=on?'БҮРТГҮҮЛЭХ':'Нэвтрэх';$('loginFields').classList.toggle('hidden',on);$('regFields').classList.toggle('hidden',!on)}
 async function register(){if(!adminAllows('register'))return;let n=$('regName').value.trim(),id=$('regId').value.trim(),p=$('regPass').value,p2=$('regPass2').value,phone=$('regPhone').value.trim(),bank=$('regBank').value.trim(),bankAccount=$('regBankAccount').value.trim();if(!n||!id||p.length<4||p!==p2||!phone||!bank||!bankAccount)return toast('Бүртгэлийн мэдээллээ шалгана уу');if(db.users.some(x=>x.id===id))return toast('Энэ нэр бүртгэлтэй');let u={id,pass:p,name:n,phone,bank,bankAccount,registeredAt:new Date().toLocaleString('mn-MN'),chips:0,cgp:0,stars:0,role:'user',stats:{hands:0,wins:0,tables:0}};db.users.push(u);save();try{await mpWriteRegistration(u)}catch(e){console.warn(e);toast('Бүртгэл төхөөрөмж дээр хадгалагдлаа. Online бүртгэл түр холбогдсонгүй')}$('loginId').value=id;$('loginPass').value=p;toggleRegister(false)}
@@ -1774,7 +1802,7 @@ async function mpRefreshSharedLobbyOnce(){
     }
     if(v.promotions!==undefined){const rp=Array.isArray(v.promotions)?v.promotions:Object.values(v.promotions||{});db.promotions=rp.filter(Boolean).map(r=>({id:String(r.id||''),title:String(r.title||''),prize:String(r.prize||''),detail:String(r.detail||''),until:String(r.until||''),active:r.active!==false,createdAt:Number(r.createdAt||0),updatedAt:Number(r.updatedAt||0)}));}
     if(v.tournaments!==undefined){const rt=Array.isArray(v.tournaments)?v.tournaments:Object.values(v.tournaments||{});db.tournaments=rt.filter(Boolean).map(t=>({id:String(t.id||''),title:String(t.title||''),prize:String(t.prize||''),buyin:String(t.buyin||''),players:Math.max(0,Number(t.players||0)),time:String(t.time||''),active:t.active!==false,createdAt:Number(t.createdAt||0),updatedAt:Number(t.updatedAt||0)}));}
-    db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
+    db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});
     if(v.rakePercent!==undefined&&v.rakePercent!==null)db.rake.percent=Math.max(0,Math.min(20,Number(v.rakePercent)||0));
     try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}
     return true;
@@ -1843,7 +1871,7 @@ function renderTables(){
     const game=t.type==='omaha'?'OMAHA':"HOLD’EM";
     return `<div class="tableRow premiumTableCard tone-${tone}" onclick="join('${t.id}')" role="button" aria-label="${t.name} ширээ үзэх">
       <div class="premiumTableArt" style="background-image:url('${thumb}')"><span class="premiumTableBadge">MP<br><small>${suit} ${game}</small></span></div>
-      <div class="tableMain"><div class="tableName">${t.name} - ${suit} ${game}</div><div class="rakeLine">🔥 RAKE ${Number(db.rake?.percent??1)}%</div><div class="meta"><span>👥 ${Math.min(10,(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&String(b.tableId||'')===String(t.id||'')).length)}/10</span><span>🪙 ${fmt(t.sb)}/${fmt(t.bb)}</span><br><span>Дундаж бооцоо: ${avg}</span></div></div>
+      <div class="tableMain"><div class="tableName">${t.name} - ${suit} ${game}</div><div class="rakeLine">🔥 RAKE ${Number(db.rake?.percent??2)}%</div><div class="meta"><span>👥 ${Math.min(10,(db.bots||[]).filter(b=>isAdminCreatedBot(b)&&Number(b.chips||0)>0&&String(b.tableId||'')===String(t.id||'')).length)}/10</span><span>🪙 ${fmt(t.sb)}/${fmt(t.bb)}</span><br><span>Дундаж бооцоо: ${avg}</span></div></div>
       <div class="join"><button ${t.open?'':'disabled'} onclick="event.stopPropagation();join('${t.id}')">Орох дүн<br><b>${fmt(t.buy)}</b></button></div>
     </div>`;
   }).join('')||'<div class="empty">Тохирох ширээ алга</div>';
@@ -1896,7 +1924,7 @@ function renderCash(){
   if($('withdrawHolder')&&!$('withdrawHolder').value)$('withdrawHolder').value=currentUser?.name||'';
   renderWithdrawalHistory();
 }
-function renderAdmin(){if(currentUser?.role==='admin'&&mpAuth?.currentUser?.uid===MP_ADMIN_UID&&!mpRegListenerRef){try{mpStartAdminRegistrationListener()}catch(e){}}if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>{const t=(db.tables||[]).find(x=>String(x.id)===String(b.tableId||''));return `<div style="display:grid;grid-template-columns:1fr auto;gap:5px 8px;align-items:center;padding:9px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> <span style="color:#58e59b">• ҮҮССЭН</span><br><span style="color:#aeb5b7">${mpBotGameType(b)==='omaha'?'OMAHA':'TEXAS'} • ${fmt(b.chips)} chip</span><br><span style="color:${t?'#e7c15a':'#d78383'}">${t?'Суусан: '+t.name:'Яг '+fmt(b.chips)+' орох дүнтэй нээлттэй ширээ алга'}</span></span><button class="smallBtn red" onclick="deleteBot('${b.id}')">УСТГАХ</button></div>`}).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=Number(db.settings.start??0);if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??1);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminWithdrawals();renderAdminTournaments();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
+function renderAdmin(){if(currentUser?.role==='admin'&&mpAuth?.currentUser?.uid===MP_ADMIN_UID&&!mpRegListenerRef){try{mpStartAdminRegistrationListener()}catch(e){}}if(currentUser?.role!=='admin'){$('adminTables').innerHTML='Админ эрх шаардлагатай';return}$('adminTables').innerHTML=db.tables.map(t=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid #343a3d;font-size:10px"><span><b>${t.name}</b><br>${t.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(t.sb)}/${fmt(t.bb)} • ${t.open?'Нээлттэй':'Хаалттай'}</span><span class="rowBtns"><button class="smallBtn" onclick="toggleTable('${t.id}')">${t.open?'Хаах':'Нээх'}</button><button class="smallBtn red" onclick="deleteTable('${t.id}')">Устгах</button></span></div>`).join('');$('adminUsers').innerHTML=db.users.map(u=>`<div style="padding:8px 0;border-top:1px solid #343a3d;font-size:10px;line-height:1.45"><b>${u.name}</b> (${u.id}) — ${fmt(u.chips)} chip${u.role==='admin'?' • ADMIN':''}<br>📱 ${u.phone||'-'}<br>🏦 ${u.bank||'-'} • ${u.bankAccount||'-'}</div>`).join('');$('adminBots').innerHTML=db.bots.filter(isAdminCreatedBot).map(b=>{const t=(db.tables||[]).find(x=>String(x.id)===String(b.tableId||''));return `<div style="display:grid;grid-template-columns:1fr auto;gap:5px 8px;align-items:center;padding:9px 0;border-top:1px solid #343a3d;font-size:10px"><span>🤖 <b>${b.name}</b> <span style="color:#58e59b">• ҮҮССЭН</span><br><span style="color:#aeb5b7">${mpBotGameType(b)==='omaha'?'OMAHA':'TEXAS'} • ${fmt(b.chips)} chip</span><br><span style="color:${t?'#e7c15a':'#d78383'}">${t?'Суусан: '+t.name:'Яг '+fmt(b.chips)+' орох дүнтэй нээлттэй ширээ алга'}</span></span><button class="smallBtn red" onclick="deleteBot('${b.id}')">УСТГАХ</button></div>`}).join('');if($('adminBanner'))$('adminBanner').value=db.settings.banner||'АДМИНТАЙ ХОЛБОГДОХ';if($('adminStart'))$('adminStart').value=Number(db.settings.start??0);if($('adminRakePercent'))$('adminRakePercent').value=Number(db.rake?.percent??2);if($('adminRakeBalance'))$('adminRakeBalance').textContent=fmt(db.rake?.balance||0);if($('adminRakeTotal'))$('adminRakeTotal').textContent=fmt(db.rake?.total||0);if($('adminJackpot'))$('adminJackpot').value=Math.round(db.jackpot||0);let js=db.jackpotSettings||{};if($('adminJpBlind'))$('adminJpBlind').value=js.blind||'500/1000+';if($('adminJpGame'))$('adminJpGame').value=js.game||"Texas Hold'em";if($('adminJpTrigger'))$('adminJpTrigger').value=js.trigger||'';if($('adminJpLoser'))$('adminJpLoser').value=js.loser??25;if($('adminJpWinner'))$('adminJpWinner').value=js.winner??40;if($('adminJpTable'))$('adminJpTable').value=js.table??15;if($('adminJpHouse'))$('adminJpHouse').value=js.house??0;let bk=db.settings.bank||{};if($('adminBankName'))$('adminBankName').value=bk.name||'';if($('adminBankAccount'))$('adminBankAccount').value=bk.account||'';if($('adminBankIban'))$('adminBankIban').value=bk.iban||'';if($('adminBankNote'))$('adminBankNote').value=bk.note||'';renderFeatureSettings();renderAdminWithdrawals();renderAdminTournaments();if($('adminMessages'))$('adminMessages').innerHTML=(db.messages.length?db.messages.slice().reverse().map(m=>`<div style="padding:7px 0;border-top:1px solid #343a3d;font-size:10px"><b>${m.from}</b>: ${m.text}<br><span style="color:#8e969a">${m.time}</span></div>`).join(''):'Мессеж алга')}
 function saveBankSettings(){
   if(currentUser?.role!=='admin')return toast('Зөвхөн админ өөрчилнө');
   const name=$('adminBankName')?.value.trim()||'';
@@ -1919,10 +1947,10 @@ function renderContact(){let b=db.settings.bank||{};if($('contactBankName'))$('c
 function adminSetJackpot(){if(currentUser?.role!=='admin')return;let a=Number($('adminJackpot')?.value);if(!Number.isFinite(a)||a<0)return toast('Жекпот дүнгээ шалгана уу');db.jackpot=Math.floor(a);db.jackpotSettings={blind:$('adminJpBlind')?.value||'500/1000+',game:$('adminJpGame')?.value||"Texas Hold'em",trigger:$('adminJpTrigger')?.value||'',loser:Number($('adminJpLoser')?.value)||0,winner:Number($('adminJpWinner')?.value)||0,table:Number($('adminJpTable')?.value)||0,house:Number($('adminJpHouse')?.value)||0};save();renderAdmin();renderHome();toast('Жекпот тохиргоо хадгалагдлаа')}
 function adminAddJackpot(a){if(currentUser?.role!=='admin')return;db.jackpot=Math.max(0,Math.floor((db.jackpot||0)+Number(a||0)));save();renderAdmin();renderHome();toast('Жекпот +'+fmt(a))}
 function adminResetJackpot(){if(currentUser?.role!=='admin')return;db.jackpot=200000;save();renderAdmin();renderHome();toast('Жекпот 200,000 боллоо')}
-function saveRakeSettings(){if(currentUser?.role!=='admin')return;let p=Number($('adminRakePercent')?.value);if(!Number.isFinite(p)||p<0||p>20)return toast('Татас 0–20% байна');db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});db.rake.percent=Math.round(p*10)/10;save();mpPublishSharedLobby();renderAdmin();renderTables();toast('RAKE '+db.rake.percent+'% хадгалагдлаа')}
+function saveRakeSettings(){if(currentUser?.role!=='admin')return;let p=Number($('adminRakePercent')?.value);if(!Number.isFinite(p)||p<0||p>20)return toast('Татас 0–20% байна');db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});db.rake.percent=Math.round(p*10)/10;save();mpPublishSharedLobby();renderAdmin();renderTables();toast('RAKE '+db.rake.percent+'% хадгалагдлаа')}
 async function collectAdminRake(){
   if(currentUser?.role!=='admin')return;
-  db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
+  db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});
   await mpFlushRakeQueue();
   await mpRefreshAdminRakeFromServer();
   const pending=mpRemoteRakeEvents.filter(r=>
@@ -1945,7 +1973,7 @@ async function collectAdminRake(){
 }
 function takeRakeFromPot(){
   let gross=Math.max(0,Math.floor(potAmt||0));
-  db.rake=Object.assign({percent:1,balance:0,total:0},db.rake||{});
+  db.rake=Object.assign({percent:2,balance:0,total:0},db.rake||{});
   let pct=Math.max(0,Math.min(20,Number(db.rake.percent)||0));
   let rake=(gross>0&&pct>0)?Math.max(1,Math.floor(gross*pct/100)):0;
   if(rake>gross)rake=gross;
@@ -2457,7 +2485,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     return new Promise(resolve=>{
       let done=false,left=TURN_SECONDS;
       const willTimeout=Math.random()<.04;
-      const actDelay=willTimeout?TURN_SECONDS*1000+200:(2600+Math.floor(Math.random()*4200));
+      const actDelay=willTimeout?TURN_SECONDS*1000+200:((TURN_SECONDS-2)*1000+Math.floor(Math.random()*1800));
       let actionTimer;
       const finish=(timedOut)=>{
         if(done)return;done=true;clearInterval(iv);clearTimeout(actionTimer);resolve(timedOut);
@@ -2633,7 +2661,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       if(folded[i]||(Number(players[i]?.chips)||0)<=0)continue;
       liveTurn=i;turnLeft=TURN_SECONDS;
       setStatus(players[i].name+'-ийн ээлж');renderGame();
-      await wait(650+Math.floor(Math.random()*650));
+      await wait(Math.max(1000,(TURN_SECONDS-2)*1000+Math.floor(Math.random()*2000)));
       if(!spectatorModeActive())return false;
       /* Never let the final two live players both disappear pre-flop.
          This keeps a real hand progressing to the board instead of constantly
@@ -2664,6 +2692,21 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     }
     return true;
   }
+  function persistSpectatorBotStacks(){
+    try{
+      if(!Array.isArray(players)||!window.db||!Array.isArray(db.bots))return;
+      let changed=false;
+      players.forEach(p=>{
+        if(!p||!p.botId)return;
+        const b=db.bots.find(x=>String(x.id)===String(p.botId));
+        if(!b)return;
+        const chips=Math.max(0,Math.floor(Number(p.chips)||0));
+        if(Number(b.chips)!==chips){b.chips=chips;changed=true;}
+        if(chips<=0&&b.tableId){b.tableId='';changed=true;}
+      });
+      if(changed){save();try{mpPublishSharedLobby()}catch(e){}}
+    }catch(e){console.warn('persist bot stacks',e)}
+  }
   async function spectatorBotFinishHand(){
     if(!spectatorModeActive())return;
     let alive=spectatorAliveSeats();
@@ -2674,6 +2717,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;liveSeatStatus[w]='ЯЛАГЧ +'+fmt(p.net);
       setStatus(players[w].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');
       renderGame();
+      persistSpectatorBotStacks();
       return;
     }
     completeBoardToRiver();
@@ -2687,11 +2731,24 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const won=p.net;potAmt=0;finished=true;liveWinner=showdownWinners[0]??-1;
     setStatus(showdownWinners.map(i=>players[i].name).join(', ')+' яллаа — '+(best?.name||'')+' • +'+fmt(won)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');
     renderGame();
+    persistSpectatorBotStacks();
   }
   async function startSpectatorBotLoop(){
     if(spectatorBotLoopRunning||!spectatorModeActive())return;
+    // Shared tables have exactly one progression owner. Viewers only render Firebase state.
+    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true)return;
     spectatorBotLoopRunning=true;
     try{
+      if(window.__mpRestoredSpectatorHand && spectatorModeActive() && !finished){
+        window.__mpRestoredSpectatorHand=false;
+        // Continue the saved hand from the saved street instead of redealing it.
+        await spectatorBotActRound(street===0?Math.max(currentTable.bb,...liveSeatBets):0);
+        if(spectatorModeActive()&&spectatorAliveSeats().length>1&&street<1){liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');burnOne();boardCards.push(deck.pop(),deck.pop(),deck.pop());street=1;setStatus('Flop');renderGame();await wait(650);await spectatorBotActRound(0)}
+        if(spectatorModeActive()&&spectatorAliveSeats().length>1&&street<2){liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');burnOne();boardCards.push(deck.pop());street=2;setStatus('Turn');renderGame();await wait(650);await spectatorBotActRound(0)}
+        if(spectatorModeActive()&&spectatorAliveSeats().length>1&&street<3){liveSeatBets=players.map(()=>0);liveSeatStatus=players.map((_,i)=>folded[i]?'FOLD':'');burnOne();boardCards.push(deck.pop());street=3;setStatus('River');renderGame();await wait(650);await spectatorBotActRound(0)}
+        if(spectatorModeActive())await spectatorBotFinishHand();
+        await wait(1600);
+      }
       while(spectatorModeActive()){
         if(pendingSeatJoin&&finished){activatePendingSeatJoin();break}
         const active=players.filter(p=>(Number(p?.chips)||0)>0);
@@ -2734,7 +2791,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     }finally{
       spectatorBotLoopRunning=false;
       liveRoundBusy=false;
-      if(spectatorModeActive())setTimeout(startSpectatorBotLoop,350);
+      if(spectatorModeActive()&&(!window.__MP_FOUR_ERROR_FINAL_FIX_V1__||window.__mpGameLeaseOwner===true))setTimeout(startSpectatorBotLoop,350);
     }
   }
 
@@ -2835,7 +2892,7 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     $('callBtn').textContent=toCall>0?'CALL '+fmt(Math.min(toCall,players[0]?.chips||0)):'CHECK';
     $('callBtn').style.opacity=userCanAct?'1':'.42';
     if($('handCode'))$('handCode').textContent='#MP'+String(100000+handNo).slice(-6);
-    if($('tableFootInfo'))$('tableFootInfo').innerHTML=`<b>${currentTable?.name||''}</b> • RAKE ${Number(db.rake?.percent??1)}%<br>${currentTable?.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(currentTable?.sb||0)}/${fmt(currentTable?.bb||0)}`;
+    if($('tableFootInfo'))$('tableFootInfo').innerHTML=`<b>${currentTable?.name||''}</b> • RAKE ${Number(db.rake?.percent??2)}%<br>${currentTable?.type==='omaha'?'OMAHA':'HOLDEM'} • ${fmt(currentTable?.sb||0)}/${fmt(currentTable?.bb||0)}`;
   };
 
   /* Bet accounting fix: target is the TOTAL amount each player must have
@@ -3138,7 +3195,13 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     if($('gameName'))$('gameName').textContent=currentTable.name+' • '+(currentTable.type==='omaha'?'OMAHA':'HOLDEM');
     if($('gameBlind'))$('gameBlind').textContent=fmt(currentTable.sb)+'/'+fmt(currentTable.bb)+' • 9 MAX';
     show('game');if(s.statusText)setStatus(s.statusText);renderGame();
-    if(spectator&&!userSeatedAtTable)setTimeout(startSpectatorBotLoop,350);else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
+    if(spectator&&!userSeatedAtTable){
+      // A restored shared hand must stay visible exactly as saved. Do not let the
+      // spectator loop replace it with a fresh deck/hand immediately on re-entry.
+      // Keep the restored hand exactly as Firebase sent it. The authoritative
+      // writer will advance it; this viewer must not create a competing bot loop.
+      window.__mpRestoredSpectatorHand=!finished;
+    }else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);
     return true;
   };
 
@@ -4037,7 +4100,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   };
   function vibrate(ms=20){if(db?.settings?.vibe!==false&&navigator.vibrate)try{navigator.vibrate(ms)}catch(e){}}
   function updateSoundButton(){const b=$id('mpSoundBtn');if(!b)return;const on=soundOn();b.querySelector('.ico').textContent=on?'🔊':'🔇';const s=b.querySelector('span:last-child');if(s)s.childNodes[0].nodeValue=on?'ДУУ / EFFECT':'ДУУ УНТРААСАН'}
-  function updateInfo(){const el=$id('mpCtlInfo');if(!el)return;if(!currentTable){el.innerHTML='<span>Ширээ сонгоогүй</span><b>—</b>';return}el.innerHTML=`<span>${currentTable.name||'Ширээ'}</span><b>${fmt(currentTable.sb||0)}/${fmt(currentTable.bb||0)}</b><span>Орох дүн</span><b>${fmt(currentTable.buy||0)}</b><span>RAKE</span><b>${Number(db?.rake?.percent??1)}%</b>`}
+  function updateInfo(){const el=$id('mpCtlInfo');if(!el)return;if(!currentTable){el.innerHTML='<span>Ширээ сонгоогүй</span><b>—</b>';return}el.innerHTML=`<span>${currentTable.name||'Ширээ'}</span><b>${fmt(currentTable.sb||0)}/${fmt(currentTable.bb||0)}</b><span>Орох дүн</span><b>${fmt(currentTable.buy||0)}</b><span>RAKE</span><b>${Number(db?.rake?.percent??2)}%</b>`}
   function initLauncher(){let head=document.querySelector('#game .gameHead');if(!head||$id('mpTableMenuLauncher'))return;let b=document.createElement('button');b.id='mpTableMenuLauncher';b.className='mpTableMenuLauncher';b.type='button';b.textContent='☰ ШИРЭЭ';b.onclick=window.mpOpenTableControls;head.appendChild(b)}
   window.mpOpenTableControls=function(){initLauncher();updateInfo();updateSoundButton();var __seatBtn=$id('mpAdminSeatEditMenu');if(__seatBtn){__seatBtn.style.display='flex';} $id('mpCtlShade')?.classList.remove('hidden');$id('mpCtlPanel')?.classList.remove('hidden');vibrate(10)};
   window.mpCloseTableControls=function(){$id('mpCtlShade')?.classList.add('hidden');$id('mpCtlPanel')?.classList.add('hidden')};
@@ -4083,7 +4146,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(currentTable&&tableSession&&String(currentTable.id)!==String(id))captureCurrent();
     window.mpSuspendPokerSession?.();window.mpCloseMiniSheet();window.mpRestorePokerSession?.(s);toast((s.currentTable?.name||'Ширээ')+' нээгдлээ')
   };
-  window.mpCtlInfoToast=function(){if(!currentTable)return toast('Ширээ сонгоогүй байна');toast(`${currentTable.name} • ${fmt(currentTable.sb)}/${fmt(currentTable.bb)} • Buy-in ${fmt(currentTable.buy)} • RAKE ${Number(db?.rake?.percent??1)}%`)};
+  window.mpCtlInfoToast=function(){if(!currentTable)return toast('Ширээ сонгоогүй байна');toast(`${currentTable.name} • ${fmt(currentTable.sb)}/${fmt(currentTable.bb)} • Buy-in ${fmt(currentTable.buy)} • RAKE ${Number(db?.rake?.percent??2)}%`)};
   window.mpCtlToggleSize=function(){window.mpCloseTableControls();toggleTableSize()};
   window.mpToggleSound=function(){db.settings=db.settings||{};db.settings.sound=!soundOn();save();updateSoundButton();if(soundOn()){unlockAudio();mpSfx('check')}else toast('Дуу унтарлаа')};
   window.mpOpenStickerSheet=function(){openMini('mpStickerSheet')};
@@ -4216,7 +4279,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   function ensureSession(){
     if(!currentUser||!currentTable||!userSeatedAtTable)return null;
     const m=activeMap(currentUser),k=tableKey();
-    if(!m[k])m[k]={id:'gs'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),tableId:String(currentTable.id||''),tableName:String(currentTable.name||'Ширээ'),gameType:String(currentTable.type||'holdem'),sb:Number(currentTable.sb||0),bb:Number(currentTable.bb||0),rake:Number(db?.rake?.percent??1),startAt:Date.now(),hands:0,cashIn:Number(currentTable.buy||0),buyIn:Number(currentTable.buy||0)};
+    if(!m[k])m[k]={id:'gs'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),tableId:String(currentTable.id||''),tableName:String(currentTable.name||'Ширээ'),gameType:String(currentTable.type||'holdem'),sb:Number(currentTable.sb||0),bb:Number(currentTable.bb||0),rake:Number(db?.rake?.percent??2),startAt:Date.now(),hands:0,cashIn:Number(currentTable.buy||0),buyIn:Number(currentTable.buy||0)};
     return m[k];
   }
   function noteNewHand(){const x=ensureSession();if(x){x.hands=Math.max(0,Number(x.hands)||0)+1;save()}}
@@ -4254,7 +4317,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     const et=document.getElementById('stTables'),eh=document.getElementById('stHands'),en=document.getElementById('stNet');if(et)et.textContent=fnum(rows.length);if(eh)eh.textContent=fnum(totalHands);if(en){en.textContent=(net>0?'+':'')+fnum(net);en.className=net>0?'pos':net<0?'neg':''}
     const list=document.getElementById('mpStatsList'),empty=document.getElementById('mpStatsEmpty'),more=document.getElementById('mpStatsMore');if(!list)return;
     const vis=showAll?rows:rows.slice(0,8);
-    list.innerHTML=vis.map(x=>{const r=Number(x.result||0),cls=r>0?'pos':r<0?'neg':'zero',arrow=r>0?'▲':r<0?'▼':'•',type=String(x.gameType||'holdem')==='omaha'?'ПОТ ЛИМИТ ОМАХА':'ХЯЗГААРГҮЙ ХОЛДЕМ';return `<div class="mpStatRow"><div class="mpStatCheck"></div><div class="mpStatCard"><div class="mpStatTop"><span class="mpStatType">${type}</span><span class="mpStatDate">${esc(dateText(x.endAt||x.startAt))}</span></div><div class="mpStatMain"><div class="mpStatName">${esc(x.tableName||'Ширээ')} • RAKE ${Number(x.rake??1)}%</div><div class="mpStatResult ${cls}">${r>0?'+':''}${fnum(r)} ${arrow}</div></div><div class="mpStatMeta"><span>Гарууд: ${fnum(x.hands||0)}</span><span>◉ ${fnum(x.sb||0)}/${fnum(x.bb||0)}</span></div></div></div>`}).join('');
+    list.innerHTML=vis.map(x=>{const r=Number(x.result||0),cls=r>0?'pos':r<0?'neg':'zero',arrow=r>0?'▲':r<0?'▼':'•',type=String(x.gameType||'holdem')==='omaha'?'ПОТ ЛИМИТ ОМАХА':'ХЯЗГААРГҮЙ ХОЛДЕМ';return `<div class="mpStatRow"><div class="mpStatCheck"></div><div class="mpStatCard"><div class="mpStatTop"><span class="mpStatType">${type}</span><span class="mpStatDate">${esc(dateText(x.endAt||x.startAt))}</span></div><div class="mpStatMain"><div class="mpStatName">${esc(x.tableName||'Ширээ')} • RAKE ${Number(x.rake??2)}%</div><div class="mpStatResult ${cls}">${r>0?'+':''}${fnum(r)} ${arrow}</div></div><div class="mpStatMeta"><span>Гарууд: ${fnum(x.hands||0)}</span><span>◉ ${fnum(x.sb||0)}/${fnum(x.bb||0)}</span></div></div></div>`}).join('');
     if(empty)empty.classList.toggle('hidden',rows.length>0);if(more){more.classList.toggle('hidden',rows.length===0);more.textContent=rows.length>8?(showAll?'Цөөнөөр харуулах':'Гарнуудыг харуулах'):'Гарнуудыг харуулах';more.disabled=rows.length<=8;more.style.opacity=rows.length<=8?'.65':'1'}
   };
   const _newHandStats=newHand;newHand=function(){const r=_newHandStats.apply(this,arguments);if(currentTable&&userSeatedAtTable&&!spectator)noteNewHand();return r};
@@ -4691,7 +4754,8 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   function n(v){v=Number(v);return isFinite(v)?v:0}
   function openTables(){
     try{
-      var a=(typeof tables!=='undefined'&&Array.isArray(tables))?tables:
+      var a=(window.db&&Array.isArray(db.tables))?db.tables:
+            (typeof tables!=='undefined'&&Array.isArray(tables))?tables:
             (typeof TABLES!=='undefined'&&Array.isArray(TABLES))?TABLES:[];
       return a.filter(function(t){return t && t.open!==false && t.closed!==true});
     }catch(e){return []}
@@ -4728,9 +4792,82 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
 })();
 </script>
 
-<script id="MP-DEVICE-SEAT-SYNC">
-/* Disabled: legacy 900ms DOM/HTML seat publishing caused cross-device overwrites.
-   Authoritative full table/hand state is synchronized by mp-reentry-firebase-authoritative-v4 below. */
+<script id="MP-DEVICE-SEAT-SYNC" type="application/x-disabled">
+(function(){
+  var applying=false,lastSent='',boundTable='';
+  function tid(){
+    try{return String((window.currentTable&&(currentTable.id||currentTable.name))||window.currentTableId||'');}
+    catch(e){return ''}
+  }
+  function ref(){
+    try{
+      var id=tid(); if(!id||!window.mpRtdb)return null;
+      return window.mpRtdb.ref('sharedLobby/tableSeats/'+id);
+    }catch(e){return null}
+  }
+  function els(){
+    var root=document.querySelector('#game .pokerTable')||document.querySelector('.pokerTable');
+    return root?Array.from(root.querySelectorAll('.seat')):[];
+  }
+  function snap(){
+    var a=[];
+    els().forEach(function(el,i){
+      var empty=/^\s*СУУХ\s*$/i.test(el.textContent||'')||el.classList.contains('empty');
+      var nameEl=el.querySelector('.name,.playerName,[class*="name"]');
+      var chipEl=el.querySelector('.chips,.chip,.stack,[class*="chip"]');
+      var av=el.querySelector('img');
+      a[i]={
+        empty:empty,
+        html:empty?'':el.innerHTML,
+        name:nameEl?(nameEl.textContent||''):'',
+        chips:chipEl?(chipEl.textContent||''):'',
+        avatar:av?(av.getAttribute('src')||''):''
+      };
+    });
+    return a;
+  }
+  function publish(){
+    if(applying)return;
+    var r=ref(); if(!r)return;
+    var a=snap(),j=JSON.stringify(a);
+    if(!a.length||j===lastSent)return;
+    lastSent=j;
+    try{r.set({seats:a,updatedAt:Date.now()})}catch(e){}
+  }
+  function apply(v){
+    if(!v||!Array.isArray(v.seats))return;
+    var ss=els(); if(!ss.length)return;
+    applying=true;
+    v.seats.forEach(function(p,i){
+      var el=ss[i]; if(!el||!p)return;
+      if(p.empty){
+        if(!/СУУХ/i.test(el.textContent||'')){
+          el.innerHTML='<button class="sitBtn">СУУХ</button>';
+          el.classList.add('empty');
+        }
+      }else if(p.html){
+        el.innerHTML=p.html;
+        el.classList.remove('empty');
+      }
+    });
+    setTimeout(function(){applying=false},80);
+  }
+  function bind(){
+    var id=tid(); if(!id||id===boundTable||!window.mpRtdb)return;
+    boundTable=id;
+    try{
+      window.mpRtdb.ref('sharedLobby/tableSeats/'+id).on('value',function(s){
+        try{apply(s.val())}catch(e){}
+      });
+    }catch(e){}
+  }
+  // Legacy DOM-seat sync disabled. sharedGames is the single authoritative
+  // game state; never apply old sharedLobby/tableSeats HTML over a live hand.
+  try{
+    var legacyId=tid();
+    if(legacyId&&window.mpRtdb)window.mpRtdb.ref('sharedLobby/tableSeats/'+legacyId).off('value');
+  }catch(e){}
+})();
 </script>
 
 
@@ -4755,7 +4892,11 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     r.on('value',gameCb);
   }
   async function put(s){
-    if(remoteApplying||!s||!s.currentTable||!(await ready()))return false;
+    if(remoteApplying||!s||!s.currentTable)return false;
+    // Once the lease system is active, only the authoritative browser may write game state.
+    // Other Messenger/Chrome instances are read-only renderers and must never overwrite pot/board/turn.
+    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && spectator&&!userSeatedAtTable && window.__mpGameLeaseOwner!==true)return false;
+    if(!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
     const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
     try{
@@ -4822,46 +4963,102 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   #game .pokerTable .seat.s6{right:-7%!important;left:auto!important;top:38%!important;bottom:auto!important;transform:translateY(-50%)!important}
 }
 </style>
-<script id="mp-server-bridge">
-(function () {
-  const MP_SERVER = "https://mongol-poker-server.onrender.com";
+<script id="MP-FOUR-ERROR-FINAL-FIX-V1">
+(function(){
+  if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__)return;
+  window.__MP_FOUR_ERROR_FINAL_FIX_V1__=true;
 
-  window.MP_SERVER_URL = MP_SERVER;
-
-  async function mpServerRequest(path, options) {
-    const response = await fetch(MP_SERVER + path, {
-      method: (options && options.method) || "GET",
-      headers: {
-        "Content-Type": "application/json",
-        ...((options && options.headers) || {})
-      },
-      body: options && options.body
-        ? JSON.stringify(options.body)
-        : undefined
-    });
-
-    if (!response.ok) {
-      throw new Error("Mongol Poker server: HTTP " + response.status);
+  /* 4) Lobby must contain 25 real joinable table records, not only a visual count. */
+  function ensure25Tables(){
+    if(!window.db||!Array.isArray(db.tables))return;
+    const stakes=[
+      [5000,100,200],[10000,200,400],[15000,300,600],[30000,500,1000],[75000,1000,2000],[150000,2000,4000]
+    ];
+    const used=new Set(db.tables.map(t=>String(t.id)));
+    for(let i=db.tables.length;i<25;i++){
+      const n=i+1, st=stakes[i%stakes.length], type=(i%5===4?'omaha':'holdem');
+      let id='mp25_'+n; while(used.has(id))id+='_x'; used.add(id);
+      db.tables.push({id,name:(type==='omaha'?'OMAHA ':'TEXAS ')+'ШИРЭЭ - '+n,type,sb:st[1],bb:st[2],buy:st[0],color:['gold','blue','green'][i%3],open:true});
     }
-
-    return response.json();
   }
+  ensure25Tables();
+  const _renderTables25=window.renderTables;
+  if(typeof _renderTables25==='function')window.renderTables=function(){ensure25Tables();return _renderTables25.apply(this,arguments)};
 
-  window.mpServerRequest = mpServerRequest;
+  /* 1/2/3) One browser owns the live hand clock/action progression at a time.
+     Other Messenger/Chrome instances only render the same Firebase sharedGames state. */
+  const CLIENT=(sessionStorage.getItem('mpGameClientId')||('c_'+Date.now()+'_'+Math.random().toString(36).slice(2)));
+  sessionStorage.setItem('mpGameClientId',CLIENT);
+  let ownedTable='',leaseTimer=0;
+  window.__mpGameLeaseOwner=false;
+  function leaseRef(id){try{return window.mpRtdb&&mpRtdb.ref('sharedGameLeases/'+String(id))}catch(e){return null}}
+  async function acquire(id){
+    const r=leaseRef(id); if(!r){window.__mpGameLeaseOwner=true;ownedTable=String(id||'');return true}
+    try{
+      const now=Date.now(),res=await r.transaction(v=>{
+        if(!v||String(v.owner||'')===CLIENT||Number(v.until||0)<now)return {owner:CLIENT,until:now+12000};
+      },undefined,false);
+      const v=res.snapshot&&res.snapshot.val();
+      window.__mpGameLeaseOwner=!!(v&&String(v.owner)===CLIENT); ownedTable=window.__mpGameLeaseOwner?String(id):'';
+      return window.__mpGameLeaseOwner;
+    }catch(e){window.__mpGameLeaseOwner=false;return false}
+  }
+  async function renew(){if(!ownedTable||!window.__mpGameLeaseOwner)return;const r=leaseRef(ownedTable);if(!r)return;try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.set({owner:CLIENT,until:Date.now()+12000});else{ownedTable='';window.__mpGameLeaseOwner=false}}catch(e){}}
+  clearInterval(leaseTimer);leaseTimer=setInterval(renew,5000);
+  window.addEventListener('pagehide',()=>{try{if(ownedTable&&window.__mpGameLeaseOwner){const r=leaseRef(ownedTable);if(r)r.remove()}}catch(e){}});
 
-  window.mpServerHealth = async function () {
-    try {
-      const data = await mpServerRequest("/health");
-      console.log("MP SERVER CONNECTED", data);
-      window.MP_SERVER_CONNECTED = true;
-      return data;
-    } catch (err) {
-      console.error("MP SERVER CONNECTION FAILED", err);
-      window.MP_SERVER_CONNECTED = false;
-      return null;
-    }
+  const _joinLease=window.join;
+  if(typeof _joinLease==='function')window.join=async function(id){await acquire(id);return _joinLease.apply(this,arguments)};
+  const _leaveLease=window.leaveTable;
+  if(typeof _leaveLease==='function')window.leaveTable=async function(){
+    const id=ownedTable,r=leaseRef(id);ownedTable='';window.__mpGameLeaseOwner=false;
+    if(r){try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.remove()}catch(e){}}
+    return _leaveLease.apply(this,arguments);
   };
 
-  window.mpServerHealth();
+  /* Human turns/new-hand flow must never be blocked by the bot-engine lease.
+     The lease is only for automatic spectator/bot progression. */
+
+  /* Keep bot/action labels tied to the current state instead of stale previous actions. */
+  const _botsState=window.bots;
+  if(typeof _botsState==='function')window.bots=function(amount){
+    if(Array.isArray(liveSeatStatus))for(let i=1;i<liveSeatStatus.length;i++)liveSeatStatus[i]='';
+    const before=Array.isArray(players)?players.map(p=>Number(p&&p.chips||0)):[];
+    const r=_botsState.apply(this,arguments);
+    if(Array.isArray(liveSeatStatus)&&Array.isArray(players))for(let i=1;i<players.length;i++){
+      if(folded&&folded[i])liveSeatStatus[i]='FOLD';
+      else {const paid=Math.max(0,(before[i]||0)-Number(players[i]?.chips||0));liveSeatStatus[i]=paid>0?('CALL '+fmt(paid)):'CHECK';}
+    }
+    return r;
+  };
+
+  /* Remote restore is display-only on non-owner devices; owner resumes the saved hand. */
+  const _restoreOwner=window.mpRestorePokerSession;
+  if(typeof _restoreOwner==='function')window.mpRestorePokerSession=function(s){
+    const r=_restoreOwner.apply(this,arguments);
+    if(r&&currentTable&&!window.__mpGameLeaseOwner){try{stopUserTurnClock()}catch(e){} liveRoundBusy=false;}
+    if(r&&currentTable&&window.__mpGameLeaseOwner===true&&spectator&&!userSeatedAtTable&&!finished){
+      setTimeout(()=>{try{startSpectatorBotLoop()}catch(e){}},250);
+    }
+    return r;
+  };
+
+
+  async function ensureBotEngineOwner(){
+    try{
+      if(!currentTable||!tableSession||!spectator||userSeatedAtTable)return;
+      if(window.__mpGameLeaseOwner===true){if(!spectatorBotLoopRunning&&!finished)startSpectatorBotLoop();return;}
+      const ok=await acquire(currentTable.id);
+      if(ok&&!spectatorBotLoopRunning){
+        window.__mpRestoredSpectatorHand=!finished;
+        startSpectatorBotLoop();
+      }
+    }catch(e){}
+  }
+  setInterval(ensureBotEngineOwner,3000);
+
+  /* Make sure a 21-table Firebase snapshot cannot shrink this client back below 25. */
+  setInterval(()=>{try{if(db&&Array.isArray(db.tables)&&db.tables.length<25){ensure25Tables();if(document.getElementById('tables')?.classList.contains('active'))renderTables()}}catch(e){}},1200);
 })();
 </script>
+
