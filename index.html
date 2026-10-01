@@ -1061,29 +1061,6 @@
 #game .pokerTable .seat .seatStatus,#game .pokerTable .seat .blindTag{height:18px!important;min-height:18px!important;max-height:18px!important;line-height:12px!important;padding:2px 6px!important;box-sizing:border-box!important;overflow:hidden!important;writing-mode:horizontal-tb!important}
 #game .pokerTable .seat .seatStatus::before,#game .pokerTable .seat .seatStatus::after,#game .pokerTable .seat .blindTag::before,#game .pokerTable .seat .blindTag::after{height:0!important;max-height:0!important;box-shadow:none!important}
 </style>
-
-<style id="mp-home-red-lightweight">
-/* HOME ONLY. No game/admin/cash/server logic touched. */
-#home .exactHome{background:
- radial-gradient(circle at 50% 18%,rgba(125,0,0,.32),transparent 38%),
- linear-gradient(180deg,#120303 0%,#050606 48%,#020707 100%)}
-#home .exactHomeArt{filter:saturate(1.28) contrast(1.08) brightness(.88)}
-#home:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
- background:linear-gradient(180deg,rgba(135,0,0,.12),transparent 36%,rgba(90,0,0,.10));
- box-shadow:inset 0 0 55px rgba(255,20,10,.15)}
-#home .cashGuideTicker{border-color:#ff392c!important;background:rgba(17,3,4,.94)!important;
- box-shadow:0 0 9px rgba(255,34,25,.55),inset 0 0 10px rgba(255,45,25,.18)!important}
-#home .telegramContactBanner{border-color:#ff342b!important;background:linear-gradient(100deg,rgba(48,5,7,.97),rgba(10,8,9,.97))!important;
- box-shadow:0 0 12px rgba(255,35,25,.62),inset 0 0 18px rgba(255,35,25,.20)!important}
-#home .goodPlayerTicker{position:absolute;left:2.5%;top:72.5%;width:82%;height:3.5%;z-index:12;overflow:hidden;
- display:flex;align-items:center;border:1px solid #ff3b2d;border-radius:999px;background:rgba(18,3,4,.96);
- box-shadow:0 0 9px rgba(255,36,24,.55);pointer-events:none}
-#home .goodPlayerTrack{white-space:nowrap;min-width:max-content;padding-left:100%;color:#ffd45b;font-weight:900;
- font-size:clamp(8px,2.7vw,13px);text-shadow:0 0 6px #ff5a19;animation:mpGoodPlayer 13s linear infinite}
-@keyframes mpGoodPlayer{to{transform:translateX(-100%)}}
-@media(prefers-reduced-motion:reduce){#home .goodPlayerTrack{animation:none;padding-left:4%}}
-</style>
-
 </head>
 <body>
 <div class="app">
@@ -1099,7 +1076,6 @@
   <div class="cashGuideTicker" onclick="featureOpen('cash','cash')" role="button" aria-label="Цэнэглэх заавар">
     <div class="cashGuideTrack">««« 💰 Цэнэглэх заавар КАСС хэсэгт байгаа шүү! &nbsp;&nbsp;|&nbsp;&nbsp; 💰 Асуух зүйл байвал админтай холбогдоорой! »»»</div>
   </div>
-  <div class="goodPlayerTicker" aria-hidden="true"><div class="goodPlayerTrack">♛ САЙН ТОГЛОГЧ ХҮЛЭЭЖ ЧАДДАГ ♛ &nbsp;&nbsp;&nbsp; ♛ САЙН ТОГЛОГЧ ХҮЛЭЭЖ ЧАДДАГ ♛</div></div>
   <button type="button" class="telegramContactBanner" onclick="show('contact')" aria-label="Админтай холбогдох">
     <span class="telegramIcon">➤</span>
     <span class="telegramCopy"><b>Админтай холбогдох</b><small>Telegram-аар шууд холбогдоно уу</small></span>
@@ -2030,7 +2006,36 @@ function createBot(){
 function deleteBot(id){if(currentUser?.role!=='admin')return;db.bots=db.bots.filter(b=>b.id!==id);save();mpPublishSharedLobby();renderAdmin()}
 function toggleTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');let t=db.tables.find(x=>x.id===id);if(t){t.open=!t.open;save();mpPublishSharedLobby();renderAdmin()}}
 function deleteTable(id){if(currentUser?.role!=='admin')return toast('Зөвхөн админ');db.tables=db.tables.filter(x=>x.id!==id);save();mpPublishSharedLobby();renderAdmin()}
-function join(id){if(!adminAllows('join'))return;let t=db.tables.find(x=>x.id===id&&x.open);if(!t)return;if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;tableSession=true;handNo=0;let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=mpBotsForTable(t.id,5);players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(0,Number(b.chips)||0),emoji:emos[i+1],botId:b.id}))];save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand()}
+async function join(id){
+  if(!adminAllows('join'))return;
+  let t=db.tables.find(x=>String(x.id)===String(id)&&x.open);if(!t)return;
+
+  /* RE-ENTRY RULE: the shared running hand is authoritative. Never reset it. */
+  try{
+    if(window.mpRtdb){
+      if(typeof mpEnsureWriter==='function')await mpEnsureWriter();
+      const sn=await window.mpRtdb.ref('sharedGames/'+String(t.id)).once('value');
+      const shared=sn.val();
+      if(shared&&shared.currentTable&&String(shared.tableId||shared.currentTable.id)===String(t.id)&&typeof window.mpRestorePokerSession==='function'){
+        window.mpRestorePokerSession(shared);
+        $('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');
+        $('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);
+        show('game');
+        try{renderGame()}catch(e){}
+        return;
+      }
+    }
+  }catch(e){console.warn('MP restore-before-new-hand failed',e)}
+
+  /* Only a table with NO saved running state may create hand #1. */
+  if(currentUser.chips<t.buy)return toast('Орох дүн хүрэхгүй байна');
+  currentTable=t;liveDealer=-1;liveSB=-1;liveBB=-1;currentUser.chips-=t.buy;
+  currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;
+  tableSession=true;handNo=0;
+  let emos=['😎','🤖','🧔','👩','🤠','🧑'],bots5=mpBotsForTable(t.id,5);
+  players=[{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bots5.map((b,i)=>({name:b.name,chips:Math.max(0,Number(b.chips)||0),emoji:emos[i+1],botId:b.id}))];
+  save();$('gameName').textContent=t.name+' • '+(t.type==='omaha'?'OMAHA':'HOLDEM');$('gameBlind').textContent=fmt(t.sb)+'/'+fmt(t.bb);show('game');newHand();
+}
 function leaveTable(){let me=players.find(p=>p&&p.user);if(userSeatedAtTable&&me&&currentUser)currentUser.chips+=Math.max(0,Number(me.chips)||0);if(userSeatedAtTable)syncUser();players=[];tableSession=false;userSeatedAtTable=false;userSeatSlot=null;spectator=false;save();currentTable=null;closeSide();show('tables')}
 function makeDeck(){
   const s=['♠','♥','♦','♣'],r=[2,3,4,5,6,7,8,9,10,11,12,13,14],d=[];
@@ -2660,8 +2665,16 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       if(!spectatorModeActive())return false;
       if(folded[i]||(Number(players[i]?.chips)||0)<=0)continue;
       liveTurn=i;turnLeft=TURN_SECONDS;
-      setStatus(players[i].name+'-ийн ээлж');renderGame();
-      await wait(Math.max(1000,(TURN_SECONDS-2)*1000+Math.floor(Math.random()*2000)));
+      setStatus(players[i].name+'-ийн ээлж • '+TURN_SECONDS+' сек');renderGame();
+      // Spectator/bot tables must use the same real 20-second turn clock.
+      // Previously this path acted after only 0.65–1.3s, which made bots race.
+      const botActAt=Math.max(1,TURN_SECONDS-(Math.random()<0.85?1:0));
+      for(let sec=0;sec<botActAt;sec++){
+        if(!spectatorModeActive() || (window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true))return false;
+        turnLeft=Math.max(0,TURN_SECONDS-sec);paintTurnClock();
+        await wait(1000);
+      }
+      turnLeft=Math.max(0,TURN_SECONDS-botActAt);paintTurnClock();
       if(!spectatorModeActive())return false;
       /* Never let the final two live players both disappear pre-flop.
          This keeps a real hand progressing to the board instead of constantly
@@ -2692,21 +2705,6 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     }
     return true;
   }
-  function persistSpectatorBotStacks(){
-    try{
-      if(!Array.isArray(players)||!window.db||!Array.isArray(db.bots))return;
-      let changed=false;
-      players.forEach(p=>{
-        if(!p||!p.botId)return;
-        const b=db.bots.find(x=>String(x.id)===String(p.botId));
-        if(!b)return;
-        const chips=Math.max(0,Math.floor(Number(p.chips)||0));
-        if(Number(b.chips)!==chips){b.chips=chips;changed=true;}
-        if(chips<=0&&b.tableId){b.tableId='';changed=true;}
-      });
-      if(changed){save();try{mpPublishSharedLobby()}catch(e){}}
-    }catch(e){console.warn('persist bot stacks',e)}
-  }
   async function spectatorBotFinishHand(){
     if(!spectatorModeActive())return;
     let alive=spectatorAliveSeats();
@@ -2717,7 +2715,6 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
       players[w].chips+=p.net;potAmt=0;finished=true;liveWinner=w;liveSeatStatus[w]='ЯЛАГЧ +'+fmt(p.net);
       setStatus(players[w].name+' яллаа! +'+fmt(p.net)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');
       renderGame();
-      persistSpectatorBotStacks();
       return;
     }
     completeBoardToRiver();
@@ -2731,7 +2728,6 @@ load();renderTours();show('auth');mpInitAfterAppLoad();
     const won=p.net;potAmt=0;finished=true;liveWinner=showdownWinners[0]??-1;
     setStatus(showdownWinners.map(i=>players[i].name).join(', ')+' яллаа — '+(best?.name||'')+' • +'+fmt(won)+' • RAKE '+fmt(p.rake)+' → АДМИН ТАТАС');
     renderGame();
-    persistSpectatorBotStacks();
   }
   async function startSpectatorBotLoop(){
     if(spectatorBotLoopRunning||!spectatorModeActive())return;
@@ -4895,7 +4891,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     if(remoteApplying||!s||!s.currentTable)return false;
     // Once the lease system is active, only the authoritative browser may write game state.
     // Other Messenger/Chrome instances are read-only renderers and must never overwrite pot/board/turn.
-    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && spectator&&!userSeatedAtTable && window.__mpGameLeaseOwner!==true)return false;
+    if(window.__MP_FOUR_ERROR_FINAL_FIX_V1__ && window.__mpGameLeaseOwner!==true)return false;
     if(!(await ready()))return false;
     const r=ref(s.currentTable.id);if(!r)return false;
     const x=cp(s);x.tableId=String(s.currentTable.id);x.savedAt=Date.now();x.savedBy=String(currentUser?.id||currentUser?.name||'guest');
@@ -5005,23 +5001,35 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   }
   async function renew(){if(!ownedTable||!window.__mpGameLeaseOwner)return;const r=leaseRef(ownedTable);if(!r)return;try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.set({owner:CLIENT,until:Date.now()+12000});else{ownedTable='';window.__mpGameLeaseOwner=false}}catch(e){}}
   clearInterval(leaseTimer);leaseTimer=setInterval(renew,5000);
-  window.addEventListener('pagehide',()=>{try{if(ownedTable&&window.__mpGameLeaseOwner){const r=leaseRef(ownedTable);if(r)r.remove()}}catch(e){}});
 
   const _joinLease=window.join;
   if(typeof _joinLease==='function')window.join=async function(id){await acquire(id);return _joinLease.apply(this,arguments)};
   const _leaveLease=window.leaveTable;
   if(typeof _leaveLease==='function')window.leaveTable=async function(){
-    const id=ownedTable,r=leaseRef(id);ownedTable='';window.__mpGameLeaseOwner=false;
+    // Save the exact live hand while this browser is still the authoritative owner.
+    // Only release the lease AFTER the sharedGames write/suspend has completed.
+    const id=ownedTable,r=leaseRef(id);
+    const out=await _leaveLease.apply(this,arguments);
+    ownedTable='';window.__mpGameLeaseOwner=false;
     if(r){try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.remove()}catch(e){}}
-    return _leaveLease.apply(this,arguments);
+    return out;
   };
 
-  /* Human turns/new-hand flow must never be blocked by the bot-engine lease.
-     The lease is only for automatic spectator/bot progression. */
+  /* Prevent duplicate turn timers from two devices advancing the same restored hand. */
+  const _startUserTurn=window.startUserTurn;
+  if(typeof _startUserTurn==='function')window.startUserTurn=function(){if(!window.__mpGameLeaseOwner)return;return _startUserTurn.apply(this,arguments)};
+
+  /* Prevent a non-owner device from creating the next deck/hand. */
+  const _newHandOwner=window.newHand;
+  if(typeof _newHandOwner==='function')window.newHand=function(){
+    if(currentTable&&tableSession&&!window.__mpGameLeaseOwner)return;
+    return _newHandOwner.apply(this,arguments);
+  };
 
   /* Keep bot/action labels tied to the current state instead of stale previous actions. */
   const _botsState=window.bots;
   if(typeof _botsState==='function')window.bots=function(amount){
+    if(currentTable&&tableSession&&!window.__mpGameLeaseOwner)return;
     if(Array.isArray(liveSeatStatus))for(let i=1;i<liveSeatStatus.length;i++)liveSeatStatus[i]='';
     const before=Array.isArray(players)?players.map(p=>Number(p&&p.chips||0)):[];
     const r=_botsState.apply(this,arguments);
@@ -5043,22 +5051,30 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     return r;
   };
 
-
-  async function ensureBotEngineOwner(){
+  /* Automatic owner failover: if the owner phone/browser leaves, any other
+     connected viewer of the same table takes the expired/free lease and
+     continues the exact Firebase-restored hand instead of starting a new one. */
+  setInterval(async function(){
     try{
-      if(!currentTable||!tableSession||!spectator||userSeatedAtTable)return;
-      if(window.__mpGameLeaseOwner===true){if(!spectatorBotLoopRunning&&!finished)startSpectatorBotLoop();return;}
+      if(!currentTable||!tableSession||window.__mpGameLeaseOwner===true)return;
       const ok=await acquire(currentTable.id);
-      if(ok&&!spectatorBotLoopRunning){
-        window.__mpRestoredSpectatorHand=!finished;
-        startSpectatorBotLoop();
+      if(!ok)return;
+      if(spectator&&!userSeatedAtTable&&!finished){
+        window.__mpRestoredSpectatorHand=true;
+        setTimeout(()=>{try{startSpectatorBotLoop()}catch(e){}},150);
+      }else if(userSeatedAtTable&&!finished){
+        setTimeout(()=>{try{startUserTurn()}catch(e){}},150);
       }
     }catch(e){}
-  }
-  setInterval(ensureBotEngineOwner,3000);
+  },3000);
 
   /* Make sure a 21-table Firebase snapshot cannot shrink this client back below 25. */
   setInterval(()=>{try{if(db&&Array.isArray(db.tables)&&db.tables.length<25){ensure25Tables();if(document.getElementById('tables')?.classList.contains('active'))renderTables()}}catch(e){}},1200);
 })();
 </script>
 
+
+<script id="mp-reentry-core-fix-20261001">
+/* Core fix marker: base join() now restores sharedGames/<tableId> BEFORE any buy-in/reset/newHand. */
+window.__MP_REENTRY_CORE_FIX_20261001__=true;
+</script>
