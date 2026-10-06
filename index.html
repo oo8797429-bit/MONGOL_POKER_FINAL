@@ -4959,8 +4959,13 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
   let ownedTable='',leaseTimer=0;
   window.__mpGameLeaseOwner=false;
   function leaseRef(id){try{return window.mpRtdb&&mpRtdb.ref('sharedGameLeases/'+String(id))}catch(e){return null}}
+  const leaseBase=String(window.MP_SERVER_URL||localStorage.getItem('MP_SERVER_URL')||((location.protocol==='http:'||location.protocol==='https:')?location.origin:'')).replace(/\/$/,'');
+  async function serverLease(id,action){
+    if(!leaseBase)return false;
+    try{const q=await fetch(leaseBase+'/api/tables/'+encodeURIComponent(String(id))+'/lease/'+action,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientId:CLIENT})});const b=await q.json().catch(()=>null);return !!(q.ok&&b&&b.owner!==false)}catch(e){return false}
+  }
   async function acquire(id){
-    const r=leaseRef(id); if(!r){window.__mpGameLeaseOwner=true;ownedTable=String(id||'');return true}
+    const r=leaseRef(id); if(!r){const ok=await serverLease(id,'acquire');window.__mpGameLeaseOwner=ok;ownedTable=ok?String(id||''):'';return ok}
     try{
       const now=Date.now(),res=await r.transaction(v=>{
         if(!v||String(v.owner||'')===CLIENT||Number(v.until||0)<now)return {owner:CLIENT,until:now+12000};
@@ -4970,7 +4975,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
       return window.__mpGameLeaseOwner;
     }catch(e){window.__mpGameLeaseOwner=false;return false}
   }
-  async function renew(){if(!ownedTable||!window.__mpGameLeaseOwner)return;const r=leaseRef(ownedTable);if(!r)return;try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.set({owner:CLIENT,until:Date.now()+12000});else{ownedTable='';window.__mpGameLeaseOwner=false}}catch(e){}}
+  async function renew(){if(!ownedTable||!window.__mpGameLeaseOwner)return;const r=leaseRef(ownedTable);if(!r){const ok=await serverLease(ownedTable,'renew');if(!ok){ownedTable='';window.__mpGameLeaseOwner=false}return}try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.set({owner:CLIENT,until:Date.now()+12000});else{ownedTable='';window.__mpGameLeaseOwner=false}}catch(e){}}
   clearInterval(leaseTimer);leaseTimer=setInterval(renew,5000);
 
   const _joinLease=window.join;
@@ -4983,6 +4988,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
     const out=await _leaveLease.apply(this,arguments);
     ownedTable='';window.__mpGameLeaseOwner=false;
     if(r){try{const sn=await r.once('value'),v=sn.val();if(v&&String(v.owner)===CLIENT)await r.remove()}catch(e){}}
+    else if(id){try{await serverLease(id,'release')}catch(e){}}
     return out;
   };
 
@@ -5076,5 +5082,33 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
  const oldLeave=window.leaveTable;if(typeof oldLeave==='function')window.leaveTable=async function(){await push();return oldLeave.apply(this,arguments)};
  setInterval(async()=>{if(!currentTable||!tableSession||applying)return;const r=await pull(tid());if(r&&h(r)!==h(mpCapturePokerSession())){applying=true;try{mpRestorePokerSession(cp(r))}finally{setTimeout(()=>applying=false,100)}}},1500);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')push()});
+})();
+</script>
+<script id="mp-true-server-game-v1">
+(function(){
+ if(window.__MP_TRUE_SERVER_GAME_V1__)return;window.__MP_TRUE_SERVER_GAME_V1__=true;
+ const BASE=String(window.MP_SERVER_URL||localStorage.getItem('MP_SERVER_URL')||location.origin).replace(/\/$/,'');
+ let rev=0,deadline=0,applying=false,timer=null;
+ const pid=()=>String(currentUser?.id||currentUser?.name||'player');
+ const cp=v=>JSON.parse(JSON.stringify(v));
+ async function request(url,opt){const r=await fetch(url,opt);let b={};try{b=await r.json()}catch(e){}return[r,b]}
+ function apply(S){if(!S)return;applying=true;rev=Number(S.revision)||0;deadline=Number(S.turnDeadline)||0;try{mpRestorePokerSession(cp(S));}finally{applying=false}paintDeadline()}
+ function paintDeadline(){clearInterval(timer);const tick=()=>{if(!deadline)return;const left=Math.max(0,Math.ceil((deadline-Date.now())/1000));document.querySelectorAll('#game .turnClock').forEach(e=>e.textContent=left)};tick();timer=setInterval(tick,250)}
+ function buildPlayers(t){let emos=['😎','🤖','🧔','👩','🤠','🧑'],bs=mpBotsForTable(t.id,5);return [{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bs.map((b,i)=>({name:b.name,chips:Math.max(0,Number(b.chips)||0),emoji:emos[i+1],botId:b.id}))]}
+ window.join=async function(tableId){
+   if(!adminAllows('join'))return;const t=db.tables.find(x=>String(x.id)===String(tableId)&&x.open);if(!t)return;
+   const url=BASE+'/api/tables/'+encodeURIComponent(String(tableId))+'/join';
+   let[r,b]=await request(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playerId:pid(),table:t,players:buildPlayers(t)})});
+   if(!r.ok){if(b?.state){apply(b.state);show('game')}else toast('Server холболт амжилтгүй');return}
+   if(b.joinedNew){if(Number(currentUser.chips)<Number(t.buy))return toast('Орох дүн хүрэхгүй байна');currentUser.chips-=Number(t.buy);currentUser.stats=currentUser.stats||{hands:0,wins:0,tables:0};currentUser.stats.tables++;save()}
+   apply(b.state);show('game');
+ };
+ async function act(a,amount){if(!currentTable||finished||spectator)return;let[r,b]=await request(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playerId:pid(),action:a,amount,expectedRevision:rev})});if(b?.state)apply(b.state);if(!r.ok&&b?.code!=='STALE_STATE')toast('Үйлдэл сервер дээр батлагдсангүй')}
+ window.fold=function(){return act('fold')};
+ window.checkCall=function(){return act(toCall>0?'call':'check')};
+ window.confirmRaise=function(){const a=+$('raiseSlider').value;$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');return act('raise',a)};
+ window.newHand=function(){};window.nextStreet=function(){};window.showdown=function(){};window.bots=function(){};
+ setInterval(async()=>{if(!currentTable||!tableSession||applying)return;try{let[r,b]=await request(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/state');if(r.ok&&b?.state&&Number(b.state.revision)!==rev)apply(b.state)}catch(e){}},700);
+ document.addEventListener('visibilitychange',()=>{if(!currentTable)return;fetch(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/presence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playerId:pid(),online:document.visibilityState==='visible'})}).catch(()=>{})});
 })();
 </script>
