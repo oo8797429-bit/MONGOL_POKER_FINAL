@@ -1,0 +1,12 @@
+MONGOL POKER — Texas / Omaha private cards fix
+
+File: index.html
+Find this exact line inside <script id="mp-true-server-game-v1">:
+
+setInterval(async()=>{if(!currentTable||!tableSession||applying)return;try{let[r,b]=await request(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/state');if(r.ok&&b?.state&&Number(b.state.revision)!==rev)apply(b.state)}catch(e){}},700);
+
+Replace it with:
+
+setInterval(async()=>{if(!currentTable||!tableSession||applying)return;try{let[r,b]=await request(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/state?playerId='+encodeURIComponent(pid()));if(r.ok&&b?.state&&Number(b.state.revision)!==rev)apply(b.state)}catch(e){}},700);
+
+This changes only the player's state-polling request. Server must support playerId query and return the viewer's private cards. Not yet tested in live play.
