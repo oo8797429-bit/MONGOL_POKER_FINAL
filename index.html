@@ -2,38 +2,12 @@
 <html lang="mn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mongol Poker</title></head>
 <body><div id="loading">Mongol Poker ачаалж байна…</div>
 <script>
-(async function(){
-  try {
-    const response=await fetch('./index_render_connected.html?mpfix=20261013',{cache:'no-store'});
-    if(!response.ok)throw new Error('Үндсэн файл олдсонгүй: '+response.status);
-    let html=await response.text();
-    const oldApply='function apply(S){if(!S)return;applying=true;rev=Number(S.revision)||0;deadline=Number(S.turnDeadline)||0;try{mpRestorePokerSession(cp(S));}finally{applying=false}paintDeadline()}';
-    const newApply=`function apply(S){
- if(!S||!S.currentTable)return;
- applying=true;rev=Number(S.revision)||0;deadline=Number(S.turnDeadline)||0;
+(async()=>{
  try{
-  const state=cp(S),myIndex=(state.players||[]).findIndex(p=>p&&String(p.playerId)===pid());
-  state.userSeatedAtTable=myIndex>=0;state.userSeatSlot=myIndex>=0?myIndex:null;
-  state.spectator=myIndex<0;
-  state.holes=(state.holes||[]).map(h=>Array.isArray(h)?h:[]);
-  state.boardCards=(state.boardCards||[]).filter(c=>c&&Number.isFinite(Number(c.r))&&['♠','♥','♦','♣'].includes(c.s));
-  state.players=(state.players||[]).map(p=>p?{...p,emoji:p.emoji||'😎'}:p);
-  state.folded=state.folded||state.players.map(()=>false);
-  state.liveSeatStatus=state.liveSeatStatus||state.players.map(()=>'');
-  state.turnLeft=Math.max(0,Math.ceil((deadline-Date.now())/1000));
-  window.__mpApplyingAuthoritativeState=true;
-  mpRestorePokerSession(state);
- }finally{window.__mpApplyingAuthoritativeState=false;applying=false}
- paintDeadline();
-}`;
-    const oldTurn='}else if(userSeatedAtTable&&!finished)setTimeout(startUserTurn,450);';
-    const newTurn='}else if(userSeatedAtTable&&!finished&&!window.__mpApplyingAuthoritativeState)setTimeout(startUserTurn,450);';
-    if(html.split(oldApply).length!==2||html.split(oldTurn).length!==2)throw new Error('Үндсэн код өөрчлөгдсөн тул засварыг аюулгүй хийх боломжгүй');
-    html=html.replace(oldApply,newApply).replace(oldTurn,newTurn);
-    document.open();document.write(html);document.close();
-  }catch(err){
-    document.getElementById('loading').textContent='Сайт ачаалж чадсангүй: '+err.message;
-    console.error(err);
-  }
+  const r=await fetch('./index_render_connected.html?rollback=20261013',{cache:'no-store'});
+  if(!r.ok)throw new Error('Үндсэн файл олдсонгүй: '+r.status);
+  const html=await r.text();
+  document.open();document.write(html);document.close();
+ }catch(e){document.getElementById('loading').textContent='Сайт ачаалж чадсангүй: '+e.message;console.error(e)}
 })();
 </script></body></html>
