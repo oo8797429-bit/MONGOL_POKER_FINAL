@@ -5061,7 +5061,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
  let applying=false,rev={},last={};
  const cp=v=>{try{return structuredClone(v)}catch(e){return JSON.parse(JSON.stringify(v))}};
  const tid=()=>currentTable&&currentTable.id!=null?String(currentTable.id):'';
- const api=(id,x='state')=>BASE+'/api/tables/'+encodeURIComponent(id)+'/'+x;
+ const api=(id,x='state')=>BASE+'/api/tables/'+encodeURIComponent(id)+'/'+x+(x==='state'?'?playerId='+encodeURIComponent(String(currentUser?.id||currentUser?.name||'player')):'');
  const h=s=>{try{let x=cp(s);delete x.savedAt;delete x.savedBy;delete x.revision;delete x.updatedAt;return JSON.stringify(x)}catch(e){return''}};
  async function req(u,o){let r=await fetch(u,o),b=null;try{b=await r.json()}catch(e){}return[r,b]}
  async function pull(id){try{let[r,b]=await req(api(id));if(!r.ok||!b?.state)return null;rev[id]=+b.state.revision||0;last[id]=h(b.state);return b.state}catch(e){return null}}
@@ -5098,6 +5098,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
  function buildPlayers(t){let emos=['😎','🤖','🧔','👩','🤠','🧑'],bs=mpBotsForTable(t.id,5);return [{name:currentUser.name,chips:t.buy,emoji:emos[0],user:true},...bs.map((b,i)=>({name:b.name,chips:Math.max(0,Number(b.chips)||0),emoji:emos[i+1],botId:b.id}))]}
  window.join=async function(tableId){
    if(!adminAllows('join'))return;const t=db.tables.find(x=>String(x.id)===String(tableId)&&x.open);if(!t)return;
+   if(Number(currentUser.chips)<Number(t.buy))return toast('Орох дүн хүрэхгүй байна');
    const url=BASE+'/api/tables/'+encodeURIComponent(String(tableId))+'/join';
    let[r,b]=await request(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playerId:pid(),table:t,players:buildPlayers(t)})});
    if(!r.ok){if(b?.state){apply(b.state);show('game')}else toast('Server холболт амжилтгүй');return}
@@ -5109,7 +5110,7 @@ function toggleLoginPassword(){var p=document.getElementById('loginPass');if(p)p
  window.checkCall=function(){return act(toCall>0?'call':'check')};
  window.confirmRaise=function(){const a=+$('raiseSlider').value;$('raisePanel').classList.add('hidden');$('baseActions').classList.remove('hidden');return act('raise',a)};
  window.newHand=function(){};window.nextStreet=function(){};window.showdown=function(){};window.bots=function(){};
- setInterval(async()=>{if(!currentTable||!tableSession||applying)return;try{let[r,b]=await request(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/state');if(r.ok&&b?.state&&Number(b.state.revision)!==rev)apply(b.state)}catch(e){}},700);
+ setInterval(async()=>{if(!currentTable||!tableSession||applying)return;try{let[r,b]=await request(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/state?playerId='+encodeURIComponent(pid()));if(r.ok&&b?.state&&Number(b.state.revision)!==rev)apply(b.state)}catch(e){}},700);
  document.addEventListener('visibilitychange',()=>{if(!currentTable)return;fetch(BASE+'/api/tables/'+encodeURIComponent(String(currentTable.id))+'/presence',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playerId:pid(),online:document.visibilityState==='visible'})}).catch(()=>{})});
 })();
 </script>
