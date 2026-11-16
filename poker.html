@@ -1,1 +1,246 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mongol Poker</title>
+<style>
+  :root { --gold: #d4a017; --green: #0d5c3a; --dark: #0a0e0c; }
+  body { margin: 0; padding: 0; font-family: Arial, sans-serif; background: var(--dark); color: #fff; overflow: hidden; }
+  .screen { display: none; width: 100vw; height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  
+  /* LOGIN */
+  #login { background: radial-gradient(circle at 50% 30%, #1a4d3a, #06120c); }
+  .login-box { background: rgba(20,30,25,0.95); border: 2px solid var(--gold); border-radius: 12px; padding: 40px; text-align: center; width: 350px; box-shadow: 0 0 30px rgba(212,160,23,0.2); }
+  .logo { font-size: 36px; color: var(--gold); font-weight: 900; margin-bottom: 20px; text-shadow: 0 0 10px rgba(212,160,23,0.5); }
+  input { width: 100%; padding: 12px; margin: 10px 0; background: #0a1a12; border: 1px solid var(--green); color: #fff; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+  button { width: 100%; padding: 12px; background: linear-gradient(180deg, var(--gold), #a67c00); border: none; border-radius: 6px; color: #000; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 10px; }
+  button:hover { opacity: 0.9; }
+  
+  /* LOBBY */
+  #lobby { background: #111; padding: 40px; box-sizing: border-box; }
+  .header { width: 100%; max-width: 1000px; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(212,160,23,0.1); border: 1px solid var(--gold); border-radius: 8px; margin-bottom: 30px; }
+  .tables { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; width: 100%; max-width: 1000px; }
+  .table-card { background: #1a3a2a; border: 2px solid var(--green); padding: 20px; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+  .table-card:hover { border-color: var(--gold); transform: translateY(-5px); }
+  
+  /* GAME */
+  #game { background: radial-gradient(ellipse at center, var(--green) 0%, #052418 70%); position: relative; justify-content: flex-start; padding: 20px; box-sizing: border-box; }
+  .table { width: 90%; max-width: 1000px; height: 60vh; background: radial-gradient(ellipse at center, #14955b 0%, #087342 60%, #061a10 90%); border: 10px solid #42494d; border-radius: 50% / 35%; position: relative; margin-top: 20px; box-shadow: inset 0 0 60px #000; }
+  .seat { position: absolute; width: 100px; text-align: center; }
+  .seat.s0 { bottom: -30px; left: 50%; transform: translateX(-50%); }
+  .seat.s1 { bottom: 20%; left: 5%; }
+  .seat.s2 { top: 20%; left: 5%; }
+  .seat.s3 { top: -30px; left: 50%; transform: translateX(-50%); }
+  .avatar { width: 50px; height: 50px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-size: 24px; border: 2px solid var(--gold); }
+  .seat.active .avatar { border-color: #00ff88; box-shadow: 0 0 15px #00ff88; }
+  .name { font-size: 12px; font-weight: bold; }
+  .chips { font-size: 11px; color: var(--gold); }
+  .center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  .pot { font-size: 24px; color: var(--gold); font-weight: bold; margin-bottom: 10px; }
+  .board { display: flex; gap: 5px; justify-content: center; }
+  .card { width: 50px; height: 70px; background: #fff; color: #000; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
+  .card.red { color: #d32f2f; }
+  .action-bar { position: absolute; bottom: 20px; display: flex; gap: 10px; }
+  .action-bar button { width: auto; padding: 10px 30px; }
+  .fold { background: #8b2e2e; color: #fff; }
+  .check { background: #2e7d32; color: #fff; }
+  .call { background: #1565c0; color: #fff; }
+</style>
+</head>
+<body>
 
+<!-- LOGIN -->
+<div id="login" class="screen active">
+  <div class="login-box">
+    <div class="logo">♠ MONGOL POKER ♥</div>
+    <input id="username" type="text" placeholder="Нэр (admin)" value="admin">
+    <button onclick="login()">Нэвтрэх</button>
+  </div>
+</div>
+
+<!-- LOBBY -->
+<div id="lobby" class="screen">
+  <div class="header">
+    <div style="font-size:20px; color:var(--gold); font-weight:bold;">♠ Mongol Poker</div>
+    <div>💰 Чип: <span id="userChips">10,000</span></div>
+  </div>
+  <div class="tables">
+    <div class="table-card" onclick="joinTable()">
+      <h3 style="color:var(--gold); margin:0 0 10px 0;">Texas Hold'em</h3>
+      <p style="margin:0; color:#aaa;">Blinds: 50/100</p>
+      <p style="margin:0; color:#aaa;">Ботуудтай тоглох</p>
+      <button style="margin-top:15px;">Нэгдэх</button>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <div style="width:100%; max-width:1000px; display:flex; justify-content:space-between;">
+    <button style="width:auto; background:#555;" onclick="leaveTable()">← Гарах</button>
+    <div style="font-size:18px; color:var(--gold);" id="gameStatus">Тоглоом эхэлж байна...</div>
+  </div>
+  
+  <div class="table" id="pokerTable">
+    <div class="center">
+      <div class="pot" id="potDisplay">Pot: 0</div>
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+  
+  <div class="action-bar" id="actions" style="display:none;">
+    <button class="fold" onclick="action('fold')">Fold</button>
+    <button class="check" onclick="action('check')">Check</button>
+    <button class="call" onclick="action('call')">Call</button>
+  </div>
+</div>
+
+<script>
+let userChips = 10000;
+let currentTable = null;
+let players = [];
+let deck = [];
+let board = [];
+let pot = 0;
+let currentBet = 0;
+let turn = 0;
+let mySeat = 0;
+let stage = 0; // 0=preflop, 1=flop, 2=turn, 3=river
+let isPlaying = false;
+
+const suits = ['♠', '♥', '♦', '♣'];
+const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function login() {
+  const name = document.getElementById('username').value;
+  if(!name) return alert('Нэрээ оруулна уу');
+  document.getElementById('userChips').innerText = userChips.toLocaleString();
+  show('lobby');
+}
+
+function joinTable() {
+  show('game');
+  startGame();
+}
+
+function leaveTable() {
+  show('lobby');
+  isPlaying = false;
+}
+
+function createDeck() {
+  deck = [];
+  for(let s of suits) for(let r of ranks) deck.push({r, s});
+  deck.sort(() => Math.random() - 0.5);
+}
+
+function startGame() {
+  isPlaying = true;
+  pot = 0; currentBet = 100; stage = 0; turn = 1; // 0 is me, 1,2,3 are bots
+  board = [];
+  createDeck();
+  
+  players = [
+    { name: 'Та', chips: userChips, cards: [deck.pop(), deck.pop()], isBot: false },
+    { name: 'Бат', chips: 10000, cards: [deck.pop(), deck.pop()], isBot: true },
+    { name: 'Сараа', chips: 10000, cards: [deck.pop(), deck.pop()], isBot: true }
+  ];
+  
+  document.getElementById('gameStatus').innerText = "Таны ээлж (Call 100)";
+  document.getElementById('actions').style.display = 'flex';
+  render();
+}
+
+function render() {
+  const table = document.getElementById('pokerTable');
+  table.querySelectorAll('.seat').forEach(s => s.remove());
+  
+  players.forEach((p, i) => {
+    const seat = document.createElement('div');
+    seat.className = 'seat s' + i;
+    if(turn === i) seat.classList.add('active');
+    seat.innerHTML = `
+      <div class="avatar">${p.isBot ? '🤖' : '👤'}</div>
+      <div class="name">${p.name}</div>
+      <div class="chips">${p.chips}</div>
+    `;
+    table.appendChild(seat);
+  });
+  
+  document.getElementById('potDisplay').innerText = 'Pot: ' + pot;
+  
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+  for(let i=0; i<5; i++) {
+    const c = document.createElement('div');
+    if(board[i]) {
+      c.className = 'card' + (board[i].s === '♥' || board[i].s === '♦' ? ' red' : '');
+      c.innerText = board[i].r + board[i].s;
+    } else {
+      c.className = 'card';
+      c.style.background = 'rgba(255,255,255,0.1)';
+    }
+    boardEl.appendChild(c);
+  }
+}
+
+function action(type) {
+  if(!isPlaying || turn !== 0) return;
+  document.getElementById('actions').style.display = 'none';
+  
+  if(type === 'call') { pot += currentBet; players[0].chips -= currentBet; }
+  
+  turn = 1;
+  render();
+  document.getElementById('gameStatus').innerText = "Ботууд бодож байна...";
+  setTimeout(botTurn, 1500);
+}
+
+function botTurn() {
+  if(!isPlaying) return;
+  if(turn >= players.length) {
+    // End of round
+    if(stage === 3) return showdown();
+    stage++;
+    if(stage === 1) board.push(deck.pop(), deck.pop(), deck.pop());
+    if(stage === 2) board.push(deck.pop());
+    if(stage === 3) board.push(deck.pop());
+    
+    turn = 1;
+    render();
+    setTimeout(botTurn, 1500);
+    return;
+  }
+  
+  // Bot action
+  const p = players[turn];
+  const rand = Math.random();
+  if(rand < 0.3) {
+    pot += 100; p.chips -= 100;
+  } else if(rand < 0.1) {
+    // Fold (simplified, just skip)
+  }
+  
+  turn++;
+  render();
+  setTimeout(botTurn, 1000);
+}
+
+function showdown() {
+  // Super simple winner (just gives pot to player 0 for testing)
+  document.getElementById('gameStatus').innerText = "Та яллаа! +" + pot;
+  userChips += pot;
+  document.getElementById('userChips').innerText = userChips.toLocaleString();
+  isPlaying = false;
+  document.getElementById('actions').style.display = 'none';
+}
+</script>
+</body>
+</html>
